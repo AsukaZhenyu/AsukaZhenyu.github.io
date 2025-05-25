@@ -94,9 +94,9 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>之前在做老师的一个项目，这个项目是老师在东京大学做博后的项目。代码基于Chainer框架，在配环境的时候遇到了一点困难。在CSDN上几乎搜不到解决方法，环境配起来也比较复杂，于是记录一下。</p>
-<p>首先Chainer依赖于CuPy，当时使用的是Chainer v7系列，找到对应CuPy推荐版本为 CuPy v7.8.0<br><img src="/cupy.png"></p>
+<p>首先Chainer依赖于CuPy，当时使用的是Chainer v7系列，找到对应CuPy推荐版本为 CuPy v7.8.0<br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252058092.png"></p>
 <p>经过多次实验，只有CuPy v7.8.0能够正常工作，其他的都不行。要下载CuPy v7.8.0，对CUDA版本又有要求</p>
-<p><img src="/CUDA.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252058090.png"></p>
 <p>可以看到只有CUDA8.0或者CUDA9.1版本支持，CuPy v7.8.0。经过实验CUDA9.1版本下载不了，只能在CUDA8.0版本下面下载。可以看到着一层又一层的依赖关系确实比较复杂，而且CUDA版本又太古早，autodl上最低好像只支持到CUDA11.3，这意味着需要我们自己在服务器上下载对应版本的CUDA和CUDA toolkit，相应版本的CUDA和CUDA toolkit下载又对python版本有要求，对包安装的顺序有要求，对包安装的命令有要求，当时摸索了很久才找到一个成功的环境配置方法。相比起来还是安装pytorch要简单多了。</p>
 <p>首先将源改为清华源，autodl默认是阿里源，在阿里源下有些包下载不下来。</p>
 <p>进入autodl终端：</p>
@@ -127,7 +127,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" data-id="cmb3muqg70001got6e94f8yae" data-title="Chainer环境配置" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" data-id="cmb3o0yt10000i8t6colthibp" data-title="Chainer环境配置" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -174,7 +174,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/24/Liu-first-blog/" data-id="cmb3muqg00000got6d9zj7km0" data-title="&#39;Liu-first-blog&#39;" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/24/Liu-first-blog/" data-id="cmb3o0yt70001i8t65a149zl0" data-title="&#39;Liu-first-blog&#39;" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
