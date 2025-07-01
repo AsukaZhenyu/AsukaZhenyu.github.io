@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   
   
-  <title>BUAA CO P4课上 | AsukaZhenyu的个人博客</title>
+  <title>BUAA CO P4课上 | Zhenyu&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="其实这个标题并不严谨，因为我是15系的学生，学的是简单版本的CO，只需要做到单周期CPU，而这里的P4其实是我们的P2。 我们课上也比较简单，两个计算型的指令，还有一个sb指令。课下的时候根据往届学长的建议添加了sb、sh、lb、lh指令，本来应该可以速通的，但是被两个bug拖到快下课才弄完。 一个是课下测试add和sub两个指令的编码，只有add和sub，但是课上包括了add、addu、sub、">
 <meta property="og:type" content="article">
 <meta property="og:title" content="BUAA CO P4课上">
 <meta property="og:url" content="http://asukazhenyu.github.io/2025/05/25/BUAA-CO-P4%E8%AF%BE%E4%B8%8A/index.html">
-<meta property="og:site_name" content="AsukaZhenyu的个人博客">
+<meta property="og:site_name" content="Zhenyu&#39;s blog">
 <meta property="og:description" content="其实这个标题并不严谨，因为我是15系的学生，学的是简单版本的CO，只需要做到单周期CPU，而这里的P4其实是我们的P2。 我们课上也比较简单，两个计算型的指令，还有一个sb指令。课下的时候根据往届学长的建议添加了sb、sh、lb、lh指令，本来应该可以速通的，但是被两个bug拖到快下课才弄完。 一个是课下测试add和sub两个指令的编码，只有add和sub，但是课上包括了add、addu、sub、">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252113575.png">
@@ -28,12 +28,12 @@
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252136146.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252137335.png">
 <meta property="article:published_time" content="2025-05-25T13:04:44.000Z">
-<meta property="article:modified_time" content="2025-05-25T13:37:29.711Z">
-<meta property="article:author" content="AsukaZhenyu">
+<meta property="article:modified_time" content="2025-05-30T01:56:15.613Z">
+<meta property="article:author" content="Zhenyu">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252113575.png">
   
-    <link rel="alternate" href="/atom.xml" title="AsukaZhenyu的个人博客" type="application/atom+xml">
+    <link rel="alternate" href="/atom.xml" title="Zhenyu's blog" type="application/atom+xml">
   
   
     <link rel="shortcut icon" href="/favicon.png">
@@ -60,7 +60,7 @@
   <div id="header-outer" class="outer">
     <div id="header-title" class="inner">
       <h1 id="logo-wrap">
-        <a href="/" id="logo">AsukaZhenyu的个人博客</a>
+        <a href="/" id="logo">Zhenyu&#39;s blog</a>
       </h1>
       
     </div>
@@ -122,7 +122,7 @@
 <li>GRF[rs]、GRF[rt]的1个数、反转低imm位、是否有连续6位1、GRF[rs]对称<br>可以用for循环来做</li>
 </ul>
 <figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> bit_count_for_loop(</span><br><span class="line">	<span class="keyword">input</span> <span class="keyword">wire</span> [<span class="number">31</span>:<span class="number">0</span>] num,</span><br><span class="line">	<span class="keyword">output</span> <span class="keyword">reg</span> [<span class="number">5</span>:<span class="number">0</span>] count</span><br><span class="line">);</span><br><span class="line"><span class="keyword">integer</span> i;</span><br><span class="line"><span class="keyword">always</span> @(*) <span class="keyword">begin</span></span><br><span class="line">	count = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; <span class="number">32</span> ; i = i + <span class="number">1</span>) <span class="keyword">begin</span></span><br><span class="line">		<span class="keyword">if</span>(num[i] == <span class="number">1&#x27;b1</span>)<span class="keyword">begin</span></span><br><span class="line">			count = count + <span class="number">1</span>;</span><br><span class="line">		<span class="keyword">end</span></span><br><span class="line">	<span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">endmodule</span></span><br></pre></td></tr></table></figure>
-<p>这用到了寄存器，感觉不太好，因为单周期CPU除了数据存储部分其他都是组合逻辑，加入寄存器总感觉怪怪的。下面是函数实现：</p>
+<p>这用到了寄存器，感觉不太好，因为单周期CPU除了数据存储部分其他都是组合逻辑，加入寄存器总感觉怪怪的。但是因为这里寄存器是异步更新的，不与时钟信号关联，所以是没有问题的。下面是函数实现，下面的count不是寄存器也不是wire，而是函数专门的一个数据类型。</p>
 <figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> bit_count_wire_loop (</span><br><span class="line">    <span class="keyword">input</span> <span class="keyword">wire</span> [<span class="number">31</span>:<span class="number">0</span>] num1,</span><br><span class="line">    <span class="keyword">input</span> <span class="keyword">wire</span> [<span class="number">31</span>:<span class="number">0</span>] num2,</span><br><span class="line">    <span class="keyword">output</span>  res</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> [<span class="number">5</span>:<span class="number">0</span>] count;</span><br><span class="line"><span class="keyword">input</span> [<span class="number">31</span>:<span class="number">0</span>] num;</span><br><span class="line"><span class="keyword">integer</span> i;</span><br><span class="line"><span class="keyword">begin</span></span><br><span class="line">    count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">32</span>; i = i + <span class="number">1</span>) <span class="keyword">begin</span></span><br><span class="line">        <span class="keyword">if</span> (num[i] == <span class="number">1</span>) <span class="keyword">begin</span></span><br><span class="line">            count = count + <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="keyword">endfunction</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">assign</span> res = count(num1) &gt; count(num2);</span><br><span class="line"></span><br><span class="line"><span class="keyword">endmodule</span> </span><br></pre></td></tr></table></figure>
 
 <ul>
@@ -224,7 +224,7 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       
-      &copy; 2025 AsukaZhenyu<br>
+      &copy; 2025 Zhenyu<br>
       Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
