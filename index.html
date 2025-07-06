@@ -93,19 +93,37 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <h2 id="OS自学笔记"><a href="#OS自学笔记" class="headerlink" title="OS自学笔记"></a>OS自学笔记</h2><p>刷完王道的课程后发现现在已经忘得差不多了，结合26年王道考研复习指导，边复习边刷题，记录一些比较难的知识点和错题作为备忘录。后续将不断更新。</p>
-<h3 id="第一章-计算机系统概述"><a href="#第一章-计算机系统概述" class="headerlink" title="第一章 计算机系统概述"></a>第一章 计算机系统概述</h3><h3 id="OS的概念"><a href="#OS的概念" class="headerlink" title="OS的概念"></a>OS的概念</h3><hr>
-<p>##OS的功能与目标##</p>
+        <h1 id="OS自学笔记"><a href="#OS自学笔记" class="headerlink" title="OS自学笔记"></a>OS自学笔记</h1><p>刷完王道的课程后发现现在已经忘得差不多了，结合26年王道考研复习指导，边复习边刷题，记录一些比较难的知识点和错题作为备忘录。后续将不断更新。</p>
+<h2 id="第一章-计算机系统概述"><a href="#第一章-计算机系统概述" class="headerlink" title="第一章 计算机系统概述"></a>第一章 计算机系统概述</h2><h3 id="第一节-OS的概念"><a href="#第一节-OS的概念" class="headerlink" title="第一节 OS的概念"></a>第一节 OS的概念</h3><hr>
+<p><strong>OS的功能与目标</strong></p>
 <p>OS为计算机系统资源的管理者：处理机管理、存储器管理、文件管理、设备管理</p>
-<p>OS作为用户与计算机硬件系统之间的接口</p>
+<p>OS作为用户与计算机硬件系统之间的接口，OS提供的接口分为两类</p>
+<ol>
+<li>命令接口：联机命令接口（交互式命令接口）、脱机命令接口（批处理命令接口）</li>
+<li>程序接口：由一组系统调用组成，只能通过用户程序间接使用</li>
+</ol>
+<p>OS实现了对计算机资源的扩充：裸机 vs 扩充机器（虚拟机）</p>
 <hr>
-<p>##OS的四个特征##</p>
+<p><strong>OS的四个特征</strong></p>
+<p>并发是指两个或多个事件在同一时间间隔内发生；并行同一时刻，需要多流水线、多处理机环境硬件支持</p>
+<ol>
+<li>单处理器中，进程是互斥的不能并行，处理机与设备、处理机与通道、设备与设备可以并行</li>
+</ol>
+<p>共享是指系统中的资源可供内存中多个并发执行的进程共同使用，分为互斥共享方式和同时访问方式</p>
+<ol>
+<li>并发和共享是OS两个最基本的特征，两者之间互为存在的条件</li>
+</ol>
+<p>虚拟是指一个物理上的实体变为若干逻辑上的对应物：时分复用技术（虚拟处理器）、空分复用技术（虚拟存储器）</p>
+<p>异步是指多道程序并发执行以不可预知的速度向前推进，随机运行环境下结果可能不同，同一运行环境下必须相同</p>
+<hr>
+<h3 id="第二节-OS发展历程"><a href="#第二节-OS发展历程" class="headerlink" title="第二节 OS发展历程"></a>第二节 OS发展历程</h3><hr>
+<p><strong>不同类型的操作系统</strong></p>
 <hr>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/06/OS-%E8%87%AA%E5%AD%A6%E7%AC%94%E8%AE%B0/" data-id="cmcr99r31000328t6hmv12r4s" data-title="OS 自学笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/06/OS-%E8%87%AA%E5%AD%A6%E7%AC%94%E8%AE%B0/" data-id="cmcrpjo860003b4t6cs6vhet6" data-title="OS 自学笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -178,7 +196,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/25/BUAA-CO-P4%E8%AF%BE%E4%B8%8A/" data-id="cmcr99r2q000028t61odo9pr4" data-title="BUAA CO P4课上" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/25/BUAA-CO-P4%E8%AF%BE%E4%B8%8A/" data-id="cmcrpjo830001b4t6eexsb2a3" data-title="BUAA CO P4课上" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -246,7 +264,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" data-id="cmcr99r30000228t6bx2hhgvz" data-title="Chainer环境配置" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" data-id="cmcrpjo7t0000b4t68d7b317h" data-title="Chainer环境配置" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -294,7 +312,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/24/Liu-first-blog/" data-id="cmcr99r2x000128t6g4sycuq0" data-title="&#39;Liu-first-blog&#39;" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/24/Liu-first-blog/" data-id="cmcrpjo840002b4t65wooauxw" data-title="&#39;Liu-first-blog&#39;" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
