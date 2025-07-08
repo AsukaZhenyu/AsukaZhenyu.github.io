@@ -113,39 +113,68 @@
         <p>其实这个标题并不严谨，因为我是15系的学生，学的是简单版本的CO，只需要做到单周期CPU，而这里的P4其实是我们的P2。</p>
 <p>我们课上也比较简单，两个计算型的指令，还有一个sb指令。课下的时候根据往届学长的建议添加了sb、sh、lb、lh指令，本来应该可以速通的，但是被两个bug拖到快下课才弄完。</p>
 <p>一个是课下测试add和sub两个指令的编码，只有add和sub，但是课上包括了add、addu、sub、subu，意识到这个后前面两个计算型指令就完成了。</p>
-<p>二是sb在实现的时候，参考往届学长代码，大概是这样：<br><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">assign</span> <span class="keyword">byte</span>=A[<span class="number">1</span>:<span class="number">0</span>];</span><br></pre></td></tr></table></figure><br>之后再判断的时候会出问题，避免这种变量的命名方法。</p>
+<p>二是sb在实现的时候，参考往届学长代码，大概是这样：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">assign</span> <span class="keyword">byte</span>=A[<span class="number">1</span>:<span class="number">0</span>];</span><br></pre></td></tr></table></figure>
+<p>之后再判断的时候会出问题，避免这种变量的命名方法。</p>
 <p>课上之前一直再看往年的课上考题，自己没用上，总结在下面：</p>
-<p>历年课上题目：计算型、跳转型、访存型<br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252113575.png" alt=""><br>新的计算方式、B跳转判断、访存判断 新的计算方式可能会比较复杂：</p>
+<p>历年课上题目：计算型、跳转型、访存型<br>
+<img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252113575.png" alt=""><br>
+新的计算方式、B跳转判断、访存判断 新的计算方式可能会比较复杂：</p>
 <ul>
-<li><p>GRF[rs]、GRF[rt]的1个数、反转低imm位、是否有连续6位1、GRF[rs]对称<br>可以用for循环来做</p>
+<li>GRF[rs]、GRF[rt]的1个数、反转低imm位、是否有连续6位1、GRF[rs]对称<br>
+可以用for循环来做</li>
+</ul>
 <figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> bit_count_for_loop(</span><br><span class="line">	<span class="keyword">input</span> <span class="keyword">wire</span> [<span class="number">31</span>:<span class="number">0</span>] num,</span><br><span class="line">	<span class="keyword">output</span> <span class="keyword">reg</span> [<span class="number">5</span>:<span class="number">0</span>] count</span><br><span class="line">);</span><br><span class="line"><span class="keyword">integer</span> i;</span><br><span class="line"><span class="keyword">always</span> @(*) <span class="keyword">begin</span></span><br><span class="line">	count = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; <span class="number">32</span> ; i = i + <span class="number">1</span>) <span class="keyword">begin</span></span><br><span class="line">		<span class="keyword">if</span>(num[i] == <span class="number">1&#x27;b1</span>)<span class="keyword">begin</span></span><br><span class="line">			count = count + <span class="number">1</span>;</span><br><span class="line">		<span class="keyword">end</span></span><br><span class="line">	<span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">endmodule</span></span><br></pre></td></tr></table></figure>
 <p>这用到了寄存器，感觉不太好，因为单周期CPU除了数据存储部分其他都是组合逻辑，加入寄存器总感觉怪怪的。但是因为这里寄存器是异步更新的，不与时钟信号关联，所以是没有问题的。下面是函数实现，下面的count不是寄存器也不是wire，而是函数专门的一个数据类型。</p>
 <figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> bit_count_wire_loop (</span><br><span class="line">    <span class="keyword">input</span> <span class="keyword">wire</span> [<span class="number">31</span>:<span class="number">0</span>] num1,</span><br><span class="line">    <span class="keyword">input</span> <span class="keyword">wire</span> [<span class="number">31</span>:<span class="number">0</span>] num2,</span><br><span class="line">    <span class="keyword">output</span>  res</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> [<span class="number">5</span>:<span class="number">0</span>] count;</span><br><span class="line"><span class="keyword">input</span> [<span class="number">31</span>:<span class="number">0</span>] num;</span><br><span class="line"><span class="keyword">integer</span> i;</span><br><span class="line"><span class="keyword">begin</span></span><br><span class="line">    count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">32</span>; i = i + <span class="number">1</span>) <span class="keyword">begin</span></span><br><span class="line">        <span class="keyword">if</span> (num[i] == <span class="number">1</span>) <span class="keyword">begin</span></span><br><span class="line">            count = count + <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="keyword">endfunction</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">assign</span> res = count(num1) &gt; count(num2);</span><br><span class="line"></span><br><span class="line"><span class="keyword">endmodule</span> </span><br></pre></td></tr></table></figure>
+<ul>
+<li>
+<p>长的计算序列，先取低16位、符号扩展、取模，在verilog里用一个长表达式。数的拆分拼接用{}、[]、16{1’b0}、16{imm_16[15]}</p>
 </li>
-<li><p>长的计算序列，先取低16位、符号扩展、取模，在verilog里用一个长表达式。数的拆分拼接用{}、[]、16{1’b0}、16{imm_16[15]}</p>
-</li>
-<li><p>相加相减是否溢出 参考王道书上三种方法，一个符号位，两个符号位，符号位进位和最高位进位。也可以参考英文指令集里判断溢出的做法。</p>
+<li>
+<p>相加相减是否溢出 参考王道书上三种方法，一个符号位，两个符号位，符号位进位和最高位进位。也可以参考英文指令集里判断溢出的做法。</p>
 </li>
 </ul>
-<h3 id="计算型"><a href="#计算型" class="headerlink" title="计算型"></a>计算型</h3><p>2024T1：<a target="_blank" rel="noopener" href="https://lazyfish-lc.github.io/2024/11/04/BUAA-CO-P4-test/index.html">北航CO 2024 P4课上部分题目回忆与分析 | Lazyfish &amp; chilly_river</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252121740.png" alt=""></p>
-<p>2023T1：<a target="_blank" rel="noopener" href="https://blog.csdn.net/i_want_ak_noip/article/details/134255374">2023北航计组p4课上部分-CSDN博客</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252124577.png" alt=""></p>
-<p>2020T2：<a target="_blank" rel="noopener" href="https://roife.github.io/posts/buaa-co-lab-p4/">[BUAA-CO-Lab] P4 单周期 CPU - 2 | ROIFE BLOG</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252125583.png" alt=""></p>
-<p>2021T1：<a target="_blank" rel="noopener" href="https://flyinglandlord.github.io/2021/11/17/BUAA-CO-2021/P4/P4%E8%AF%BE%E4%B8%8A%E6%B5%8B%E8%AF%95%E6%B8%B8%E8%AE%B0/">P4 课上测试 - 北航计算机组成原理 | Test Blog = FlyingLandlord&#39;s Blog</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252126769.png" alt=""></p>
-<h3 id="跳转并链接类：bltzal、bnezalc、bsoal"><a href="#跳转并链接类：bltzal、bnezalc、bsoal" class="headerlink" title="跳转并链接类：bltzal、bnezalc、bsoal"></a>跳转并链接类：bltzal、bnezalc、bsoal</h3><p>满足条件：跳转并链接<br>否则：PC+4<br>链接要对GRF[31]写入PC+4，RegWrite信号与条件相关，和jal的行为相似<br>但是由于没考虑延迟槽所以题目给的RTL和英语文档里的RTL不一样。</p>
-<p>2021秋T2：<a target="_blank" rel="noopener" href="https://flyinglandlord.github.io/2021/11/17/BUAA-CO-2021/P4/P4%E8%AF%BE%E4%B8%8A%E6%B5%8B%E8%AF%95%E6%B8%B8%E8%AE%B0/">P4 课上测试 - 北航计算机组成原理 | Test Blog = FlyingLandlord&#39;s Blog</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/cedr1c_wyc/article/details/121391976">【BUAA_CO_LAB】计组p3&amp;p4碎碎念-CSDN博客</a></p>
+<h3 id="计算型">计算型</h3>
+<p>2024T1：<a target="_blank" rel="noopener" href="https://lazyfish-lc.github.io/2024/11/04/BUAA-CO-P4-test/index.html">北航CO 2024 P4课上部分题目回忆与分析 | Lazyfish &amp; chilly_river</a><br>
+<img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252121740.png" alt=""></p>
+<p>2023T1：<a target="_blank" rel="noopener" href="https://blog.csdn.net/i_want_ak_noip/article/details/134255374">2023北航计组p4课上部分-CSDN博客</a><br>
+<img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252124577.png" alt=""></p>
+<p>2020T2：<a target="_blank" rel="noopener" href="https://roife.github.io/posts/buaa-co-lab-p4/">[BUAA-CO-Lab] P4 单周期 CPU - 2 | ROIFE BLOG</a><br>
+<img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252125583.png" alt=""></p>
+<p>2021T1：<a target="_blank" rel="noopener" href="https://flyinglandlord.github.io/2021/11/17/BUAA-CO-2021/P4/P4%E8%AF%BE%E4%B8%8A%E6%B5%8B%E8%AF%95%E6%B8%B8%E8%AE%B0/">P4 课上测试 - 北航计算机组成原理 | Test Blog = FlyingLandlord’s Blog</a><br>
+<img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252126769.png" alt=""></p>
+<h3 id="跳转并链接类：bltzal、bnezalc、bsoal">跳转并链接类：bltzal、bnezalc、bsoal</h3>
+<p>满足条件：跳转并链接<br>
+否则：PC+4<br>
+链接要对GRF[31]写入PC+4，RegWrite信号与条件相关，和jal的行为相似<br>
+但是由于没考虑延迟槽所以题目给的RTL和英语文档里的RTL不一样。</p>
+<p>2021秋T2：<a target="_blank" rel="noopener" href="https://flyinglandlord.github.io/2021/11/17/BUAA-CO-2021/P4/P4%E8%AF%BE%E4%B8%8A%E6%B5%8B%E8%AF%95%E6%B8%B8%E8%AE%B0/">P4 课上测试 - 北航计算机组成原理 | Test Blog = FlyingLandlord’s Blog</a><br>
+<a target="_blank" rel="noopener" href="https://blog.csdn.net/cedr1c_wyc/article/details/121391976">【BUAA_CO_LAB】计组p3&amp;p4碎碎念-CSDN博客</a></p>
 <p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252130604.png" alt=""></p>
-<p>2020T1：<a target="_blank" rel="noopener" href="https://roife.github.io/posts/buaa-co-lab-p4/">[BUAA-CO-Lab] P4 单周期 CPU - 2 | ROIFE BLOG</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252131976.png" alt=""></p>
-<p>2023T2：<a target="_blank" rel="noopener" href="https://blog.csdn.net/i_want_ak_noip/article/details/134255374">2023北航计组p4课上部分-CSDN博客</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252132482.png" alt=""></p>
-<p>2024T2：<a target="_blank" rel="noopener" href="https://lazyfish-lc.github.io/2024/11/04/BUAA-CO-P4-test/index.html">https://lazyfish-lc.github.io/2024/11/04/BUAA-CO-P4-test/index.html</a><br>这题有链接和跳转两个部分，但是和上面的题目不太一样。B类是有条件跳转、J类是无条件跳转。<br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252132714.png" alt=""></p>
-<h3 id="访存型：分为l型和s型"><a href="#访存型：分为l型和s型" class="headerlink" title="访存型：分为l型和s型"></a>访存型：分为l型和s型</h3><p>2024T3：<a target="_blank" rel="noopener" href="https://lazyfish-lc.github.io/2024/11/04/BUAA-CO-P4-test/index.html">北航CO 2024 P4课上部分题目回忆与分析 | Lazyfish &amp; chilly_river</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252133372.png" alt=""></p>
-<p>2023T3：<a target="_blank" rel="noopener" href="https://blog.csdn.net/i_want_ak_noip/article/details/134255374">https://blog.csdn.net/i_want_ak_noip/article/details/134255374</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252135898.png" alt=""><br>本题关于函数的定义：<br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252135898.png" alt=""></p>
-<p>2021T3：<a target="_blank" rel="noopener" href="https://flyinglandlord.github.io/2021/11/17/BUAA-CO-2021/P4/P4%E8%AF%BE%E4%B8%8A%E6%B5%8B%E8%AF%95%E6%B8%B8%E8%AE%B0/">P4 课上测试 - 北航计算机组成原理 | Test Blog = FlyingLandlord&#39;s Blog</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252136146.png" alt=""></p>
-<p>2020T3：<a target="_blank" rel="noopener" href="https://roife.github.io/posts/buaa-co-lab-p4/">[BUAA-CO-Lab] P4 单周期 CPU - 2 | ROIFE BLOG</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252137335.png" alt=""></p>
+<p>2020T1：<a target="_blank" rel="noopener" href="https://roife.github.io/posts/buaa-co-lab-p4/">[BUAA-CO-Lab] P4 单周期 CPU - 2 | ROIFE BLOG</a><br>
+<img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252131976.png" alt=""></p>
+<p>2023T2：<a target="_blank" rel="noopener" href="https://blog.csdn.net/i_want_ak_noip/article/details/134255374">2023北航计组p4课上部分-CSDN博客</a><br>
+<img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252132482.png" alt=""></p>
+<p>2024T2：<a target="_blank" rel="noopener" href="https://lazyfish-lc.github.io/2024/11/04/BUAA-CO-P4-test/index.html">https://lazyfish-lc.github.io/2024/11/04/BUAA-CO-P4-test/index.html</a><br>
+这题有链接和跳转两个部分，但是和上面的题目不太一样。B类是有条件跳转、J类是无条件跳转。<br>
+<img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252132714.png" alt=""></p>
+<h3 id="访存型：分为l型和s型">访存型：分为l型和s型</h3>
+<p>2024T3：<a target="_blank" rel="noopener" href="https://lazyfish-lc.github.io/2024/11/04/BUAA-CO-P4-test/index.html">北航CO 2024 P4课上部分题目回忆与分析 | Lazyfish &amp; chilly_river</a><br>
+<img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252133372.png" alt=""></p>
+<p>2023T3：<a target="_blank" rel="noopener" href="https://blog.csdn.net/i_want_ak_noip/article/details/134255374">https://blog.csdn.net/i_want_ak_noip/article/details/134255374</a><br>
+<img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252135898.png" alt=""><br>
+本题关于函数的定义：<br>
+<img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252135898.png" alt=""></p>
+<p>2021T3：<a target="_blank" rel="noopener" href="https://flyinglandlord.github.io/2021/11/17/BUAA-CO-2021/P4/P4%E8%AF%BE%E4%B8%8A%E6%B5%8B%E8%AF%95%E6%B8%B8%E8%AE%B0/">P4 课上测试 - 北航计算机组成原理 | Test Blog = FlyingLandlord’s Blog</a><br>
+<img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252136146.png" alt=""></p>
+<p>2020T3：<a target="_blank" rel="noopener" href="https://roife.github.io/posts/buaa-co-lab-p4/">[BUAA-CO-Lab] P4 单周期 CPU - 2 | ROIFE BLOG</a><br>
+<img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252137335.png" alt=""></p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/25/BUAA-CO-P4%E8%AF%BE%E4%B8%8A/" data-id="cmcunce0v0001wgt60v0ea1fo" data-title="BUAA CO P4课上" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/25/BUAA-CO-P4%E8%AF%BE%E4%B8%8A/" data-id="cmcunj0uc0000w4t68jjq5ubl" data-title="BUAA CO P4课上" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       

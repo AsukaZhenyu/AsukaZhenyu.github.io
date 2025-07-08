@@ -6,12 +6,12 @@
   
   <title>Chainer环境配置 | Zhenyu&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="之前在做老师的一个项目，这个项目是老师在东京大学做博后的项目。代码基于Chainer框架，在配环境的时候遇到了一点困难。在CSDN上几乎搜不到解决方法，环境配起来也比较复杂，于是记录一下。 首先Chainer依赖于CuPy，当时使用的是Chainer v7系列，找到对应CuPy推荐版本为 CuPy v7.8.0 经过多次实验，只有CuPy v7.8.0能够正常工作，其他的都不行。要下载CuPy v">
+  <meta name="description" content="之前在做老师的一个项目，这个项目是老师在东京大学做博后的项目。代码基于Chainer框架，在配环境的时候遇到了一点困难。在CSDN上几乎搜不到解决方法，环境配起来也比较复杂，于是记录一下。 首先Chainer依赖于CuPy，当时使用的是Chainer v7系列，找到对应CuPy推荐版本为 CuPy v7.8.0  经过多次实验，只有CuPy v7.8.0能够正常工作，其他的都不行。要下载CuPy">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Chainer环境配置">
 <meta property="og:url" content="http://asukazhenyu.github.io/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/index.html">
 <meta property="og:site_name" content="Zhenyu&#39;s blog">
-<meta property="og:description" content="之前在做老师的一个项目，这个项目是老师在东京大学做博后的项目。代码基于Chainer框架，在配环境的时候遇到了一点困难。在CSDN上几乎搜不到解决方法，环境配起来也比较复杂，于是记录一下。 首先Chainer依赖于CuPy，当时使用的是Chainer v7系列，找到对应CuPy推荐版本为 CuPy v7.8.0 经过多次实验，只有CuPy v7.8.0能够正常工作，其他的都不行。要下载CuPy v">
+<meta property="og:description" content="之前在做老师的一个项目，这个项目是老师在东京大学做博后的项目。代码基于Chainer框架，在配环境的时候遇到了一点困难。在CSDN上几乎搜不到解决方法，环境配起来也比较复杂，于是记录一下。 首先Chainer依赖于CuPy，当时使用的是Chainer v7系列，找到对应CuPy推荐版本为 CuPy v7.8.0  经过多次实验，只有CuPy v7.8.0能够正常工作，其他的都不行。要下载CuPy">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252058092.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252058090.png">
@@ -99,24 +99,42 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>之前在做老师的一个项目，这个项目是老师在东京大学做博后的项目。代码基于Chainer框架，在配环境的时候遇到了一点困难。在CSDN上几乎搜不到解决方法，环境配起来也比较复杂，于是记录一下。</p>
-<p>首先Chainer依赖于CuPy，当时使用的是Chainer v7系列，找到对应CuPy推荐版本为 CuPy v7.8.0<br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252058092.png" alt=""></p>
+<p>首先Chainer依赖于CuPy，当时使用的是Chainer v7系列，找到对应CuPy推荐版本为 CuPy v7.8.0<br>
+<img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252058092.png" alt=""></p>
 <p>经过多次实验，只有CuPy v7.8.0能够正常工作，其他的都不行。要下载CuPy v7.8.0，对CUDA版本又有要求</p>
 <p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252058090.png" alt=""></p>
 <p>可以看到只有CUDA8.0或者CUDA9.1版本支持，CuPy v7.8.0。经过实验CUDA9.1版本下载不了，只能在CUDA8.0版本下面下载。可以看到着一层又一层的依赖关系确实比较复杂，而且CUDA版本又太古早，autodl上最低好像只支持到CUDA11.3，这意味着需要我们自己在服务器上下载对应版本的CUDA和CUDA toolkit，相应版本的CUDA和CUDA toolkit下载又对python版本有要求，对包安装的顺序有要求，对包安装的命令有要求，当时摸索了很久才找到一个成功的环境配置方法。相比起来还是安装pytorch要简单多了。</p>
 <p>首先将源改为清华源，autodl默认是阿里源，在阿里源下有些包下载不下来。</p>
-<p>进入autodl终端：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim ~/.bashrc</span><br></pre></td></tr></table></figure><br>输入i开始编辑，可以用鼠标滚轮滚到最后一行插入：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">source</span> /root/miniconda3/etc/profile.d/conda.sh</span><br></pre></td></tr></table></figure><br>按下ESC，输入<code>:wq</code>保存并退出</p>
+<p>进入autodl终端：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim ~/.bashrc</span><br></pre></td></tr></table></figure>
+<p>输入i开始编辑，可以用鼠标滚轮滚到最后一行插入：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">source</span> /root/miniconda3/etc/profile.d/conda.sh</span><br></pre></td></tr></table></figure>
+<p>按下ESC，输入<code>:wq</code>保存并退出</p>
 <p>回到终端后输入<code>bash</code>刷新。上面这些步骤是autodl里实验conda必须的流程。</p>
-<p>新建环境<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda create -n BICTRNN python==3.6</span><br></pre></td></tr></table></figure><br>这里python的版本必须是3.6，否则cuDNN不能下载。</p>
-<p>进入环境：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda activate BICTRNN</span><br></pre></td></tr></table></figure><br>接下来按顺序操作，否则可能会发生“找不到包”或者“包冲突”的问题。</p>
-<p>先下载cupy：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install cupy-cuda80</span><br></pre></td></tr></table></figure><br>再下载cuDNN：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda install caffe2::caffe2-cuda8.0-cudnn7</span><br></pre></td></tr></table></figure><br>然后cudatoolkit：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda install cudatoolkit==8.0</span><br></pre></td></tr></table></figure><br>最后下载chainer：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install chainer</span><br></pre></td></tr></table></figure></p>
+<p>新建环境</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda create -n BICTRNN python==3.6</span><br></pre></td></tr></table></figure>
+<p>这里python的版本必须是3.6，否则cuDNN不能下载。</p>
+<p>进入环境：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda activate BICTRNN</span><br></pre></td></tr></table></figure>
+<p>接下来按顺序操作，否则可能会发生“找不到包”或者“包冲突”的问题。</p>
+<p>先下载cupy：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install cupy-cuda80</span><br></pre></td></tr></table></figure>
+<p>再下载cuDNN：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda install caffe2::caffe2-cuda8.0-cudnn7</span><br></pre></td></tr></table></figure>
+<p>然后cudatoolkit：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda install cudatoolkit==8.0</span><br></pre></td></tr></table></figure>
+<p>最后下载chainer：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install chainer</span><br></pre></td></tr></table></figure>
 <p>这样就成功安装好了Chainer，能够使用CuPy进行加速了。接下来根据项目安装其他包即可。</p>
-<p>关于GPU租用：<br>可以选择租用4090，镜像就选择miniconda,python 3.8（之后创建环境时python==3.6这两者并不冲突）,cuda 11.3（40系显卡cuda版本要求大于等于11.3）没有问题，cuda是向下兼容的，下载8.0的cudatoolkit是没有问题的。</p>
-<p>最后是一些训练经验：<br>一张卡其实可以开多个终端训练代码，观察监控里的GPU占用率，显存占用率，自己新建终端运行代码即可。这样可以省钱。</p>
+<p>关于GPU租用：<br>
+可以选择租用4090，镜像就选择miniconda,python 3.8（之后创建环境时python==3.6这两者并不冲突）,cuda 11.3（40系显卡cuda版本要求大于等于11.3）没有问题，cuda是向下兼容的，下载8.0的cudatoolkit是没有问题的。</p>
+<p>最后是一些训练经验：<br>
+一张卡其实可以开多个终端训练代码，观察监控里的GPU占用率，显存占用率，自己新建终端运行代码即可。这样可以省钱。</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" data-id="cmcunce0q0000wgt6hqceck8p" data-title="Chainer环境配置" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" data-id="cmcunj0uh0001w4t639wt6rqt" data-title="Chainer环境配置" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
