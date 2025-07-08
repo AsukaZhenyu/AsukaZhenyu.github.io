@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>DP 刷题总结 | Zhenyu&#39;s blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="DP刷题总结[toc] 前言从最开始刷题起就在记笔记，记了很多题目的解法，但是感觉从题量到400以后进入了漫长的瓶颈期，直到目前接近800的题量，都感觉自己的进步并不大。是时候好好总结一下温故而知新了，之前总结了很多笔记都是直接把题目链接、题解复制上去然后写一些“反思总结”，感觉不够意思，记了之后也不会看。 写这篇博客的目的是重做之前的题目、整理消化之前的刷题笔记，顺便复习一下程序设计的内容，这篇">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DP 刷题总结">
+<meta property="og:url" content="http://asukazhenyu.github.io/2025/07/08/DP-%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/index.html">
+<meta property="og:site_name" content="Zhenyu&#39;s blog">
+<meta property="og:description" content="DP刷题总结[toc] 前言从最开始刷题起就在记笔记，记了很多题目的解法，但是感觉从题量到400以后进入了漫长的瓶颈期，直到目前接近800的题量，都感觉自己的进步并不大。是时候好好总结一下温故而知新了，之前总结了很多笔记都是直接把题目链接、题解复制上去然后写一些“反思总结”，感觉不够意思，记了之后也不会看。 写这篇博客的目的是重做之前的题目、整理消化之前的刷题笔记，顺便复习一下程序设计的内容，这篇">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-07-08T08:38:14.000Z">
+<meta property="article:modified_time" content="2025-07-08T09:55:51.558Z">
+<meta property="article:author" content="Zhenyu">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Zhenyu's blog" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Zhenyu&#39;s blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://AsukaZhenyu.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-DP-刷题总结" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2025/07/08/DP-%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/" class="article-date">
+  <time class="dt-published" datetime="2025-07-08T08:38:14.000Z" itemprop="datePublished">2025-07-08</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      DP 刷题总结
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="DP刷题总结"><a href="#DP刷题总结" class="headerlink" title="DP刷题总结"></a>DP刷题总结</h1><p>[toc]</p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>从最开始刷题起就在记笔记，记了很多题目的解法，但是感觉从题量到400以后进入了漫长的瓶颈期，直到目前接近800的题量，都感觉自己的进步并不大。是时候好好总结一下温故而知新了，之前总结了很多笔记都是直接把题目链接、题解复制上去然后写一些“反思总结”，感觉不够意思，记了之后也不会看。</p>
+<p>写这篇博客的目的是重做之前的题目、整理消化之前的刷题笔记，顺便复习一下程序设计的内容，这篇笔记的目标是总结出不同类型的题目，用自己的语言描述这类题目，给出思路分析和状态转移核心代码。这篇博客将不断更新迭代，力求表达清晰简洁直击问题本质。后续将更新树专题、图论专题、贪心专题这些大专题，记录主要的题目类型和解决思路，还有一些独立性比较强小专题的例如LogTirck、数论、单调栈、单调队列、差分数组、字典树、线段树、ST表等，要给出他们的推导过程、模板代码以及应用场景。</p>
+<h2 id="背包问题"><a href="#背包问题" class="headerlink" title="背包问题"></a>背包问题</h2><p><strong>01背包</strong></p>
+<p>问题描述：一组物体有对应的体积和价值，每个物体只能选一次，有限体积最大化价值，有限价值最大化物品数量</p>
+<p>核心思路：是“选与不选”，<code>f[i][res]</code>表示0~i物品，体积或价值剩余res时的目标结果，状态转移形如：<code>f[i][res]=func(f[i-1][res],f[i-1][res-cost]+get)</code></p>
+<p>空间优化，去掉第一维，观察res维，<code>f[res]</code>的推导依赖上一轮的<code>f[res-cost]</code></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;n;i++)&#123;</span><br><span class="line">    <span class="comment">/* </span></span><br><span class="line"><span class="comment">    mx_res=min(prev_cost[i+1],target)</span></span><br><span class="line"><span class="comment">    当res-cost大于之前所有cost的和，f[j-cost]之前没有更新</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> j=mx_res;j&gt;=<span class="number">0</span>;j--)&#123; <span class="comment">// 逆序推导</span></span><br><span class="line">        f[j]=<span class="built_in">max</span>(f[j],f[j-cost]+get); <span class="comment">// 状态转移，根据实际问题修改</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p><strong>完全背包</strong></p>
+<p>问题描述：与01背包区别是物体可以重复选</p>
+<p>核心思路：在状态转移时有两个选项（继续选当前物品，不再选当前物品），状态转移方程修改为：<code>f[i][res]=func(f[i-1][res],f[i][res-cost]+get)</code></p>
+<p>空间优化：由01背包的逆序改为顺序即可</p>
+<hr>
+<p><strong>多重背包</strong></p>
+<p>问题描述：对于第i个物品，有$count_i$件，并且有对应的价值和体积，有限容量求最大价值，固定价值求方案数量</p>
+<p>核心思路：视为01背包的扩展，<code>f[i][res]</code>表示0~i类物体，体积或价值剩余res时状态量的值，那么状态转移方程为（求和可修改为其他状态转移函数）：<br>$$<br>f[i][res] &#x3D; \sum_{k&#x3D;0}^{min(count_i,res&#x2F;cost)}f[i-1][res-k*cost]<br>$$<br>可以看到其实就是在01背包基础上，在状态转移时再加一个循环处理。</p>
+<hr>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://asukazhenyu.github.io/2025/07/08/DP-%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/" data-id="cmcumr5w60002nst6c0f57eec" data-title="DP 刷题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2025/07/06/OS-%E8%87%AA%E5%AD%A6%E7%AC%94%E8%AE%B0/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">OS 自学笔记</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/07/">七月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/05/">五月 2025</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2025/07/08/DP-%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/">DP 刷题总结</a>
+          </li>
+        
+          <li>
+            <a href="/2025/07/06/OS-%E8%87%AA%E5%AD%A6%E7%AC%94%E8%AE%B0/">OS 自学笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2025/05/25/BUAA-CO-P4%E8%AF%BE%E4%B8%8A/">BUAA CO P4课上</a>
+          </li>
+        
+          <li>
+            <a href="/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/">Chainer环境配置</a>
+          </li>
+        
+          <li>
+            <a href="/2025/05/24/Liu-first-blog/">&#39;Liu-first-blog&#39;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2025 Zhenyu<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
