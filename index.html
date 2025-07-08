@@ -93,8 +93,7 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <h1 id="DP刷题总结"><a href="#DP刷题总结" class="headerlink" title="DP刷题总结"></a>DP刷题总结</h1><p>[toc]</p>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>从最开始刷题起就在记笔记，记了很多题目的解法，但是感觉从题量到400以后进入了漫长的瓶颈期，直到目前接近800的题量，都感觉自己的进步并不大。是时候好好总结一下温故而知新了，之前总结了很多笔记都是直接把题目链接、题解复制上去然后写一些“反思总结”，感觉不够意思，记了之后也不会看。</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>从最开始刷题起就在记笔记，记了很多题目的解法，但是感觉从题量到400以后进入了漫长的瓶颈期，直到目前接近800的题量，都感觉自己的进步并不大。是时候好好总结一下温故而知新了，之前总结了很多笔记都是直接把题目链接、题解复制上去然后写一些“反思总结”，感觉不够意思，记了之后也不会看。</p>
 <p>写这篇博客的目的是重做之前的题目、整理消化之前的刷题笔记，顺便复习一下程序设计的内容，这篇笔记的目标是总结出不同类型的题目，用自己的语言描述这类题目，给出思路分析和状态转移核心代码。这篇博客将不断更新迭代，力求表达清晰简洁直击问题本质。后续将更新树专题、图论专题、贪心专题这些大专题，记录主要的题目类型和解决思路，还有一些独立性比较强小专题的例如LogTirck、数论、单调栈、单调队列、差分数组、字典树、线段树、ST表等，要给出他们的推导过程、模板代码以及应用场景。</p>
 <h2 id="背包问题"><a href="#背包问题" class="headerlink" title="背包问题"></a>背包问题</h2><p><strong>01背包</strong></p>
 <p>问题描述：一组物体有对应的体积和价值，每个物体只能选一次，有限体积最大化价值，有限价值最大化物品数量</p>
@@ -110,13 +109,18 @@
 <hr>
 <p><strong>多重背包</strong></p>
 <p>问题描述：对于第i个物品，有$count_i$件，并且有对应的价值和体积，有限容量求最大价值，固定价值求方案数量</p>
-<p>核心思路：视为01背包的扩展，<code>f[i][res]</code>表示0~i类物体，体积或价值剩余res时状态量的值，那么状态转移方程为（求和可修改为其他状态转移函数）：<br>$$<br>f[i][res] &#x3D; \sum_{k&#x3D;0}^{min(count_i,res&#x2F;cost)}f[i-1][res-k*cost]<br>$$<br>可以看到其实就是在01背包基础上，在状态转移时再加一个循环处理。</p>
+<p>核心思路：视为01背包的扩展，<code>f[i][res]</code>表示0~i类物体，体积或价值剩余res时状态量的值，那么状态转移方程为（求和可修改为其他状态转移函数）：</p>
+<span class="formula">
+  f[i][res] = \sum_{k=0}^{min(count_i,res/cost)}f[i-1][res-k*cost]
+</span>
+
+<p>可以看到其实就是在01背包基础上，在状态转移时再加一个循环处理。</p>
 <hr>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/08/DP-%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/" data-id="cmcumr5w60002nst6c0f57eec" data-title="DP 刷题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/08/DP-%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/" data-id="cmcun0y8y00026gt6eput1rbi" data-title="DP 刷题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -150,7 +154,7 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <h1 id="OS自学笔记"><a href="#OS自学笔记" class="headerlink" title="OS自学笔记"></a>OS自学笔记</h1><p>刷完王道的课程后发现现在已经忘得差不多了，结合26年王道考研复习指导，边复习边刷题，记录一些比较难的知识点和错题作为备忘录。后续将不断更新。</p>
+        <p>刷完王道的课程后发现现在已经忘得差不多了，结合26年王道考研复习指导，边复习边刷题，记录一些比较难的知识点和错题作为备忘录。后续将不断更新。</p>
 <h2 id="第一章-计算机系统概述"><a href="#第一章-计算机系统概述" class="headerlink" title="第一章 计算机系统概述"></a>第一章 计算机系统概述</h2><h3 id="第一节-OS的概念"><a href="#第一节-OS的概念" class="headerlink" title="第一节 OS的概念"></a>第一节 OS的概念</h3><hr>
 <p><strong>OS的功能与目标</strong></p>
 <p>OS为计算机系统资源的管理者：处理机管理、存储器管理、文件管理、设备管理</p>
@@ -257,7 +261,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/06/OS-%E8%87%AA%E5%AD%A6%E7%AC%94%E8%AE%B0/" data-id="cmcumr5w70003nst6285o4p0n" data-title="OS 自学笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/06/OS-%E8%87%AA%E5%AD%A6%E7%AC%94%E8%AE%B0/" data-id="cmcun0y9000036gt67wz147aj" data-title="OS 自学笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -330,7 +334,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/25/BUAA-CO-P4%E8%AF%BE%E4%B8%8A/" data-id="cmcumr5vy0000nst6b7pm5eek" data-title="BUAA CO P4课上" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/25/BUAA-CO-P4%E8%AF%BE%E4%B8%8A/" data-id="cmcun0y8q00006gt6ehwj02iw" data-title="BUAA CO P4课上" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -398,7 +402,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" data-id="cmcumr5w30001nst6aogu0jsj" data-title="Chainer环境配置" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" data-id="cmcun0y8v00016gt60dc27al1" data-title="Chainer环境配置" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -446,7 +450,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/24/Liu-first-blog/" data-id="cmcumr5w80004nst6h9ig8xfw" data-title="&#39;Liu-first-blog&#39;" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/24/Liu-first-blog/" data-id="cmcun0y9000046gt6bij2emmu" data-title="&#39;Liu-first-blog&#39;" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
