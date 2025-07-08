@@ -98,9 +98,7 @@
 <h2 id="背包问题"><a href="#背包问题" class="headerlink" title="背包问题"></a>背包问题</h2><p><strong>01背包</strong></p>
 <p>问题描述：一组物体有对应的体积和价值，每个物体只能选一次，有限体积最大化价值，有限价值最大化物品数量</p>
 <p>核心思路：是“选与不选”，<code>f[i][res]</code>表示0~i物品，体积或价值剩余res时的目标结果，状态转移形如：<code>f[i][res]=func(f[i-1][res],f[i-1][res-cost]+get)</code></p>
-<p>空间优化，去掉第一维，观察res维，<code>f[res]</code>的推导依赖上一轮的<code>f[res-cost]</code></p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;n;i++)&#123;</span><br><span class="line">    <span class="comment">/* </span></span><br><span class="line"><span class="comment">    mx_res=min(prev_cost[i+1],target)</span></span><br><span class="line"><span class="comment">    当res-cost大于之前所有cost的和，f[j-cost]之前没有更新</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> j=mx_res;j&gt;=<span class="number">0</span>;j--)&#123; <span class="comment">// 逆序推导</span></span><br><span class="line">        f[j]=<span class="built_in">max</span>(f[j],f[j-cost]+get); <span class="comment">// 状态转移，根据实际问题修改</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
+<p>空间优化，去掉第一维，观察res维，<code>f[res]</code>的推导依赖上一轮的<code>f[res-cost]</code><br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;n;i++)&#123;</span><br><span class="line">    <span class="comment">/* </span></span><br><span class="line"><span class="comment">    mx_res=min(prev_cost[i+1],target)</span></span><br><span class="line"><span class="comment">    当res-cost大于之前所有cost的和，f[j-cost]之前没有更新</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> j=mx_res;j&gt;=<span class="number">0</span>;j--)&#123; <span class="comment">// 逆序推导</span></span><br><span class="line">        f[j]=<span class="built_in">max</span>(f[j],f[j-cost]+get); <span class="comment">// 状态转移，根据实际问题修改</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <hr>
 <p><strong>完全背包</strong></p>
 <p>问题描述：与01背包区别是物体可以重复选</p>
@@ -110,17 +108,14 @@
 <p><strong>多重背包</strong></p>
 <p>问题描述：对于第i个物品，有$count_i$件，并且有对应的价值和体积，有限容量求最大价值，固定价值求方案数量</p>
 <p>核心思路：视为01背包的扩展，<code>f[i][res]</code>表示0~i类物体，体积或价值剩余res时状态量的值，那么状态转移方程为（求和可修改为其他状态转移函数）：</p>
-<span class="formula">
-  f[i][res] = \sum_{k=0}^{min(count_i,res/cost)}f[i-1][res-k*cost]
-</span>
-
-<p>可以看到其实就是在01背包基础上，在状态转移时再加一个循环处理。</p>
+<script type="math/tex; mode=display">
+  f[i][res] = \sum_{k=0}^{min(count_i,res/cost)}f[i-1][res-k*cost]</script><p>可以看到其实就是在01背包基础上，在状态转移时再加一个循环处理。</p>
 <hr>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/08/DP-%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/" data-id="cmcun0y8y00026gt6eput1rbi" data-title="DP 刷题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/08/DP-%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/" data-id="cmcunce0y0003wgt66ab55t0a" data-title="DP 刷题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -183,8 +178,8 @@
 <p>批处理阶段，分为单道批处理系统、多道批处理系统。优点：资源利用率高；缺点：没有人机交互能力</p>
 <ol>
 <li>单道批处理系统：顺序性、单道性，内存中仅有一道程序运行</li>
-<li>多道批处理系统：通过中断机制实现多道程序技术，I&#x2F;O设备可与CPU并行工作</li>
-<li>多任务操作系统具有并发和并行的特点（进程间并发、处理器与I&#x2F;O并行）</li>
+<li>多道批处理系统：通过中断机制实现多道程序技术，I/O设备可与CPU并行工作</li>
+<li>多任务操作系统具有并发和并行的特点（进程间并发、处理器与I/O并行）</li>
 </ol>
 <p>分时操作系统：时间片，多个用户通过终端同时共享一台主机，较好解决人机交互问题</p>
 <p>实时操作系统：硬实时系统（飞控系统）、软实时系统（订票系统），某个时间限制内完成紧急任务</p>
@@ -198,12 +193,12 @@
 <p>内核包括四方面的内容：时钟管理、中断机制（只有小部分功能属于内核，保护和恢复中断现场的信息）、原语、系统控制的数据结构及处理</p>
 <ol>
 <li>中断处理是操作系统必须提供的功能，从用户态到内核态的位移途径是中断</li>
-<li>特权指令：直接管理系统资源的指令（设置时钟、启动&#x2F;关闭硬件服务、切换进程、设置中断）、系统状态修改指令（修改中断向量表、切换CPU的运行模式）、系统控制指令（停机指令、重启指令）</li>
+<li>特权指令：直接管理系统资源的指令（设置时钟、启动/关闭硬件服务、切换进程、设置中断）、系统状态修改指令（修改中断向量表、切换CPU的运行模式）、系统控制指令（停机指令、重启指令）</li>
 <li>非特权指令：普通的数据处理指令（存数指令、寄存器清零指令）、流程控制指令、读操作指令</li>
 </ol>
 <hr>
 <p><strong>中断和异常</strong></p>
-<p>中断（外中断）CPU执行指令外部的事件，I&#x2F;O结束中断、时钟中断；异常（内中断）程序的非法操作码、地址越界、运算溢出、虚存系统缺页、陷入指令</p>
+<p>中断（外中断）CPU执行指令外部的事件，I/O结束中断、时钟中断；异常（内中断）程序的非法操作码、地址越界、运算溢出、虚存系统缺页、陷入指令</p>
 <p>中断处理与子程序调用比较：</p>
 <ol>
 <li>当前程序与中断处理程序相互独立，子程序调用是主从关系</li>
@@ -234,7 +229,7 @@
 <p>分层法，优点：便于调试验证、易扩展维护；缺点：不灵活、效率低</p>
 <p>模块化，内聚性越高、耦合度越低模块的独立性越好，优点：设计的正确性、可理解性、可维护性；缺点：模块接口定义难、模块设计顺序不确定</p>
 <p>宏内核，优点L:模块之间共享信息，效率高；缺点：设计复杂</p>
-<p>微内核结构包括两大部分：微内核和多个服务器（基于C&#x2F;S模式，客户&#x2F;服务器），利用“机制与策略分离”构造OS结构。优点：扩展性、灵活性、可靠性、安全性（实时、军工领域）、可移植性、分布式计算；缺点：频繁在内核态和用户态间切换，性能低</p>
+<p>微内核结构包括两大部分：微内核和多个服务器（基于C/S模式，客户/服务器），利用“机制与策略分离”构造OS结构。优点：扩展性、灵活性、可靠性、安全性（实时、军工领域）、可移植性、分布式计算；缺点：频繁在内核态和用户态间切换，性能低</p>
 <ol>
 <li>微内核的基本功能：进程管理、低级存储器管理（逻辑地址转化为物理地址页表机制、地址变换机制）、中断和陷入处理</li>
 </ol>
@@ -261,7 +256,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/06/OS-%E8%87%AA%E5%AD%A6%E7%AC%94%E8%AE%B0/" data-id="cmcun0y9000036gt67wz147aj" data-title="OS 自学笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/06/OS-%E8%87%AA%E5%AD%A6%E7%AC%94%E8%AE%B0/" data-id="cmcunce0z0004wgt61pbbdy6o" data-title="OS 自学笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -298,43 +293,39 @@
         <p>其实这个标题并不严谨，因为我是15系的学生，学的是简单版本的CO，只需要做到单周期CPU，而这里的P4其实是我们的P2。</p>
 <p>我们课上也比较简单，两个计算型的指令，还有一个sb指令。课下的时候根据往届学长的建议添加了sb、sh、lb、lh指令，本来应该可以速通的，但是被两个bug拖到快下课才弄完。</p>
 <p>一个是课下测试add和sub两个指令的编码，只有add和sub，但是课上包括了add、addu、sub、subu，意识到这个后前面两个计算型指令就完成了。</p>
-<p>二是sb在实现的时候，参考往届学长代码，大概是这样：</p>
-<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">assign</span> <span class="keyword">byte</span>=A[<span class="number">1</span>:<span class="number">0</span>];</span><br></pre></td></tr></table></figure>
-<p>之后再判断的时候会出问题，避免这种变量的命名方法。</p>
+<p>二是sb在实现的时候，参考往届学长代码，大概是这样：<br><figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">assign</span> <span class="keyword">byte</span>=A[<span class="number">1</span>:<span class="number">0</span>];</span><br></pre></td></tr></table></figure><br>之后再判断的时候会出问题，避免这种变量的命名方法。</p>
 <p>课上之前一直再看往年的课上考题，自己没用上，总结在下面：</p>
-<p>历年课上题目：计算型、跳转型、访存型<br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252113575.png"><br>新的计算方式、B跳转判断、访存判断 新的计算方式可能会比较复杂：</p>
+<p>历年课上题目：计算型、跳转型、访存型<br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252113575.png" alt=""><br>新的计算方式、B跳转判断、访存判断 新的计算方式可能会比较复杂：</p>
 <ul>
-<li>GRF[rs]、GRF[rt]的1个数、反转低imm位、是否有连续6位1、GRF[rs]对称<br>可以用for循环来做</li>
-</ul>
+<li><p>GRF[rs]、GRF[rt]的1个数、反转低imm位、是否有连续6位1、GRF[rs]对称<br>可以用for循环来做</p>
 <figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> bit_count_for_loop(</span><br><span class="line">	<span class="keyword">input</span> <span class="keyword">wire</span> [<span class="number">31</span>:<span class="number">0</span>] num,</span><br><span class="line">	<span class="keyword">output</span> <span class="keyword">reg</span> [<span class="number">5</span>:<span class="number">0</span>] count</span><br><span class="line">);</span><br><span class="line"><span class="keyword">integer</span> i;</span><br><span class="line"><span class="keyword">always</span> @(*) <span class="keyword">begin</span></span><br><span class="line">	count = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; <span class="number">32</span> ; i = i + <span class="number">1</span>) <span class="keyword">begin</span></span><br><span class="line">		<span class="keyword">if</span>(num[i] == <span class="number">1&#x27;b1</span>)<span class="keyword">begin</span></span><br><span class="line">			count = count + <span class="number">1</span>;</span><br><span class="line">		<span class="keyword">end</span></span><br><span class="line">	<span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">endmodule</span></span><br></pre></td></tr></table></figure>
 <p>这用到了寄存器，感觉不太好，因为单周期CPU除了数据存储部分其他都是组合逻辑，加入寄存器总感觉怪怪的。但是因为这里寄存器是异步更新的，不与时钟信号关联，所以是没有问题的。下面是函数实现，下面的count不是寄存器也不是wire，而是函数专门的一个数据类型。</p>
 <figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> bit_count_wire_loop (</span><br><span class="line">    <span class="keyword">input</span> <span class="keyword">wire</span> [<span class="number">31</span>:<span class="number">0</span>] num1,</span><br><span class="line">    <span class="keyword">input</span> <span class="keyword">wire</span> [<span class="number">31</span>:<span class="number">0</span>] num2,</span><br><span class="line">    <span class="keyword">output</span>  res</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> [<span class="number">5</span>:<span class="number">0</span>] count;</span><br><span class="line"><span class="keyword">input</span> [<span class="number">31</span>:<span class="number">0</span>] num;</span><br><span class="line"><span class="keyword">integer</span> i;</span><br><span class="line"><span class="keyword">begin</span></span><br><span class="line">    count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="number">32</span>; i = i + <span class="number">1</span>) <span class="keyword">begin</span></span><br><span class="line">        <span class="keyword">if</span> (num[i] == <span class="number">1</span>) <span class="keyword">begin</span></span><br><span class="line">            count = count + <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="keyword">endfunction</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">assign</span> res = count(num1) &gt; count(num2);</span><br><span class="line"></span><br><span class="line"><span class="keyword">endmodule</span> </span><br></pre></td></tr></table></figure>
-
-<ul>
+</li>
 <li><p>长的计算序列，先取低16位、符号扩展、取模，在verilog里用一个长表达式。数的拆分拼接用{}、[]、16{1’b0}、16{imm_16[15]}</p>
 </li>
 <li><p>相加相减是否溢出 参考王道书上三种方法，一个符号位，两个符号位，符号位进位和最高位进位。也可以参考英文指令集里判断溢出的做法。</p>
 </li>
 </ul>
-<h3 id="计算型"><a href="#计算型" class="headerlink" title="计算型"></a>计算型</h3><p>2024T1：<a target="_blank" rel="noopener" href="https://lazyfish-lc.github.io/2024/11/04/BUAA-CO-P4-test/index.html">北航CO 2024 P4课上部分题目回忆与分析 | Lazyfish &amp; chilly_river</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252121740.png"></p>
-<p>2023T1：<a target="_blank" rel="noopener" href="https://blog.csdn.net/i_want_ak_noip/article/details/134255374">2023北航计组p4课上部分-CSDN博客</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252124577.png"></p>
-<p>2020T2：<a target="_blank" rel="noopener" href="https://roife.github.io/posts/buaa-co-lab-p4/">[BUAA-CO-Lab] P4 单周期 CPU - 2 | ROIFE BLOG</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252125583.png"></p>
-<p>2021T1：<a target="_blank" rel="noopener" href="https://flyinglandlord.github.io/2021/11/17/BUAA-CO-2021/P4/P4%E8%AF%BE%E4%B8%8A%E6%B5%8B%E8%AF%95%E6%B8%B8%E8%AE%B0/">P4 课上测试 - 北航计算机组成原理 | Test Blog &#x3D; FlyingLandlord’s Blog</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252126769.png"></p>
+<h3 id="计算型"><a href="#计算型" class="headerlink" title="计算型"></a>计算型</h3><p>2024T1：<a target="_blank" rel="noopener" href="https://lazyfish-lc.github.io/2024/11/04/BUAA-CO-P4-test/index.html">北航CO 2024 P4课上部分题目回忆与分析 | Lazyfish &amp; chilly_river</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252121740.png" alt=""></p>
+<p>2023T1：<a target="_blank" rel="noopener" href="https://blog.csdn.net/i_want_ak_noip/article/details/134255374">2023北航计组p4课上部分-CSDN博客</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252124577.png" alt=""></p>
+<p>2020T2：<a target="_blank" rel="noopener" href="https://roife.github.io/posts/buaa-co-lab-p4/">[BUAA-CO-Lab] P4 单周期 CPU - 2 | ROIFE BLOG</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252125583.png" alt=""></p>
+<p>2021T1：<a target="_blank" rel="noopener" href="https://flyinglandlord.github.io/2021/11/17/BUAA-CO-2021/P4/P4%E8%AF%BE%E4%B8%8A%E6%B5%8B%E8%AF%95%E6%B8%B8%E8%AE%B0/">P4 课上测试 - 北航计算机组成原理 | Test Blog = FlyingLandlord&#39;s Blog</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252126769.png" alt=""></p>
 <h3 id="跳转并链接类：bltzal、bnezalc、bsoal"><a href="#跳转并链接类：bltzal、bnezalc、bsoal" class="headerlink" title="跳转并链接类：bltzal、bnezalc、bsoal"></a>跳转并链接类：bltzal、bnezalc、bsoal</h3><p>满足条件：跳转并链接<br>否则：PC+4<br>链接要对GRF[31]写入PC+4，RegWrite信号与条件相关，和jal的行为相似<br>但是由于没考虑延迟槽所以题目给的RTL和英语文档里的RTL不一样。</p>
-<p>2021秋T2：<a target="_blank" rel="noopener" href="https://flyinglandlord.github.io/2021/11/17/BUAA-CO-2021/P4/P4%E8%AF%BE%E4%B8%8A%E6%B5%8B%E8%AF%95%E6%B8%B8%E8%AE%B0/">P4 课上测试 - 北航计算机组成原理 | Test Blog &#x3D; FlyingLandlord’s Blog</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/cedr1c_wyc/article/details/121391976">【BUAA_CO_LAB】计组p3&amp;p4碎碎念-CSDN博客</a></p>
-<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252130604.png"></p>
-<p>2020T1：<a target="_blank" rel="noopener" href="https://roife.github.io/posts/buaa-co-lab-p4/">[BUAA-CO-Lab] P4 单周期 CPU - 2 | ROIFE BLOG</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252131976.png"></p>
-<p>2023T2：<a target="_blank" rel="noopener" href="https://blog.csdn.net/i_want_ak_noip/article/details/134255374">2023北航计组p4课上部分-CSDN博客</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252132482.png"></p>
-<p>2024T2：<a target="_blank" rel="noopener" href="https://lazyfish-lc.github.io/2024/11/04/BUAA-CO-P4-test/index.html">https://lazyfish-lc.github.io/2024/11/04/BUAA-CO-P4-test/index.html</a><br>这题有链接和跳转两个部分，但是和上面的题目不太一样。B类是有条件跳转、J类是无条件跳转。<br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252132714.png"></p>
-<h3 id="访存型：分为l型和s型"><a href="#访存型：分为l型和s型" class="headerlink" title="访存型：分为l型和s型"></a>访存型：分为l型和s型</h3><p>2024T3：<a target="_blank" rel="noopener" href="https://lazyfish-lc.github.io/2024/11/04/BUAA-CO-P4-test/index.html">北航CO 2024 P4课上部分题目回忆与分析 | Lazyfish &amp; chilly_river</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252133372.png"></p>
-<p>2023T3：<a target="_blank" rel="noopener" href="https://blog.csdn.net/i_want_ak_noip/article/details/134255374">https://blog.csdn.net/i_want_ak_noip/article/details/134255374</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252135898.png"><br>本题关于函数的定义：<br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252135898.png"></p>
-<p>2021T3：<a target="_blank" rel="noopener" href="https://flyinglandlord.github.io/2021/11/17/BUAA-CO-2021/P4/P4%E8%AF%BE%E4%B8%8A%E6%B5%8B%E8%AF%95%E6%B8%B8%E8%AE%B0/">P4 课上测试 - 北航计算机组成原理 | Test Blog &#x3D; FlyingLandlord’s Blog</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252136146.png"></p>
-<p>2020T3：<a target="_blank" rel="noopener" href="https://roife.github.io/posts/buaa-co-lab-p4/">[BUAA-CO-Lab] P4 单周期 CPU - 2 | ROIFE BLOG</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252137335.png"></p>
+<p>2021秋T2：<a target="_blank" rel="noopener" href="https://flyinglandlord.github.io/2021/11/17/BUAA-CO-2021/P4/P4%E8%AF%BE%E4%B8%8A%E6%B5%8B%E8%AF%95%E6%B8%B8%E8%AE%B0/">P4 课上测试 - 北航计算机组成原理 | Test Blog = FlyingLandlord&#39;s Blog</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/cedr1c_wyc/article/details/121391976">【BUAA_CO_LAB】计组p3&amp;p4碎碎念-CSDN博客</a></p>
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252130604.png" alt=""></p>
+<p>2020T1：<a target="_blank" rel="noopener" href="https://roife.github.io/posts/buaa-co-lab-p4/">[BUAA-CO-Lab] P4 单周期 CPU - 2 | ROIFE BLOG</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252131976.png" alt=""></p>
+<p>2023T2：<a target="_blank" rel="noopener" href="https://blog.csdn.net/i_want_ak_noip/article/details/134255374">2023北航计组p4课上部分-CSDN博客</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252132482.png" alt=""></p>
+<p>2024T2：<a target="_blank" rel="noopener" href="https://lazyfish-lc.github.io/2024/11/04/BUAA-CO-P4-test/index.html">https://lazyfish-lc.github.io/2024/11/04/BUAA-CO-P4-test/index.html</a><br>这题有链接和跳转两个部分，但是和上面的题目不太一样。B类是有条件跳转、J类是无条件跳转。<br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252132714.png" alt=""></p>
+<h3 id="访存型：分为l型和s型"><a href="#访存型：分为l型和s型" class="headerlink" title="访存型：分为l型和s型"></a>访存型：分为l型和s型</h3><p>2024T3：<a target="_blank" rel="noopener" href="https://lazyfish-lc.github.io/2024/11/04/BUAA-CO-P4-test/index.html">北航CO 2024 P4课上部分题目回忆与分析 | Lazyfish &amp; chilly_river</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252133372.png" alt=""></p>
+<p>2023T3：<a target="_blank" rel="noopener" href="https://blog.csdn.net/i_want_ak_noip/article/details/134255374">https://blog.csdn.net/i_want_ak_noip/article/details/134255374</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252135898.png" alt=""><br>本题关于函数的定义：<br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252135898.png" alt=""></p>
+<p>2021T3：<a target="_blank" rel="noopener" href="https://flyinglandlord.github.io/2021/11/17/BUAA-CO-2021/P4/P4%E8%AF%BE%E4%B8%8A%E6%B5%8B%E8%AF%95%E6%B8%B8%E8%AE%B0/">P4 课上测试 - 北航计算机组成原理 | Test Blog = FlyingLandlord&#39;s Blog</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252136146.png" alt=""></p>
+<p>2020T3：<a target="_blank" rel="noopener" href="https://roife.github.io/posts/buaa-co-lab-p4/">[BUAA-CO-Lab] P4 单周期 CPU - 2 | ROIFE BLOG</a><br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252137335.png" alt=""></p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/25/BUAA-CO-P4%E8%AF%BE%E4%B8%8A/" data-id="cmcun0y8q00006gt6ehwj02iw" data-title="BUAA CO P4课上" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/25/BUAA-CO-P4%E8%AF%BE%E4%B8%8A/" data-id="cmcunce0v0001wgt60v0ea1fo" data-title="BUAA CO P4课上" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -369,40 +360,24 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <p>之前在做老师的一个项目，这个项目是老师在东京大学做博后的项目。代码基于Chainer框架，在配环境的时候遇到了一点困难。在CSDN上几乎搜不到解决方法，环境配起来也比较复杂，于是记录一下。</p>
-<p>首先Chainer依赖于CuPy，当时使用的是Chainer v7系列，找到对应CuPy推荐版本为 CuPy v7.8.0<br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252058092.png"></p>
+<p>首先Chainer依赖于CuPy，当时使用的是Chainer v7系列，找到对应CuPy推荐版本为 CuPy v7.8.0<br><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252058092.png" alt=""></p>
 <p>经过多次实验，只有CuPy v7.8.0能够正常工作，其他的都不行。要下载CuPy v7.8.0，对CUDA版本又有要求</p>
-<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252058090.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252058090.png" alt=""></p>
 <p>可以看到只有CUDA8.0或者CUDA9.1版本支持，CuPy v7.8.0。经过实验CUDA9.1版本下载不了，只能在CUDA8.0版本下面下载。可以看到着一层又一层的依赖关系确实比较复杂，而且CUDA版本又太古早，autodl上最低好像只支持到CUDA11.3，这意味着需要我们自己在服务器上下载对应版本的CUDA和CUDA toolkit，相应版本的CUDA和CUDA toolkit下载又对python版本有要求，对包安装的顺序有要求，对包安装的命令有要求，当时摸索了很久才找到一个成功的环境配置方法。相比起来还是安装pytorch要简单多了。</p>
 <p>首先将源改为清华源，autodl默认是阿里源，在阿里源下有些包下载不下来。</p>
-<p>进入autodl终端：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim ~/.bashrc</span><br></pre></td></tr></table></figure>
-<p>输入i开始编辑，可以用鼠标滚轮滚到最后一行插入：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">source</span> /root/miniconda3/etc/profile.d/conda.sh</span><br></pre></td></tr></table></figure>
-<p>按下ESC，输入<code>:wq</code>保存并退出</p>
+<p>进入autodl终端：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim ~/.bashrc</span><br></pre></td></tr></table></figure><br>输入i开始编辑，可以用鼠标滚轮滚到最后一行插入：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">source</span> /root/miniconda3/etc/profile.d/conda.sh</span><br></pre></td></tr></table></figure><br>按下ESC，输入<code>:wq</code>保存并退出</p>
 <p>回到终端后输入<code>bash</code>刷新。上面这些步骤是autodl里实验conda必须的流程。</p>
-<p>新建环境</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda create -n BICTRNN python==3.6</span><br></pre></td></tr></table></figure>
-<p>这里python的版本必须是3.6，否则cuDNN不能下载。</p>
-<p>进入环境：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda activate BICTRNN</span><br></pre></td></tr></table></figure>
-<p>接下来按顺序操作，否则可能会发生“找不到包”或者“包冲突”的问题。</p>
-<p>先下载cupy：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install cupy-cuda80</span><br></pre></td></tr></table></figure>
-<p>再下载cuDNN：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda install caffe2::caffe2-cuda8.0-cudnn7</span><br></pre></td></tr></table></figure>
-<p>然后cudatoolkit：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda install cudatoolkit==8.0</span><br></pre></td></tr></table></figure>
-<p>最后下载chainer：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install chainer</span><br></pre></td></tr></table></figure>
-
+<p>新建环境<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda create -n BICTRNN python==3.6</span><br></pre></td></tr></table></figure><br>这里python的版本必须是3.6，否则cuDNN不能下载。</p>
+<p>进入环境：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda activate BICTRNN</span><br></pre></td></tr></table></figure><br>接下来按顺序操作，否则可能会发生“找不到包”或者“包冲突”的问题。</p>
+<p>先下载cupy：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install cupy-cuda80</span><br></pre></td></tr></table></figure><br>再下载cuDNN：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda install caffe2::caffe2-cuda8.0-cudnn7</span><br></pre></td></tr></table></figure><br>然后cudatoolkit：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">conda install cudatoolkit==8.0</span><br></pre></td></tr></table></figure><br>最后下载chainer：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install chainer</span><br></pre></td></tr></table></figure></p>
 <p>这样就成功安装好了Chainer，能够使用CuPy进行加速了。接下来根据项目安装其他包即可。</p>
-<p>关于GPU租用：<br>可以选择租用4090，镜像就选择miniconda,python 3.8（之后创建环境时python&#x3D;&#x3D;3.6这两者并不冲突）,cuda 11.3（40系显卡cuda版本要求大于等于11.3）没有问题，cuda是向下兼容的，下载8.0的cudatoolkit是没有问题的。</p>
+<p>关于GPU租用：<br>可以选择租用4090，镜像就选择miniconda,python 3.8（之后创建环境时python==3.6这两者并不冲突）,cuda 11.3（40系显卡cuda版本要求大于等于11.3）没有问题，cuda是向下兼容的，下载8.0的cudatoolkit是没有问题的。</p>
 <p>最后是一些训练经验：<br>一张卡其实可以开多个终端训练代码，观察监控里的GPU占用率，显存占用率，自己新建终端运行代码即可。这样可以省钱。</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" data-id="cmcun0y8v00016gt60dc27al1" data-title="Chainer环境配置" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" data-id="cmcunce0q0000wgt6hqceck8p" data-title="Chainer环境配置" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -450,7 +425,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/24/Liu-first-blog/" data-id="cmcun0y9000046gt6bij2emmu" data-title="&#39;Liu-first-blog&#39;" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/24/Liu-first-blog/" data-id="cmcunce0x0002wgt64jxyfen2" data-title="&#39;Liu-first-blog&#39;" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
