@@ -111,7 +111,7 @@
 <p><strong>多重背包</strong></p>
 <p>问题描述：对于第i个物品，有<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>c</mi><mi>o</mi><mi>u</mi><mi>n</mi><msub><mi>t</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">count_i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.61508em;"></span><span class="strut bottom" style="height:0.76508em;vertical-align:-0.15em;"></span><span class="base textstyle uncramped"><span class="mord mathit">c</span><span class="mord mathit">o</span><span class="mord mathit">u</span><span class="mord mathit">n</span><span class="mord"><span class="mord mathit">t</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord mathit">i</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span>件，并且有对应的价值和体积，有限容量求最大价值，固定价值求方案数量</p>
 <p>核心思路：视为01背包的扩展，<code>f[i][res]</code>表示0~i类物体，体积或价值剩余res时状态量的值，那么状态转移方程为（求和可修改为其他状态转移函数）：</p>
-<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>f</mi><mo>[</mo><mi>i</mi><mo>]</mo><mo>[</mo><mi>r</mi><mi>e</mi><mi>s</mi><mo>]</mo><mo>=</mo><msubsup><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>m</mi><mi>i</mi><mi>n</mi><mo>(</mo><mi>c</mi><mi>o</mi><mi>u</mi><mi>n</mi><msub><mi>t</mi><mi>i</mi></msub><mo separator="true">,</mo><mi>r</mi><mi>e</mi><mi>s</mi><mi mathvariant="normal">/</mi><mi>c</mi><mi>o</mi><mi>s</mi><mi>t</mi><mo>)</mo></mrow></msubsup><mi>f</mi><mo>[</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo>]</mo><mo>[</mo><mi>r</mi><mi>e</mi><mi>s</mi><mo>−</mo><mi>k</mi><mo>∗</mo><mi>c</mi><mi>o</mi><mi>s</mi><mi>t</mi><mo>]</mo></mrow><annotation encoding="application/x-tex">  f[i][res] = \sum_{k=0}^{min(count_i,res/cost)}f[i-1][res-k*cost]
+<p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>f</mi><mo>[</mo><mi>i</mi><mo>]</mo><mo>[</mo><mi>r</mi><mi>e</mi><mi>s</mi><mo>]</mo><mo>=</mo><msubsup><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>m</mi><mi>i</mi><mi>n</mi><mo>(</mo><mi>c</mi><mi>o</mi><mi>u</mi><mi>n</mi><msub><mi>t</mi><mi>i</mi></msub><mo separator="true">,</mo><mi>r</mi><mi>e</mi><mi>s</mi><mi mathvariant="normal">/</mi><mi>c</mi><mi>o</mi><mi>s</mi><mi>t</mi><mo>)</mo></mrow></msubsup><mi>f</mi><mo>[</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo>]</mo><mo>[</mo><mi>r</mi><mi>e</mi><mi>s</mi><mo>−</mo><mi>k</mi><mo>∗</mo><mi>c</mi><mi>o</mi><mi>s</mi><mi>t</mi><mo>]</mo></mrow><annotation encoding="application/x-tex">f[i][res] = \sum_{k=0}^{min(count_i,res/cost)}f[i-1][res-k*cost]
 </annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:1.961005em;"></span><span class="strut bottom" style="height:3.2631180000000004em;vertical-align:-1.302113em;"></span><span class="base displaystyle textstyle uncramped"><span class="mord mathit" style="margin-right:0.10764em;">f</span><span class="mopen">[</span><span class="mord mathit">i</span><span class="mclose">]</span><span class="mopen">[</span><span class="mord mathit" style="margin-right:0.02778em;">r</span><span class="mord mathit">e</span><span class="mord mathit">s</span><span class="mclose">]</span><span class="mrel">=</span><span class="mop op-limits"><span class="vlist"><span style="top:1.202113em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord scriptstyle cramped"><span class="mord mathit" style="margin-right:0.03148em;">k</span><span class="mrel">=</span><span class="mord mathrm">0</span></span></span></span><span style="top:-0.000005000000000032756em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span><span class="op-symbol large-op mop">∑</span></span></span><span style="top:-1.336005em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle uncramped"><span class="mord scriptstyle uncramped"><span class="mord mathit">m</span><span class="mord mathit">i</span><span class="mord mathit">n</span><span class="mopen">(</span><span class="mord mathit">c</span><span class="mord mathit">o</span><span class="mord mathit">u</span><span class="mord mathit">n</span><span class="mord"><span class="mord mathit">t</span><span class="vlist"><span style="top:0.15em;margin-right:0.07142857142857144em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-scriptstyle scriptscriptstyle cramped"><span class="mord mathit">i</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mpunct">,</span><span class="mord mathit" style="margin-right:0.02778em;">r</span><span class="mord mathit">e</span><span class="mord mathit">s</span><span class="mord mathrm">/</span><span class="mord mathit">c</span><span class="mord mathit">o</span><span class="mord mathit">s</span><span class="mord mathit">t</span><span class="mclose">)</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mord mathit" style="margin-right:0.10764em;">f</span><span class="mopen">[</span><span class="mord mathit">i</span><span class="mbin">−</span><span class="mord mathrm">1</span><span class="mclose">]</span><span class="mopen">[</span><span class="mord mathit" style="margin-right:0.02778em;">r</span><span class="mord mathit">e</span><span class="mord mathit">s</span><span class="mbin">−</span><span class="mord mathit" style="margin-right:0.03148em;">k</span><span class="mbin">∗</span><span class="mord mathit">c</span><span class="mord mathit">o</span><span class="mord mathit">s</span><span class="mord mathit">t</span><span class="mclose">]</span></span></span></span></span></p>
 <p>可以看到其实就是在01背包基础上，在状态转移时再加一个循环处理。</p>
 <hr>
@@ -119,7 +119,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/08/DP-%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/" data-id="cmcunj0um0004w4t65xwc5e2l" data-title="DP 刷题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/08/DP-%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/" data-id="cmcunq3za0002ukt6gu3gdvy2" data-title="DP 刷题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -270,7 +270,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/06/OS-%E8%87%AA%E5%AD%A6%E7%AC%94%E8%AE%B0/" data-id="cmcunj0ul0003w4t64v1l8y9a" data-title="OS 自学笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/06/OS-%E8%87%AA%E5%AD%A6%E7%AC%94%E8%AE%B0/" data-id="cmcunq3zd0004ukt6261e7pwv" data-title="OS 自学笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -368,7 +368,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/25/BUAA-CO-P4%E8%AF%BE%E4%B8%8A/" data-id="cmcunj0uc0000w4t68jjq5ubl" data-title="BUAA CO P4课上" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/25/BUAA-CO-P4%E8%AF%BE%E4%B8%8A/" data-id="cmcunq3z20000ukt6gezk1koc" data-title="BUAA CO P4课上" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -438,7 +438,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" data-id="cmcunj0uh0001w4t639wt6rqt" data-title="Chainer环境配置" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" data-id="cmcunq3z80001ukt6gnvg3bzv" data-title="Chainer环境配置" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -486,7 +486,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/24/Liu-first-blog/" data-id="cmcunj0uj0002w4t6esh6ehuc" data-title="&#39;Liu-first-blog&#39;" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/24/Liu-first-blog/" data-id="cmcunq3zb0003ukt6gi6vf3kg" data-title="&#39;Liu-first-blog&#39;" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
