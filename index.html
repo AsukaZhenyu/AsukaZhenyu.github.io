@@ -73,6 +73,93 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-Stanford-CS144-Winter-2025-Lab-Checkpoint-0" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2025/07/19/Stanford-CS144-Winter-2025-Lab-Checkpoint-0/" class="article-date">
+  <time class="dt-published" datetime="2025-07-19T07:14:01.000Z" itemprop="datePublished">2025-07-19</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2025/07/19/Stanford-CS144-Winter-2025-Lab-Checkpoint-0/">Stanford CS144 Winter 2025 Lab Checkpoint 0</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>本篇记录Stanford CS144: Introduction to Computer Networking Winter 2025课程对应的实验Checkpoint 0的实验过程。实验指导手册直接从cs144.github.io下载pdf。</p>
+<p>在check0中，需要配置环境、利用telnet获取网页、利用telnet发送邮件、利用netcat实现监听和连接、下载CS144的minnow库代码框架，利用Linux内核提供的TCP API实现webget程序、实现内存可靠比特流。</p>
+<p>由于我没有Stanford学号，也上不了Stanford的网络，前面获取网页和发送邮件部分就不做了。</p>
+<h2 id="环境配置">环境配置</h2>
+<p>可以直接安照实验指导书来，访问<a target="_blank" rel="noopener" href="https://stanford.edu/class/cs144/vm_howto/vm-howto-image.html">https://stanford.edu/class/cs144/vm_howto/vm-howto-image.html</a>，根据指导书来安装即可。遇到的问题是上面这个网址对应的Oracle VirtualBox的下载链接已经失效，需要手动去Oracle中国网站下载，VirtualBox安装全默认即可，剩余的安装步骤按照指导书来即可。</p>
+<p>虚拟机开机后，实验指导书建议实验ssh远程连接虚拟机，使用本地VS code编辑代码，在VS code里安装Remote - SSH插件，根据指导书输入ssh -p 2222 cs144@localhost，ssh配置推荐选择用户级的SSH配置文件，只对当前的用户生效。在下图中就是第一个配置文件。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507191534311.png" alt=""></p>
+<p>直接根据实验指导书下载minnow是下载不了的，可能是权限问题，可能是仓库不存在，我访问不了不能下载，需要自己在GitHub上找好心人上传的minnow代码。我找到的地址是:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cs144@cs144vm:~$ git <span class="built_in">clone</span> https://github.com/cry0404/minnow.git</span><br></pre></td></tr></table></figure>
+<p>这个仓库是2025winter版本，lab0-lab7分支是大佬实现好的版本，后续的lab会根据实验指导书的指示，删去大佬已经写好的.cc文件里的函数的实现代码，自己再实现一次。</p>
+<h2 id="Listening-and-connecting">Listening and connecting</h2>
+<p>这部分难点是CS144给的虚拟机没有GUI，开机后直接是命令行界面，不知道如何开不同的终端，解决方案是使用tmux工具。</p>
+<p>先输入tmux进入新的终端。<br>
+<img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507191558334.png" alt=""></p>
+<p>操作是先按“ctrl+b”松开后按不同按键达到不同效果。</p>
+<ul>
+<li>c 创建新的窗口</li>
+<li>n 切换到下一个窗口</li>
+<li>p 切换到上一个窗口</li>
+<li>% 将一个窗口左右切分窗口</li>
+<li>&quot; 将一个窗口上下切分窗口</li>
+</ul>
+<p>切分窗口后，可以按“ctrl+b”松开后按“方向键”来切换窗口。</p>
+<p>那么实验过程是：输入tmux，按下“CTRL + b&quot;后松开，按&quot;上下分割窗口，然后根据实验指导书里进行操作，效果如下所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507191606726.png" alt=""></p>
+<p>通信的退出安装实验指导书里来，“ctrl + ]”，然后输入close即可退出通信，退出tmux：先按“CTRL + b&quot;后松开，按&quot;d&quot;即可退出tmux。</p>
+<h2 id="Webget">Webget</h2>
+<p>在GitHub新建名为minnow的仓库，注意设为隐私，然后在虚拟机上绑定仓库。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cs144@cs144vm:~/minnow$ git remote add github https://github.com/AsukaZhenyu/minnow</span><br><span class="line">cs144@cs144vm:~/minnow$ git push github</span><br></pre></td></tr></table></figure>
+<p>编译初始代码</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cmake -S . -B build</span><br><span class="line">cmake --build build</span><br></pre></td></tr></table></figure>
+<p>get_URL函数实现:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+<p>修改了GET行的最后一个字符串，在HTTP前加了一个空格，原来的函数格式错误导致403错误。</p>
+<p>Webget结果：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">cs144@cs144vm:~/minnow$ ./build/apps/webget cs144.keithw.org /hello</span><br><span class="line">Function called: get_URL(cs144.keithw.org, /hello)</span><br><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Date: Sat, 19 Jul 2025 08:20:17 GMT</span><br><span class="line">Server: Apache</span><br><span class="line">Last-Modified: Thu, 13 Dec 2018 15:45:29 GMT</span><br><span class="line">ETag: <span class="string">&quot;e-57ce93446cb64&quot;</span></span><br><span class="line">Accept-Ranges: bytes</span><br><span class="line">Content-Length: 14</span><br><span class="line">Connection: close</span><br><span class="line">Content-Type: text/plain</span><br><span class="line"></span><br><span class="line">Hello, CS144!</span><br></pre></td></tr></table></figure>
+<p>自动化测试结果：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">cs144@cs144vm:~/minnow$ cmake --build build --target check_webget</span><br><span class="line">Test project /home/cs144/minnow/build</span><br><span class="line">    Start 1: compile with bug-checkers</span><br><span class="line">1/2 Test <span class="comment">#1: compile with bug-checkers ........   Passed   88.83 sec</span></span><br><span class="line">    Start 2: t_webget</span><br><span class="line">2/2 Test <span class="comment">#2: t_webget .........................   Passed    1.06 sec</span></span><br><span class="line"></span><br><span class="line">100% tests passed, 0 tests failed out of 2</span><br><span class="line"></span><br><span class="line">Total Test <span class="keyword">time</span> (real) =  89.89 sec</span><br><span class="line">Built target check_webget</span><br></pre></td></tr></table></figure>
+<p>用虚拟机跑性能较差，测试使用了90s，测试代码设置是12s就timeout，在运行测试时请修改etc/tests.cmake里的代码：<br>
+<img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507191823908.png" alt=""></p>
+<p>测试完后将timeout改回12s，后续lab要融合新代码，不要修改<code>webget.cc</code>、<code>src/byte_stream.cc</code>、<code>src/byte_stream.hh</code>以外的文件。</p>
+<p><code>cmake --build build</code>这一类命令直接重复跑会出错，简单的操作是：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">rm</span> -rf build</span><br><span class="line">cmake -S . -B build</span><br><span class="line">cmake --build build</span><br></pre></td></tr></table></figure>
+<p>webget弄完后，将minnow仓库push到GitHub上。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cs144@cs144vm:~/minnow$ git add .</span><br><span class="line">cs144@cs144vm:~/minnow$ git commit -m <span class="string">&quot;完成get_URL函数实现，完成自动化测试&quot;</span></span><br><span class="line">cs144@cs144vm:~/minnow$ git push github</span><br></pre></td></tr></table></figure>
+<p>http推送不稳定，尝试多次后才上传成果，据说使用ssh推送更稳定。</p>
+<p>本节部分指导书内容翻译与代码阅读部分：</p>
+<h2 id="一个内存可靠的字节流">一个内存可靠的字节流</h2>
+<p>在单一计算机的内存内实现一个可靠的字节流，写者从写入端写入字节流，读者以相同的顺序读出字节流，写者可以终止写入，读者必须读到EOF。必须做流量控制，限制写者写入速度，防止容量溢出。字节流以单线程运行，不必考虑读者/写者问题、互斥以及竞争。字节流有限长，但是可以是任意长，可以远远大于容量的长度。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://asukazhenyu.github.io/2025/07/19/Stanford-CS144-Winter-2025-Lab-Checkpoint-0/" data-id="cmdah1z950003fwt627jkd8zo" data-title="Stanford CS144 Winter 2025 Lab Checkpoint 0" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-DP-刷题总结" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2025/07/08/DP-%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/" class="article-date">
@@ -120,7 +207,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/08/DP-%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/" data-id="cmcupw1um0003cct600124wj8" data-title="DP 刷题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/08/DP-%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/" data-id="cmdah1z910001fwt66kgs7vb9" data-title="DP 刷题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -271,7 +358,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/06/OS-%E8%87%AA%E5%AD%A6%E7%AC%94%E8%AE%B0/" data-id="cmcupw1un0004cct68i8e0ubh" data-title="OS 自学笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/06/OS-%E8%87%AA%E5%AD%A6%E7%AC%94%E8%AE%B0/" data-id="cmdah1z940002fwt6abal1jq5" data-title="OS 自学笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -369,7 +456,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/25/BUAA-CO-P4%E8%AF%BE%E4%B8%8A/" data-id="cmcupw1ud0000cct6g7xkbvss" data-title="BUAA CO P4课上" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/25/BUAA-CO-P4%E8%AF%BE%E4%B8%8A/" data-id="cmdah1z8v0000fwt60msc78pr" data-title="BUAA CO P4课上" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -439,7 +526,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" data-id="cmcupw1ui0001cct62ysq9c8e" data-title="Chainer环境配置" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" data-id="cmdah1z980005fwt6gemj2cxc" data-title="Chainer环境配置" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -487,7 +574,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/24/Liu-first-blog/" data-id="cmcupw1ul0002cct6g2rq0sxv" data-title="&#39;Liu-first-blog&#39;" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/24/Liu-first-blog/" data-id="cmdah1z960004fwt6donc2u1k" data-title="&#39;Liu-first-blog&#39;" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -530,6 +617,10 @@
       <ul>
         
           <li>
+            <a href="/2025/07/19/Stanford-CS144-Winter-2025-Lab-Checkpoint-0/">Stanford CS144 Winter 2025 Lab Checkpoint 0</a>
+          </li>
+        
+          <li>
             <a href="/2025/07/08/DP-%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/">DP 刷题总结</a>
           </li>
         
@@ -543,10 +634,6 @@
         
           <li>
             <a href="/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/">Chainer环境配置</a>
-          </li>
-        
-          <li>
-            <a href="/2025/05/24/Liu-first-blog/">&#39;Liu-first-blog&#39;</a>
           </li>
         
       </ul>
