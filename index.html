@@ -73,6 +73,69 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-2025-7-视觉模型数理" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2025/07/22/2025-7-%E8%A7%86%E8%A7%89%E6%A8%A1%E5%9E%8B%E6%95%B0%E7%90%86/" class="article-date">
+  <time class="dt-published" datetime="2025-07-22T07:22:34.000Z" itemprop="datePublished">2025-07-22</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2025/07/22/2025-7-%E8%A7%86%E8%A7%89%E6%A8%A1%E5%9E%8B%E6%95%B0%E7%90%86/">2025.7 视觉模型梳理</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>本篇主要梳理我在本科阶段（2022.9-2025.7）接触到的、实现过的计算机视觉模型，目标是：梳理复习计算机视觉基础，回顾自己曾经做过的项目，分享一些自己的认识和项目经验。聚焦于基础概念和理解，不涉及特别具体的实践内容。</p>
+<h2 id="CNN-Series">CNN-Series</h2>
+<p>最初接触计算机视觉就是CNN模型，最基础的计算机视觉任务就是图像分类，在这一节我要介绍下面几个专题：从MLP到CNN、ResNet系列、常见的改进思路。</p>
+<h3 id="从MLP到CNN">从MLP到CNN</h3>
+<h3 id="ResNet系列">ResNet系列</h3>
+<h3 id="常见的改进思路">常见的改进思路</h3>
+<p>对于图像分类问题，场景的改进思路有：多层金字塔、注意力机制、自蒸馏等等。</p>
+<h2 id="进阶任务">进阶任务</h2>
+<p>CNN在图像分类上效果非常好，在我自己的实验中，用简单的ResNet网络经过较短时间训练后，分类的准确率都在88%以上（但是并不是说图像分类就简单，细粒度的图像分类很难）。接下来介绍一些更进阶的工作，不同的任务可能涉及新的前置知识和新的网络结构。</p>
+<p>在我看来，图像分类可以简化为，特征提取+分类器，这非常好理解，本质上就是机器学习方法中，用深度神经网络替换手工选取特征。输入是图像，输出是离散、稀疏的分类结果。对于进阶的任务，输出可能是一张新的图片、Bounding Box的位置和分类结果、三维点云等。不同的任务对应不同的输出结果，解决思路和网络结果可能完全不同，而且对计算资源的要求更高。</p>
+<p>图像分类，我们利用卷积神经网络提取图像高层语言特征，并利用高层语义特征向量进行分类。高层语义特征失去了一些图像在边缘上的细节，这些细节对于图像分类可能用处不大，但是对进阶的任务来说，图像细节信息可能决定了模型预测的精度。</p>
+<p>对于输出是一张图，例如：像素级别的分割图、深度图、变化检测图等，我们不会用分类器输出，而是用卷积（<strong>转置卷积</strong>、<strong>DPT-decoder</strong>：多层金字塔特征输入外加残差卷积）结构，这被称为稠密预测。对于稠密预测，我们通常会关心分辨率的问题，卷积神经网络通过卷积和池化步骤降低图像分辨率提取图像特征，丢掉了边缘等细节，直接卷积重建分辨率不好。这就是为什么对于红外目标或小目标我们要采用U-Net结构或者多层金字塔结构。如果要预测高分辨率的分割图、深度图、变化检测图，我们也不会直接采用全卷积。在2025年CVPR上的VGGT、Fast 3R在提取图像特征时都是采用多层vit金字塔结构，并采用DPT-decoder作为解码器。</p>
+<h3 id="超分辨率重建">超分辨率重建</h3>
+<p>超分辨率的传统方法包括：双线性差值等，也包括基于CNN的方法：SRCNN，还包括基于生成模型、扩散模型的方法。</p>
+<h3 id="图像分割">图像分割</h3>
+<p>图像分割分为三类：语义分割、实例分割、全景分割。</p>
+<h3 id="目标检测">目标检测</h3>
+<p>目标检测是一个很大的任务，针对不同场景有不同解决方法，对于静态场景有不同的方法：RCNN系列、SSD、YOLO，对于动态场景，通常和目标跟踪结合实现，例如YOLO11-JDE先利用YOLO检测出目标位置，然后进行数据关联。总之输入是图像或图像序列，输出是目标位置的Bounding Box已经目标的分类，目标的ID等。</p>
+<h3 id="单目深度估计">单目深度估计</h3>
+<p>单目深度估计输入是单张RGB图像，输出是单通道深度图。</p>
+<p>单目深度估计与图像分割协同训练，</p>
+<h3 id="多帧图像三维重建">多帧图像三维重建</h3>
+<p>这部分内容，我实际做的不多，如果要训练对计算资源要求太大了，仅仅是利用训练好的模型进行预测显存占用都很大，只能谈谈有限的方法调研与运行感受。</p>
+<h3 id="其他任务">其他任务</h3>
+<p>这小节介绍其他在课程里学习过但是没有做过的任务和模型，简单谈谈任务定义和实现思路。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://asukazhenyu.github.io/2025/07/22/2025-7-%E8%A7%86%E8%A7%89%E6%A8%A1%E5%9E%8B%E6%95%B0%E7%90%86/" data-id="cmdep4rzx0000ekt60apxghtj" data-title="2025.7 视觉模型梳理" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-Stanford-CS144-Lab1" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2025/07/21/Stanford-CS144-Lab1/" class="article-date">
@@ -110,7 +173,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/21/Stanford-CS144-Lab1/" data-id="cmdcx4c37000598t69ydq5nyw" data-title="Stanford CS144 Lab1" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/21/Stanford-CS144-Lab1/" data-id="cmdep4s0b0006ekt69ymg80t8" data-title="Stanford CS144 Lab1" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -227,7 +290,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/19/Stanford-CS144-Winter-2025-Lab-Checkpoint-0/" data-id="cmdcx4c39000698t6hiohhuqn" data-title="Stanford CS144 Winter 2025 Lab Check0" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/19/Stanford-CS144-Winter-2025-Lab-Checkpoint-0/" data-id="cmdep4s0c0007ekt60tcy4pm7" data-title="Stanford CS144 Winter 2025 Lab Check0" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -286,7 +349,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/08/DP-%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/" data-id="cmdcx4c34000298t6dcso7jwk" data-title="DP 刷题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/08/DP-%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/" data-id="cmdep4s090003ekt6ggs07ykx" data-title="DP 刷题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -437,7 +500,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/06/OS-%E8%87%AA%E5%AD%A6%E7%AC%94%E8%AE%B0/" data-id="cmdcx4c36000498t6emsb43sb" data-title="OS 自学笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/06/OS-%E8%87%AA%E5%AD%A6%E7%AC%94%E8%AE%B0/" data-id="cmdep4s0b0005ekt6dtkchyoj" data-title="OS 自学笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -535,7 +598,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/25/BUAA-CO-P4%E8%AF%BE%E4%B8%8A/" data-id="cmdcx4c2u000098t6d5x97173" data-title="BUAA CO P4课上" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/25/BUAA-CO-P4%E8%AF%BE%E4%B8%8A/" data-id="cmdep4s050001ekt62r4hc33f" data-title="BUAA CO P4课上" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -605,7 +668,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" data-id="cmdcx4c32000198t6cq2ndavp" data-title="Chainer环境配置" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" data-id="cmdep4s080002ekt6bvwr12m8" data-title="Chainer环境配置" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -653,7 +716,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/24/Liu-first-blog/" data-id="cmdcx4c36000398t6diix5pzi" data-title="&#39;Liu-first-blog&#39;" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/24/Liu-first-blog/" data-id="cmdep4s090004ekt6dbs248bw" data-title="&#39;Liu-first-blog&#39;" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -696,6 +759,10 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       <ul>
         
           <li>
+            <a href="/2025/07/22/2025-7-%E8%A7%86%E8%A7%89%E6%A8%A1%E5%9E%8B%E6%95%B0%E7%90%86/">2025.7 视觉模型梳理</a>
+          </li>
+        
+          <li>
             <a href="/2025/07/21/Stanford-CS144-Lab1/">Stanford CS144 Lab1</a>
           </li>
         
@@ -709,10 +776,6 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
         
           <li>
             <a href="/2025/07/06/OS-%E8%87%AA%E5%AD%A6%E7%AC%94%E8%AE%B0/">OS 自学笔记</a>
-          </li>
-        
-          <li>
-            <a href="/2025/05/25/BUAA-CO-P4%E8%AF%BE%E4%B8%8A/">BUAA CO P4课上</a>
           </li>
         
       </ul>
