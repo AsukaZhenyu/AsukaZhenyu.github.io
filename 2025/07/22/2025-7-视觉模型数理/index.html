@@ -13,10 +13,12 @@
 <meta property="og:site_name" content="Zhenyu&#39;s blog">
 <meta property="og:description" content="本篇主要梳理我在本科阶段（2022.9-2025.7）接触到的、实现过的计算机视觉模型，目标是：梳理复习计算机视觉基础，回顾自己曾经做过的项目，分享一些自己的认识和项目经验。聚焦于基础概念和理解，不涉及特别具体的实践内容。 CNN-Series 最初接触计算机视觉就是CNN模型，最基础的计算机视觉任务就是图像分类，在这一节我要介绍下面几个专题：从MLP到CNN、ResNet系列、常见的改进思路。">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251626333.png">
 <meta property="article:published_time" content="2025-07-22T07:22:34.000Z">
-<meta property="article:modified_time" content="2025-07-22T10:19:48.120Z">
+<meta property="article:modified_time" content="2025-07-25T09:10:15.330Z">
 <meta property="article:author" content="Zhenyu">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251626333.png">
   
     <link rel="alternate" href="/atom.xml" title="Zhenyu's blog" type="application/atom+xml">
   
@@ -102,31 +104,61 @@
 <p>最初接触计算机视觉就是CNN模型，最基础的计算机视觉任务就是图像分类，在这一节我要介绍下面几个专题：从MLP到CNN、ResNet系列、常见的改进思路。</p>
 <h3 id="从MLP到CNN">从MLP到CNN</h3>
 <h3 id="ResNet系列">ResNet系列</h3>
+<p>ResNet通过残差链接解决了深度神经网络的梯度消失和梯度爆炸问题，可视为深度神经网络的鼻祖，我最开始实践学习深度神经网络就是从ResNet开始的。我当时就是直接看的pytorch实现的ResNet代码，并且直接在这些代码上进行一些改进，详情请参见下一节<strong>常见的改进思路</strong>。</p>
 <h3 id="常见的改进思路">常见的改进思路</h3>
 <p>对于图像分类问题，场景的改进思路有：多层金字塔、注意力机制、自蒸馏等等。</p>
 <h2 id="进阶任务">进阶任务</h2>
-<p>CNN在图像分类上效果非常好，在我自己的实验中，用简单的ResNet网络经过较短时间训练后，分类的准确率都在88%以上（但是并不是说图像分类就简单，细粒度的图像分类很难）。接下来介绍一些更进阶的工作，不同的任务可能涉及新的前置知识和新的网络结构。</p>
-<p>在我看来，图像分类可以简化为，特征提取+分类器，这非常好理解，本质上就是机器学习方法中，用深度神经网络替换手工选取特征。输入是图像，输出是离散、稀疏的分类结果。对于进阶的任务，输出可能是一张新的图片、Bounding Box的位置和分类结果、三维点云等。不同的任务对应不同的输出结果，解决思路和网络结果可能完全不同，而且对计算资源的要求更高。</p>
-<p>图像分类，我们利用卷积神经网络提取图像高层语言特征，并利用高层语义特征向量进行分类。高层语义特征失去了一些图像在边缘上的细节，这些细节对于图像分类可能用处不大，但是对进阶的任务来说，图像细节信息可能决定了模型预测的精度。</p>
-<p>对于输出是一张图，例如：像素级别的分割图、深度图、变化检测图等，我们不会用分类器输出，而是用卷积（<strong>转置卷积</strong>、<strong>DPT-decoder</strong>：多层金字塔特征输入外加残差卷积）结构，这被称为稠密预测。对于稠密预测，我们通常会关心分辨率的问题，卷积神经网络通过卷积和池化步骤降低图像分辨率提取图像特征，丢掉了边缘等细节，直接卷积重建分辨率不好。这就是为什么对于红外目标或小目标我们要采用U-Net结构或者多层金字塔结构。如果要预测高分辨率的分割图、深度图、变化检测图，我们也不会直接采用全卷积。在2025年CVPR上的VGGT、Fast 3R在提取图像特征时都是采用多层vit金字塔结构，并采用DPT-decoder作为解码器。</p>
-<h3 id="超分辨率重建">超分辨率重建</h3>
-<p>超分辨率的传统方法包括：双线性差值等，也包括基于CNN的方法：SRCNN，还包括基于生成模型、扩散模型的方法。</p>
+<p>CNN在图像分类上效果非常好，在我自己的实验中，用简单的ResNet网络经过较短时间训练后，分类的准确率大多在88%以上（但是并不是说图像分类就简单，细粒度的图像分类很难），但是在做图像分割、目标检测等进阶任务时发现比较困难，而且刚开始做的时候效果也很差。这些进阶任务不能直接沿用CNN图像分类的思路，不同的任务可能涉及新的前置知识和新的网络结构。</p>
 <h3 id="图像分割">图像分割</h3>
 <p>图像分割分为三类：语义分割、实例分割、全景分割。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251626333.png" alt=""></p>
+<p>图像分类以图像为单位进行预测，而图像分割以像素为单位进行预测，被称为密集预测。图像分类可以简化为，特征提取+分类器，CNN网络通过卷积和池化操作提取图像高层语义特征用于分类。高层语义特征去掉了对分类用处较小的图像细节，但是对于密集预测任务，既需要抽象的高层语义特征，又需要详细的局部特征，类似于上面提到的多层金字塔思想。</p>
 <h3 id="目标检测">目标检测</h3>
-<p>目标检测是一个很大的任务，针对不同场景有不同解决方法，对于静态场景有不同的方法：RCNN系列、SSD、YOLO，对于动态场景，通常和目标跟踪结合实现，例如YOLO11-JDE先利用YOLO检测出目标位置，然后进行数据关联。总之输入是图像或图像序列，输出是目标位置的Bounding Box已经目标的分类，目标的ID等。</p>
+<p>目标检测针对一张图像，需要检测出图像中所有目标的位置和类别。通常目标检测和目标跟踪会结合在一起，我会在本节的末尾简单介绍目标跟踪。</p>
+<ol>
+<li><strong>RCNN系列</strong>：RCNN、Fast RCNN、Faster RCNN、Mask RCNN</li>
+</ol>
+<p>如果你要复现RCNN系列模型，我推荐Facebook Research的库detectron2，里面有Faster RCNN和Mask RCNN的实现，后续微调和训练都很方便。RCNN的复现比较难弄，因为实在太早了，能找到的实现在当前的CUDA版本上跑不通，我建议直接根据论文结构自己复现，下载预训练好的CNN网络作为特征提取器，自己只训练回归和分类用的SVM。</p>
+<ol start="2">
+<li>
+<p><strong>SSD</strong>：Single Shot MultiBox Detector<br>
+在李沐老师的动手学深度学习里实现过SSD，如果你是初学者也强烈推荐李沐老师的讲解视频<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Db4y1C71g">BV1Db4y1C71g</a>。</p>
+</li>
+<li>
+<p><strong>YOLO</strong>：You Only Look Once</p>
+</li>
+</ol>
+<p>目标跟踪要在图像序列中持续跟踪目标，难点是多目标中交叉、相互遮挡等情况。目标检测与目标跟踪也不是绝对的先后关系，对于小目标、红外图像序列可能会采取边检测边跟踪的策略。</p>
 <h3 id="单目深度估计">单目深度估计</h3>
 <p>单目深度估计输入是单张RGB图像，输出是单通道深度图。</p>
-<p>单目深度估计与图像分割协同训练，</p>
+<p>下面介绍几个改进思路：</p>
+<ol>
+<li>多任务协同训练，例如：单目深度估计与图像分割协同训练。</li>
+<li><strong>Focal Loss</strong>，对不同的像素赋予不同的权重，用于平衡数据集中不同类别样本的分布不均问题。</li>
+</ol>
 <h3 id="多帧图像三维重建">多帧图像三维重建</h3>
-<p>这部分内容，我实际做的不多，如果要训练对计算资源要求太大了，仅仅是利用训练好的模型进行预测显存占用都很大，只能谈谈有限的方法调研与运行感受。</p>
+<p>三维重建的模型我没有训练过，只在HuggingFace上的Playground上试过，输入是图像序列，输出是三维点云。我曾经尝试在本地上运行训练好的模型，最终因为显存不足所以放弃了。</p>
+<h3 id="超分辨率重建">超分辨率重建</h3>
+<p>这部分我没有训练和尝试过，曾经在某课程上做过调研。<br>
+超分辨率的传统方法包括：双线性差值等，也包括基于CNN的方法：SRCNN，还包括基于生成模型、扩散模型的方法。</p>
 <h3 id="其他任务">其他任务</h3>
-<p>这小节介绍其他在课程里学习过但是没有做过的任务和模型，简单谈谈任务定义和实现思路。</p>
+<p>这小节介绍其他在课程里学习过的任务和模型，简单谈谈任务定义和实现思路。</p>
+<ol>
+<li>
+<p>细粒度图像分类</p>
+</li>
+<li>
+<p>显著性图生成</p>
+</li>
+<li>
+<p>多模态目标识别</p>
+</li>
+</ol>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/22/2025-7-%E8%A7%86%E8%A7%89%E6%A8%A1%E5%9E%8B%E6%95%B0%E7%90%86/" data-id="cmdep4rzx0000ekt60apxghtj" data-title="2025.7 视觉模型梳理" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/22/2025-7-%E8%A7%86%E8%A7%89%E6%A8%A1%E5%9E%8B%E6%95%B0%E7%90%86/" data-id="cmdils6bs0001tot6eeg24nxg" data-title="2025.7 视觉模型梳理" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -135,6 +167,15 @@
   
     
 <nav id="article-nav">
+  
+    <a href="/2025/07/24/2025-7-24-%E6%97%B6%E9%97%B4%E5%BA%8F%E5%88%97%E6%A8%A1%E5%9E%8B%E6%A2%B3%E7%90%86/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          2025.7 时间序列模型梳理
+        
+      </div>
+    </a>
   
   
     <a href="/2025/07/21/Stanford-CS144-Lab1/" id="article-nav-older" class="article-nav-link-wrap">
@@ -177,6 +218,14 @@
       <ul>
         
           <li>
+            <a href="/2025/07/25/CS143-PA1/">CS143 PA1</a>
+          </li>
+        
+          <li>
+            <a href="/2025/07/24/2025-7-24-%E6%97%B6%E9%97%B4%E5%BA%8F%E5%88%97%E6%A8%A1%E5%9E%8B%E6%A2%B3%E7%90%86/">2025.7 时间序列模型梳理</a>
+          </li>
+        
+          <li>
             <a href="/2025/07/22/2025-7-%E8%A7%86%E8%A7%89%E6%A8%A1%E5%9E%8B%E6%95%B0%E7%90%86/">2025.7 视觉模型梳理</a>
           </li>
         
@@ -186,14 +235,6 @@
         
           <li>
             <a href="/2025/07/19/Stanford-CS144-Winter-2025-Lab-Checkpoint-0/">Stanford CS144 Winter 2025 Lab Check0</a>
-          </li>
-        
-          <li>
-            <a href="/2025/07/08/DP-%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/">DP 刷题总结</a>
-          </li>
-        
-          <li>
-            <a href="/2025/07/06/OS-%E8%87%AA%E5%AD%A6%E7%AC%94%E8%AE%B0/">OS 自学笔记</a>
           </li>
         
       </ul>

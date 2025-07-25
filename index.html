@@ -73,6 +73,124 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-CS143-PA1" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2025/07/25/CS143-PA1/" class="article-date">
+  <time class="dt-published" datetime="2025-07-24T16:16:48.000Z" itemprop="datePublished">2025-07-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2025/07/25/CS143-PA1/">CS143 PA1</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>CS143我是在edx上学的MOOC版本，你需要注册账号，然后搜索compiler找到Stanford对应的课程然后报名。点开课程后，你可以看到下面的网页：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251310830.png" alt=""></p>
+<p>你可以在课程一栏里找到不同实验对应的指导书，在上方&quot;VirtualBox VM Setup&quot;里有虚拟机环境配置的指南，如果你想要直接在Linux系统或者WSL上做实验的话可以参考&quot;Installing Directly on Linux&quot;部分。</p>
+<p>在&quot;Installing Directly on Linux&quot;部分里面有课程压缩包的下载连接，比较适合想要自己配环境的同学，我也尝试在WSL上配置环境，但是实验使用的是JDK6，包括课程使用的其他工具flex、bison也有版本要求，太新了也不行，在配环境的时候比较麻烦，所以我还是选择了直接下载虚拟机镜像。</p>
+<p>原本的代码下载下来后，发现代码比较老，我尝试把链接里的2020改为2025，发现连接不存在，在下载完虚拟机后发现虚拟机文件上次修改是在2012年，所以先不纠结代码新旧问题。直接跟着edx上的指示做即可。</p>
+<h2 id="环境配置">环境配置</h2>
+<p>在下载虚拟机镜像的时候drive.google.com加载非常慢。重启浏览器、重启电脑、更改梯子节点，尝试了很多遍都不能打开网页，有一次重启后经过几分钟等待终于打开了，下载的速度也很慢，观察下载速度也顺便复习了一下TCP New Reno的阻塞控制算法，大部分时候下载速度是10kb/s-30kb/s之间AIMD的锯齿形状，偶尔可能发生Timeout这时候下载速度为0b/s，这时候可能是进入了慢启动阶段，快速恢复到8-10kb/s，然后继续锯齿形状。完整下载下来需要大半天的时间，而文件708MB并不大。</p>
+<p>虚拟机下载链接：</p>
+<p>北航云盘：<a target="_blank" rel="noopener" href="https://bhpan.buaa.edu.cn/link/AAF9368AFA5BA94A7B8E4ED1BE6BABAAAD">https://bhpan.buaa.edu.cn/link/AAF9368AFA5BA94A7B8E4ED1BE6BABAAAD</a><br>
+文件夹名：Stanford CS143 VM<br>
+有效期限：永久有效</p>
+<p>百度网盘：通过网盘分享的文件：compilers-vm.zip<br>
+链接: <a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1LvsnaGm_F41MjmHwGSwpEQ?pwd=wf3k">https://pan.baidu.com/s/1LvsnaGm_F41MjmHwGSwpEQ?pwd=wf3k</a> 提取码: wf3k<br>
+–来自百度网盘超级会员v1的分享</p>
+<p>接下来按照指导建立共享文件夹：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251332199.png" alt=""></p>
+<p>在虚拟机中运行下面的命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo usermod -a -G vboxsf compilers</span><br></pre></td></tr></table></figure>
+<p>这个命令是获取超级用户的权限，用户名是compilers，密码是cool，命令运行完后需要重启虚拟机。然后就可以在虚拟机中访问共享文件夹：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251341191.png" alt=""></p>
+<p>然后运行命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ln -s /media/sf_tmp /home/compilers/cool/tmp</span><br></pre></td></tr></table></figure>
+<p>创建一个共享文件夹到用户主目录的链接，这样就可以在用户主目录下访问共享文件夹了。</p>
+<p>在之后的作业评测中，需要把评测文件下载到本地的共享文件夹，然后执行下面的命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mv /media/sf_tmp/pa&lt;num&gt;-grading.pl /home/compilers/cool/assignment/PA&lt;num&gt;</span><br><span class="line">perl pa&lt;num&gt;-grading.pl</span><br></pre></td></tr></table></figure>
+<p>下面是&quot;Getting Started with the VM&quot;examples的编译结果：<br>
+<img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251353138.png" alt=""></p>
+<p>在虚拟机里有PA1和PAi、PAiJ（i:2~5），PA1是简单的熟悉COOL语言的项目（实现一个栈数据结构），后面四个才是编译器实现的核心实验（词法分析、语法分析、语义分析和代码生成）不带J的是C++实现版本，带J的是Java实现版本。</p>
+<p>另外在edx里参与测试Quiz和提交作业需要交钱（$249，第一次买课可以30%off），即使打折对我而言也太贵了（￥1200+）而且必要性不大。</p>
+<p>关于测试文件，在edx每个实验都会给一个下载链接，如下所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251441247.png" alt=""></p>
+<p>我在本地的共享文件夹下打开终端，使用WSL运行相应的wget下载对应的测试文件：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251444982.png" alt=""></p>
+<p>这些测试文件我也上传到上面北航云盘的文件夹下，自己直接根据edx下载也很快。</p>
+<p>后续在虚拟机里打开共享文件夹可以看到：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251453483.png" alt=""></p>
+<h2 id="PA1-Stack">PA1 Stack</h2>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://asukazhenyu.github.io/2025/07/25/CS143-PA1/" data-id="cmdils6bw0003tot6fuph55lv" data-title="CS143 PA1" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-2025-7-24-时间序列模型梳理" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2025/07/24/2025-7-24-%E6%97%B6%E9%97%B4%E5%BA%8F%E5%88%97%E6%A8%A1%E5%9E%8B%E6%A2%B3%E7%90%86/" class="article-date">
+  <time class="dt-published" datetime="2025-07-24T06:01:07.000Z" itemprop="datePublished">2025-07-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2025/07/24/2025-7-24-%E6%97%B6%E9%97%B4%E5%BA%8F%E5%88%97%E6%A8%A1%E5%9E%8B%E6%A2%B3%E7%90%86/">2025.7 时间序列模型梳理</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>本篇梳理我本科阶段（2022.09-2025.07）参与项目、竞赛中涉及到的时间序列模型，分为以下三个类介绍：简单时间序列预测模型、RNN、transformer。</p>
+<h2 id="简单时间序列预测模型">简单时间序列预测模型</h2>
+<p>根据我的数学建模参赛经历时间序列预测是非常常见的数学建模问题，如果是想要参加数学建模比赛却不知道怎么准备，我建议去学Kaggle上的教程，包括数据处理、特征工程、也包括时间序列预测等一系列常见问题的教程。而且Kaggle上的比赛和数学建模比赛的问题比较相似，可以积累经验。</p>
+<h2 id="RNN">RNN</h2>
+<h2 id="Transformer">Transformer</h2>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://asukazhenyu.github.io/2025/07/24/2025-7-24-%E6%97%B6%E9%97%B4%E5%BA%8F%E5%88%97%E6%A8%A1%E5%9E%8B%E6%A2%B3%E7%90%86/" data-id="cmdils6bl0000tot62qv01g0c" data-title="2025.7 时间序列模型梳理" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-2025-7-视觉模型数理" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2025/07/22/2025-7-%E8%A7%86%E8%A7%89%E6%A8%A1%E5%9E%8B%E6%95%B0%E7%90%86/" class="article-date">
@@ -100,31 +218,61 @@
 <p>最初接触计算机视觉就是CNN模型，最基础的计算机视觉任务就是图像分类，在这一节我要介绍下面几个专题：从MLP到CNN、ResNet系列、常见的改进思路。</p>
 <h3 id="从MLP到CNN">从MLP到CNN</h3>
 <h3 id="ResNet系列">ResNet系列</h3>
+<p>ResNet通过残差链接解决了深度神经网络的梯度消失和梯度爆炸问题，可视为深度神经网络的鼻祖，我最开始实践学习深度神经网络就是从ResNet开始的。我当时就是直接看的pytorch实现的ResNet代码，并且直接在这些代码上进行一些改进，详情请参见下一节<strong>常见的改进思路</strong>。</p>
 <h3 id="常见的改进思路">常见的改进思路</h3>
 <p>对于图像分类问题，场景的改进思路有：多层金字塔、注意力机制、自蒸馏等等。</p>
 <h2 id="进阶任务">进阶任务</h2>
-<p>CNN在图像分类上效果非常好，在我自己的实验中，用简单的ResNet网络经过较短时间训练后，分类的准确率都在88%以上（但是并不是说图像分类就简单，细粒度的图像分类很难）。接下来介绍一些更进阶的工作，不同的任务可能涉及新的前置知识和新的网络结构。</p>
-<p>在我看来，图像分类可以简化为，特征提取+分类器，这非常好理解，本质上就是机器学习方法中，用深度神经网络替换手工选取特征。输入是图像，输出是离散、稀疏的分类结果。对于进阶的任务，输出可能是一张新的图片、Bounding Box的位置和分类结果、三维点云等。不同的任务对应不同的输出结果，解决思路和网络结果可能完全不同，而且对计算资源的要求更高。</p>
-<p>图像分类，我们利用卷积神经网络提取图像高层语言特征，并利用高层语义特征向量进行分类。高层语义特征失去了一些图像在边缘上的细节，这些细节对于图像分类可能用处不大，但是对进阶的任务来说，图像细节信息可能决定了模型预测的精度。</p>
-<p>对于输出是一张图，例如：像素级别的分割图、深度图、变化检测图等，我们不会用分类器输出，而是用卷积（<strong>转置卷积</strong>、<strong>DPT-decoder</strong>：多层金字塔特征输入外加残差卷积）结构，这被称为稠密预测。对于稠密预测，我们通常会关心分辨率的问题，卷积神经网络通过卷积和池化步骤降低图像分辨率提取图像特征，丢掉了边缘等细节，直接卷积重建分辨率不好。这就是为什么对于红外目标或小目标我们要采用U-Net结构或者多层金字塔结构。如果要预测高分辨率的分割图、深度图、变化检测图，我们也不会直接采用全卷积。在2025年CVPR上的VGGT、Fast 3R在提取图像特征时都是采用多层vit金字塔结构，并采用DPT-decoder作为解码器。</p>
-<h3 id="超分辨率重建">超分辨率重建</h3>
-<p>超分辨率的传统方法包括：双线性差值等，也包括基于CNN的方法：SRCNN，还包括基于生成模型、扩散模型的方法。</p>
+<p>CNN在图像分类上效果非常好，在我自己的实验中，用简单的ResNet网络经过较短时间训练后，分类的准确率大多在88%以上（但是并不是说图像分类就简单，细粒度的图像分类很难），但是在做图像分割、目标检测等进阶任务时发现比较困难，而且刚开始做的时候效果也很差。这些进阶任务不能直接沿用CNN图像分类的思路，不同的任务可能涉及新的前置知识和新的网络结构。</p>
 <h3 id="图像分割">图像分割</h3>
 <p>图像分割分为三类：语义分割、实例分割、全景分割。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251626333.png" alt=""></p>
+<p>图像分类以图像为单位进行预测，而图像分割以像素为单位进行预测，被称为密集预测。图像分类可以简化为，特征提取+分类器，CNN网络通过卷积和池化操作提取图像高层语义特征用于分类。高层语义特征去掉了对分类用处较小的图像细节，但是对于密集预测任务，既需要抽象的高层语义特征，又需要详细的局部特征，类似于上面提到的多层金字塔思想。</p>
 <h3 id="目标检测">目标检测</h3>
-<p>目标检测是一个很大的任务，针对不同场景有不同解决方法，对于静态场景有不同的方法：RCNN系列、SSD、YOLO，对于动态场景，通常和目标跟踪结合实现，例如YOLO11-JDE先利用YOLO检测出目标位置，然后进行数据关联。总之输入是图像或图像序列，输出是目标位置的Bounding Box已经目标的分类，目标的ID等。</p>
+<p>目标检测针对一张图像，需要检测出图像中所有目标的位置和类别。通常目标检测和目标跟踪会结合在一起，我会在本节的末尾简单介绍目标跟踪。</p>
+<ol>
+<li><strong>RCNN系列</strong>：RCNN、Fast RCNN、Faster RCNN、Mask RCNN</li>
+</ol>
+<p>如果你要复现RCNN系列模型，我推荐Facebook Research的库detectron2，里面有Faster RCNN和Mask RCNN的实现，后续微调和训练都很方便。RCNN的复现比较难弄，因为实在太早了，能找到的实现在当前的CUDA版本上跑不通，我建议直接根据论文结构自己复现，下载预训练好的CNN网络作为特征提取器，自己只训练回归和分类用的SVM。</p>
+<ol start="2">
+<li>
+<p><strong>SSD</strong>：Single Shot MultiBox Detector<br>
+在李沐老师的动手学深度学习里实现过SSD，如果你是初学者也强烈推荐李沐老师的讲解视频<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Db4y1C71g">BV1Db4y1C71g</a>。</p>
+</li>
+<li>
+<p><strong>YOLO</strong>：You Only Look Once</p>
+</li>
+</ol>
+<p>目标跟踪要在图像序列中持续跟踪目标，难点是多目标中交叉、相互遮挡等情况。目标检测与目标跟踪也不是绝对的先后关系，对于小目标、红外图像序列可能会采取边检测边跟踪的策略。</p>
 <h3 id="单目深度估计">单目深度估计</h3>
 <p>单目深度估计输入是单张RGB图像，输出是单通道深度图。</p>
-<p>单目深度估计与图像分割协同训练，</p>
+<p>下面介绍几个改进思路：</p>
+<ol>
+<li>多任务协同训练，例如：单目深度估计与图像分割协同训练。</li>
+<li><strong>Focal Loss</strong>，对不同的像素赋予不同的权重，用于平衡数据集中不同类别样本的分布不均问题。</li>
+</ol>
 <h3 id="多帧图像三维重建">多帧图像三维重建</h3>
-<p>这部分内容，我实际做的不多，如果要训练对计算资源要求太大了，仅仅是利用训练好的模型进行预测显存占用都很大，只能谈谈有限的方法调研与运行感受。</p>
+<p>三维重建的模型我没有训练过，只在HuggingFace上的Playground上试过，输入是图像序列，输出是三维点云。我曾经尝试在本地上运行训练好的模型，最终因为显存不足所以放弃了。</p>
+<h3 id="超分辨率重建">超分辨率重建</h3>
+<p>这部分我没有训练和尝试过，曾经在某课程上做过调研。<br>
+超分辨率的传统方法包括：双线性差值等，也包括基于CNN的方法：SRCNN，还包括基于生成模型、扩散模型的方法。</p>
 <h3 id="其他任务">其他任务</h3>
-<p>这小节介绍其他在课程里学习过但是没有做过的任务和模型，简单谈谈任务定义和实现思路。</p>
+<p>这小节介绍其他在课程里学习过的任务和模型，简单谈谈任务定义和实现思路。</p>
+<ol>
+<li>
+<p>细粒度图像分类</p>
+</li>
+<li>
+<p>显著性图生成</p>
+</li>
+<li>
+<p>多模态目标识别</p>
+</li>
+</ol>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/22/2025-7-%E8%A7%86%E8%A7%89%E6%A8%A1%E5%9E%8B%E6%95%B0%E7%90%86/" data-id="cmdep4rzx0000ekt60apxghtj" data-title="2025.7 视觉模型梳理" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/22/2025-7-%E8%A7%86%E8%A7%89%E6%A8%A1%E5%9E%8B%E6%95%B0%E7%90%86/" data-id="cmdils6bs0001tot6eeg24nxg" data-title="2025.7 视觉模型梳理" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -173,7 +321,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/21/Stanford-CS144-Lab1/" data-id="cmdep4s0b0006ekt69ymg80t8" data-title="Stanford CS144 Lab1" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/21/Stanford-CS144-Lab1/" data-id="cmdils6c10009tot60n883qfm" data-title="Stanford CS144 Lab1" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -290,7 +438,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/19/Stanford-CS144-Winter-2025-Lab-Checkpoint-0/" data-id="cmdep4s0c0007ekt60tcy4pm7" data-title="Stanford CS144 Winter 2025 Lab Check0" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/19/Stanford-CS144-Winter-2025-Lab-Checkpoint-0/" data-id="cmdils6c00008tot6h3sp76z3" data-title="Stanford CS144 Winter 2025 Lab Check0" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -349,7 +497,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/08/DP-%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/" data-id="cmdep4s090003ekt6ggs07ykx" data-title="DP 刷题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/08/DP-%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/" data-id="cmdils6bx0005tot6adb0afa3" data-title="DP 刷题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -500,7 +648,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/06/OS-%E8%87%AA%E5%AD%A6%E7%AC%94%E8%AE%B0/" data-id="cmdep4s0b0005ekt6dtkchyoj" data-title="OS 自学笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/06/OS-%E8%87%AA%E5%AD%A6%E7%AC%94%E8%AE%B0/" data-id="cmdils6bz0007tot6d7wrh2z2" data-title="OS 自学笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -598,7 +746,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/25/BUAA-CO-P4%E8%AF%BE%E4%B8%8A/" data-id="cmdep4s050001ekt62r4hc33f" data-title="BUAA CO P4课上" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/25/BUAA-CO-P4%E8%AF%BE%E4%B8%8A/" data-id="cmdils6bv0002tot6e0g77m8e" data-title="BUAA CO P4课上" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -668,7 +816,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" data-id="cmdep4s080002ekt6bvwr12m8" data-title="Chainer环境配置" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" data-id="cmdils6bw0004tot65idudorh" data-title="Chainer环境配置" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -716,7 +864,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/24/Liu-first-blog/" data-id="cmdep4s090004ekt6dbs248bw" data-title="&#39;Liu-first-blog&#39;" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/24/Liu-first-blog/" data-id="cmdils6by0006tot6creu1qx0" data-title="&#39;Liu-first-blog&#39;" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -759,6 +907,14 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       <ul>
         
           <li>
+            <a href="/2025/07/25/CS143-PA1/">CS143 PA1</a>
+          </li>
+        
+          <li>
+            <a href="/2025/07/24/2025-7-24-%E6%97%B6%E9%97%B4%E5%BA%8F%E5%88%97%E6%A8%A1%E5%9E%8B%E6%A2%B3%E7%90%86/">2025.7 时间序列模型梳理</a>
+          </li>
+        
+          <li>
             <a href="/2025/07/22/2025-7-%E8%A7%86%E8%A7%89%E6%A8%A1%E5%9E%8B%E6%95%B0%E7%90%86/">2025.7 视觉模型梳理</a>
           </li>
         
@@ -768,14 +924,6 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
         
           <li>
             <a href="/2025/07/19/Stanford-CS144-Winter-2025-Lab-Checkpoint-0/">Stanford CS144 Winter 2025 Lab Check0</a>
-          </li>
-        
-          <li>
-            <a href="/2025/07/08/DP-%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/">DP 刷题总结</a>
-          </li>
-        
-          <li>
-            <a href="/2025/07/06/OS-%E8%87%AA%E5%AD%A6%E7%AC%94%E8%AE%B0/">OS 自学笔记</a>
           </li>
         
       </ul>

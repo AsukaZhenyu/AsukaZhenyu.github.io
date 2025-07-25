@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>CS143 PA1 | Zhenyu&#39;s blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="CS143我是在edx上学的MOOC版本，你需要注册账号，然后搜索compiler找到Stanford对应的课程然后报名。点开课程后，你可以看到下面的网页：  你可以在课程一栏里找到不同实验对应的指导书，在上方&quot;VirtualBox VM Setup&quot;里有虚拟机环境配置的指南，如果你想要直接在Linux系统或者WSL上做实验的话可以参考&quot;Installing Dire">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CS143 PA1">
+<meta property="og:url" content="http://asukazhenyu.github.io/2025/07/25/CS143-PA1/index.html">
+<meta property="og:site_name" content="Zhenyu&#39;s blog">
+<meta property="og:description" content="CS143我是在edx上学的MOOC版本，你需要注册账号，然后搜索compiler找到Stanford对应的课程然后报名。点开课程后，你可以看到下面的网页：  你可以在课程一栏里找到不同实验对应的指导书，在上方&quot;VirtualBox VM Setup&quot;里有虚拟机环境配置的指南，如果你想要直接在Linux系统或者WSL上做实验的话可以参考&quot;Installing Dire">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251310830.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251332199.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251341191.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251353138.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251441247.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251444982.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251453483.png">
+<meta property="article:published_time" content="2025-07-24T16:16:48.000Z">
+<meta property="article:modified_time" content="2025-07-25T07:03:27.259Z">
+<meta property="article:author" content="Zhenyu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251310830.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Zhenyu's blog" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Zhenyu&#39;s blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://AsukaZhenyu.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-CS143-PA1" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2025/07/25/CS143-PA1/" class="article-date">
+  <time class="dt-published" datetime="2025-07-24T16:16:48.000Z" itemprop="datePublished">2025-07-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      CS143 PA1
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>CS143我是在edx上学的MOOC版本，你需要注册账号，然后搜索compiler找到Stanford对应的课程然后报名。点开课程后，你可以看到下面的网页：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251310830.png" alt=""></p>
+<p>你可以在课程一栏里找到不同实验对应的指导书，在上方&quot;VirtualBox VM Setup&quot;里有虚拟机环境配置的指南，如果你想要直接在Linux系统或者WSL上做实验的话可以参考&quot;Installing Directly on Linux&quot;部分。</p>
+<p>在&quot;Installing Directly on Linux&quot;部分里面有课程压缩包的下载连接，比较适合想要自己配环境的同学，我也尝试在WSL上配置环境，但是实验使用的是JDK6，包括课程使用的其他工具flex、bison也有版本要求，太新了也不行，在配环境的时候比较麻烦，所以我还是选择了直接下载虚拟机镜像。</p>
+<p>原本的代码下载下来后，发现代码比较老，我尝试把链接里的2020改为2025，发现连接不存在，在下载完虚拟机后发现虚拟机文件上次修改是在2012年，所以先不纠结代码新旧问题。直接跟着edx上的指示做即可。</p>
+<h2 id="环境配置">环境配置</h2>
+<p>在下载虚拟机镜像的时候drive.google.com加载非常慢。重启浏览器、重启电脑、更改梯子节点，尝试了很多遍都不能打开网页，有一次重启后经过几分钟等待终于打开了，下载的速度也很慢，观察下载速度也顺便复习了一下TCP New Reno的阻塞控制算法，大部分时候下载速度是10kb/s-30kb/s之间AIMD的锯齿形状，偶尔可能发生Timeout这时候下载速度为0b/s，这时候可能是进入了慢启动阶段，快速恢复到8-10kb/s，然后继续锯齿形状。完整下载下来需要大半天的时间，而文件708MB并不大。</p>
+<p>虚拟机下载链接：</p>
+<p>北航云盘：<a target="_blank" rel="noopener" href="https://bhpan.buaa.edu.cn/link/AAF9368AFA5BA94A7B8E4ED1BE6BABAAAD">https://bhpan.buaa.edu.cn/link/AAF9368AFA5BA94A7B8E4ED1BE6BABAAAD</a><br>
+文件夹名：Stanford CS143 VM<br>
+有效期限：永久有效</p>
+<p>百度网盘：通过网盘分享的文件：compilers-vm.zip<br>
+链接: <a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1LvsnaGm_F41MjmHwGSwpEQ?pwd=wf3k">https://pan.baidu.com/s/1LvsnaGm_F41MjmHwGSwpEQ?pwd=wf3k</a> 提取码: wf3k<br>
+–来自百度网盘超级会员v1的分享</p>
+<p>接下来按照指导建立共享文件夹：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251332199.png" alt=""></p>
+<p>在虚拟机中运行下面的命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo usermod -a -G vboxsf compilers</span><br></pre></td></tr></table></figure>
+<p>这个命令是获取超级用户的权限，用户名是compilers，密码是cool，命令运行完后需要重启虚拟机。然后就可以在虚拟机中访问共享文件夹：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251341191.png" alt=""></p>
+<p>然后运行命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ln -s /media/sf_tmp /home/compilers/cool/tmp</span><br></pre></td></tr></table></figure>
+<p>创建一个共享文件夹到用户主目录的链接，这样就可以在用户主目录下访问共享文件夹了。</p>
+<p>在之后的作业评测中，需要把评测文件下载到本地的共享文件夹，然后执行下面的命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mv /media/sf_tmp/pa&lt;num&gt;-grading.pl /home/compilers/cool/assignment/PA&lt;num&gt;</span><br><span class="line">perl pa&lt;num&gt;-grading.pl</span><br></pre></td></tr></table></figure>
+<p>下面是&quot;Getting Started with the VM&quot;examples的编译结果：<br>
+<img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251353138.png" alt=""></p>
+<p>在虚拟机里有PA1和PAi、PAiJ（i:2~5），PA1是简单的熟悉COOL语言的项目（实现一个栈数据结构），后面四个才是编译器实现的核心实验（词法分析、语法分析、语义分析和代码生成）不带J的是C++实现版本，带J的是Java实现版本。</p>
+<p>另外在edx里参与测试Quiz和提交作业需要交钱（$249，第一次买课可以30%off），即使打折对我而言也太贵了（￥1200+）而且必要性不大。</p>
+<p>关于测试文件，在edx每个实验都会给一个下载链接，如下所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251441247.png" alt=""></p>
+<p>我在本地的共享文件夹下打开终端，使用WSL运行相应的wget下载对应的测试文件：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251444982.png" alt=""></p>
+<p>这些测试文件我也上传到上面北航云盘的文件夹下，自己直接根据edx下载也很快。</p>
+<p>后续在虚拟机里打开共享文件夹可以看到：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251453483.png" alt=""></p>
+<h2 id="PA1-Stack">PA1 Stack</h2>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://asukazhenyu.github.io/2025/07/25/CS143-PA1/" data-id="cmdils6bw0003tot6fuph55lv" data-title="CS143 PA1" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2025/07/24/2025-7-24-%E6%97%B6%E9%97%B4%E5%BA%8F%E5%88%97%E6%A8%A1%E5%9E%8B%E6%A2%B3%E7%90%86/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">2025.7 时间序列模型梳理</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/07/">七月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/05/">五月 2025</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2025/07/25/CS143-PA1/">CS143 PA1</a>
+          </li>
+        
+          <li>
+            <a href="/2025/07/24/2025-7-24-%E6%97%B6%E9%97%B4%E5%BA%8F%E5%88%97%E6%A8%A1%E5%9E%8B%E6%A2%B3%E7%90%86/">2025.7 时间序列模型梳理</a>
+          </li>
+        
+          <li>
+            <a href="/2025/07/22/2025-7-%E8%A7%86%E8%A7%89%E6%A8%A1%E5%9E%8B%E6%95%B0%E7%90%86/">2025.7 视觉模型梳理</a>
+          </li>
+        
+          <li>
+            <a href="/2025/07/21/Stanford-CS144-Lab1/">Stanford CS144 Lab1</a>
+          </li>
+        
+          <li>
+            <a href="/2025/07/19/Stanford-CS144-Winter-2025-Lab-Checkpoint-0/">Stanford CS144 Winter 2025 Lab Check0</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2025 Zhenyu<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

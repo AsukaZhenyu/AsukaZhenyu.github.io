@@ -4,17 +4,17 @@
   <meta charset="utf-8">
   
   
-  <title>&#39;Liu-first-blog&#39; | Zhenyu&#39;s blog</title>
+  <title>2025.7 时间序列模型梳理 | Zhenyu&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="本人力扣主页：今天你带摩拉了吗 - 力扣（LeetCode） 牛客竞赛主页： 睦头人出击的比赛主页 codeforces：uesugierii - Codeforces Atcoder：iloveasuka - AtCoder 洛谷：Sgayter 的个人中心 - 洛谷 | 计算机科学教育新生态 采用jsDelivr免费域名访问图片，直接访问（不开加速器和梯子）图片可以正常加载，只开加速器可能导致">
+  <meta name="description" content="本篇梳理我本科阶段（2022.09-2025.07）参与项目、竞赛中涉及到的时间序列模型，分为以下三个类介绍：简单时间序列预测模型、RNN、transformer。 简单时间序列预测模型 根据我的数学建模参赛经历时间序列预测是非常常见的数学建模问题，如果是想要参加数学建模比赛却不知道怎么准备，我建议去学Kaggle上的教程，包括数据处理、特征工程、也包括时间序列预测等一系列常见问题的教程。而且Ka">
 <meta property="og:type" content="article">
-<meta property="og:title" content="&#39;Liu-first-blog&#39;">
-<meta property="og:url" content="http://asukazhenyu.github.io/2025/05/24/Liu-first-blog/index.html">
+<meta property="og:title" content="2025.7 时间序列模型梳理">
+<meta property="og:url" content="http://asukazhenyu.github.io/2025/07/24/2025-7-24-%E6%97%B6%E9%97%B4%E5%BA%8F%E5%88%97%E6%A8%A1%E5%9E%8B%E6%A2%B3%E7%90%86/index.html">
 <meta property="og:site_name" content="Zhenyu&#39;s blog">
-<meta property="og:description" content="本人力扣主页：今天你带摩拉了吗 - 力扣（LeetCode） 牛客竞赛主页： 睦头人出击的比赛主页 codeforces：uesugierii - Codeforces Atcoder：iloveasuka - AtCoder 洛谷：Sgayter 的个人中心 - 洛谷 | 计算机科学教育新生态 采用jsDelivr免费域名访问图片，直接访问（不开加速器和梯子）图片可以正常加载，只开加速器可能导致">
+<meta property="og:description" content="本篇梳理我本科阶段（2022.09-2025.07）参与项目、竞赛中涉及到的时间序列模型，分为以下三个类介绍：简单时间序列预测模型、RNN、transformer。 简单时间序列预测模型 根据我的数学建模参赛经历时间序列预测是非常常见的数学建模问题，如果是想要参加数学建模比赛却不知道怎么准备，我建议去学Kaggle上的教程，包括数据处理、特征工程、也包括时间序列预测等一系列常见问题的教程。而且Ka">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2025-05-24T11:18:21.000Z">
-<meta property="article:modified_time" content="2025-07-08T08:34:23.509Z">
+<meta property="article:published_time" content="2025-07-24T06:01:07.000Z">
+<meta property="article:modified_time" content="2025-07-25T09:11:49.705Z">
 <meta property="article:author" content="Zhenyu">
 <meta name="twitter:card" content="summary">
   
@@ -75,10 +75,10 @@
 </header>
 
       <div class="outer">
-        <section id="main"><article id="post-Liu-first-blog" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+        <section id="main"><article id="post-2025-7-24-时间序列模型梳理" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
-    <a href="/2025/05/24/Liu-first-blog/" class="article-date">
-  <time class="dt-published" datetime="2025-05-24T11:18:21.000Z" itemprop="datePublished">2025-05-24</time>
+    <a href="/2025/07/24/2025-7-24-%E6%97%B6%E9%97%B4%E5%BA%8F%E5%88%97%E6%A8%A1%E5%9E%8B%E6%A2%B3%E7%90%86/" class="article-date">
+  <time class="dt-published" datetime="2025-07-24T06:01:07.000Z" itemprop="datePublished">2025-07-24</time>
 </a>
     
   </div>
@@ -89,7 +89,7 @@
         
   
     <h1 class="p-name article-title" itemprop="headline name">
-      &#39;Liu-first-blog&#39;
+      2025.7 时间序列模型梳理
     </h1>
   
 
@@ -97,17 +97,16 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <p>本人力扣主页：<a target="_blank" rel="noopener" href="https://leetcode.cn/u/elastic-dewdney7o3/">今天你带摩拉了吗 - 力扣（LeetCode）</a></p>
-<p>牛客竞赛主页：<a target="_blank" rel="noopener" href="https://ac.nowcoder.com/acm/contest/profile/776553378"> 睦头人出击的比赛主页</a></p>
-<p>codeforces：<a target="_blank" rel="noopener" href="https://codeforces.com/profile/uesugierii">uesugierii - Codeforces</a></p>
-<p>Atcoder：<a target="_blank" rel="noopener" href="https://atcoder.jp/users/iloveasuka">iloveasuka - AtCoder</a></p>
-<p>洛谷：<a target="_blank" rel="noopener" href="https://www.luogu.com.cn/user/942776#practice">Sgayter 的个人中心 - 洛谷 | 计算机科学教育新生态</a></p>
-<p>采用jsDelivr免费域名访问图片，直接访问（不开加速器和梯子）图片可以正常加载，只开加速器可能导致图片无法正常加载，解决方法是关闭加速器或打开梯子。</p>
-<span id="more"></span>
+        <p>本篇梳理我本科阶段（2022.09-2025.07）参与项目、竞赛中涉及到的时间序列模型，分为以下三个类介绍：简单时间序列预测模型、RNN、transformer。</p>
+<h2 id="简单时间序列预测模型">简单时间序列预测模型</h2>
+<p>根据我的数学建模参赛经历时间序列预测是非常常见的数学建模问题，如果是想要参加数学建模比赛却不知道怎么准备，我建议去学Kaggle上的教程，包括数据处理、特征工程、也包括时间序列预测等一系列常见问题的教程。而且Kaggle上的比赛和数学建模比赛的问题比较相似，可以积累经验。</p>
+<h2 id="RNN">RNN</h2>
+<h2 id="Transformer">Transformer</h2>
+
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/24/Liu-first-blog/" data-id="cmdils6by0006tot6creu1qx0" data-title="&#39;Liu-first-blog&#39;" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/24/2025-7-24-%E6%97%B6%E9%97%B4%E5%BA%8F%E5%88%97%E6%A8%A1%E5%9E%8B%E6%A2%B3%E7%90%86/" data-id="cmdils6bl0000tot62qv01g0c" data-title="2025.7 时间序列模型梳理" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -117,15 +116,20 @@
     
 <nav id="article-nav">
   
-    <a href="/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2025/07/25/CS143-PA1/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">前一篇</strong>
       <div class="article-nav-title">
         
-          Chainer环境配置
+          CS143 PA1
         
       </div>
     </a>
   
+  
+    <a href="/2025/07/22/2025-7-%E8%A7%86%E8%A7%89%E6%A8%A1%E5%9E%8B%E6%95%B0%E7%90%86/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">2025.7 视觉模型梳理</div>
+    </a>
   
 </nav>
 
