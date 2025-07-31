@@ -136,7 +136,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/25/CS143-PA1/" data-id="cmdr3fksp0004v8t697xg5yoq" data-title="CS143 PA1" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/25/CS143-PA1/" data-id="cmdrot87b00044wt66ge070g2" data-title="CS143 PA1" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -189,21 +189,28 @@
 <p>按照李沐老师的说法，科研工作可以分为工程类和研究类，对于工程类的科研问题，通常我们都知道肯定能提升表现的方法，例如增大传感器精度；对于研究型的科研问题，我们通常不能在实验结果出来前就确定这些方法能不能提升效果。我认为这属于研究型的科研问题，那么大量的实验、大量的失败和大量的反思总结是不可避免的，我们不知道我们的第一想法是否有效，而大部分情况下，我们的第一想法都是错的。</p>
 <p>最开始立项时，我认为轨道预测和GPT很像，输入一段token序列，输出一段预测未来的token序列，用transformer解码器做自回归预测。而且transformer很火，又大又强，而且和老师交流后，老师的意思是可以初步确定是CNN-Transformer的自编码器架构。于是用transformer训练了一个模型，在预测20个时间步后误差到200km，效果很差。</p>
 <p>我们来分析一下为什么效果差？对于理想限制性平面圆形三体问题，二阶分量即可完全描述这个系统<code>[x,y,vx,vy]</code>，下一步去向哪里，只取决于上一步的位置和速度。无需用transformer对已有的所有输入序列做自注意力机制来预测下一步状态。这就是用transformer效果差的原因，GPT处理的是文本数据，上下关联紧密性很强，下一步的输出的根据可能在很远之前，也可能近在咫尺，也有可能分散分布在前面所有的文字，而轨道预测问题，下一步的输出确定性地只取决于上一小段时间内的状态，因此无需transformer建立长期依赖关系。</p>
-<p>我认为项目核心难点是：地月空间如此广袤，如何编码飞行器的状态以确保表示精度、如何选取数据集进行训练、如何高精度地预测飞行器的状态。第二个问题，我们已经在冯如杯里调研了，那就是选择不动点附近的不变流形内的轨道，应用价值大且轨道规律性较强。<strong>我认为这个思路是正确的，是值得沿用的</strong>。在我们做的项目里，我们以地月引力中心为坐标原点，以地月距离做归一化（旋转脉冲坐标系），用transformer模型进行轨道预测，效果很差，原因在上面已经分析了。我现在的想法是，以不动点为中心，在不动点附近一点的空间范围内进行归一化，这样可以在有效计算精度条件下，通过减小编码空间范围，增加空间位置的表示精度。在轨道预测上，我建议不要再用时间序列预测模型了，绝对不要再用transformer了，完全和项目的特点不搭配，空白浪费了这么多的计算量。我建议先从简单的MLP开始做（当时老师这么给我建议的，但是我没听），你想想GAN在提出对抗生成思想时用的就是MLP，重点不是用多么新颖的模型，多么fancy的trick，重点是在你理解了问题的特征后要如何解决，是直接输入上一时刻的位置、速度，输出下一时刻的位置速度，还是先通过数值积分方法在理想圆形限制性三体问题下积分得到初步解，然后输入太阳相对位置、木星相对位置等用MLP回归到摄动后位置。有无数种想法和可能，经过多此尝试、实验和反思总结，与老师交流后确定了预测模型结构，你可以再去选更fancy的模型例如KAN、储池计算（似乎是2018年美军资助研究论文，使用储池计算可以延长精准预测时间）等。</p>
-<p>给你的一点建议：在读我们冯如杯论文时，只需关注轨道调研部分即可，了解完项目特点后尽快按照你的想法开始实验（不要拖，就像之前说的那样，结果出来前不知道效果怎么样，可能要有大量的实验、大量的失败和大量的反思，积极总结反思，这样即使你失败了也可供后人参考），尽量在寒假就有初步的结果，争取在下学期发论文找合作，这样获奖的概率大一些。在选队友的时候，选一个擅长软件的，专心负责可视化、软件封装的工作。</p>
+<p>我认为项目核心难点是：地月空间如此广袤，如何编码飞行器的状态以确保表示精度、如何选取数据集进行训练、如何高精度地预测飞行器的状态。第二个问题，我们已经在冯如杯里调研了，那就是选择不动点附近的不变流形内的轨道，应用价值大且轨道规律性较强。<strong>我认为这个思路是正确的，是值得沿用的</strong>。在我们做的项目里，我们以地月引力中心为坐标原点，以地月距离做归一化（旋转脉冲坐标系），用transformer模型进行轨道预测，效果很差，原因在上面已经分析了。我现在的想法是，以不动点为中心，在不动点附近一点的空间范围内进行归一化，这样可以在有效计算精度条件下，通过减小编码空间范围，增加空间位置的表示精度。在轨道预测上，我建议不要再用时间序列预测模型了，绝对不要再用transformer了，完全和项目的特点不搭配，空白浪费了这么多的计算量。我建议先从简单的MLP开始做（当时老师这么给我建议的，但是我没听），GAN在提出对抗生成思想时用的就是MLP，重点不是用多么新颖的模型，多么fancy的trick，重点是在理解了问题的特征后要如何解决，是直接输入上一时刻的位置、速度，输出下一时刻的位置速度，还是先通过数值积分方法在理想圆形限制性三体问题下积分得到初步解，然后输入太阳相对位置、木星相对位置等用MLP回归到摄动后位置。有无数种想法和可能，经过多此尝试、实验和反思总结，与老师交流后确定了预测模型结构，可以再去选更fancy的模型例如KAN、储池计算（似乎是2018年美军资助研究论文，使用储池计算可以延长精准预测时间）等。</p>
+<p>给本项目后继者的一点建议：在读我们冯如杯论文时，只需关注轨道调研部分即可，商业部分可以直接挪用，了解完项目特点后尽快按照你的想法开始实验（不要拖，就像之前说的那样，结果出来前不知道效果怎么样，可能要有大量的实验、大量的失败和大量的反思，积极总结反思，这样即使你失败了也可供后人参考），尽量在寒假就有初步的结果，争取在下学期发论文找合作（类似于商业立项书），这样获奖的概率大一些。在选队友的时候，选一个擅长软件的，专心负责可视化、软件封装的工作。</p>
 <p>在院审的时候老师问了我这个问题：为什么不用MLP而是用Transformer？我当时没有仔细想过这个问题，回答得很差，当时我回答的是：经过我们的调研，MLP或者香草网络在轨道预测里也是常用的方法，但是我们认为Transformer更灵活，未来我们添加状态维度只需修改线性投影层，而MLP需要重新训练。如果要预测不同长度的序列，Transformer只需要修改参数，而MLP需要重新训练。</p>
 <p>老师批评我说：不对，Transformer的核心在于建立长期依赖关系。</p>
 <p>我其实没有仔细想过为什么要用Transformer，当时立项的时候我着急确立方向，和老师交流的时候也是在半逼问老师：“我们应该采用哪种模型”，老师回答“可以初步确认是CNN-Transformer的自编码器架构”。之后在做项目的时候，老师和学长建议先从简单的MLP开始做，但是我没听，想要transformer一步到位。最后用transformer预测的效果也一般。</p>
 <hr>
 <ol start="2">
-<li>语言信号分离<br>
-这并不是时间序列预测，而是时间序列处理模型</li>
+<li>语言信号分离</li>
 </ol>
+<p>本节介绍Sepformer这个模型，对应论文资源如下：<br>
+Subakan C, Ravanelli M, Cornell S, et al. Attention is all you need in speech separation[C]//ICASSP 2021-2021 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP). IEEE, 2021: 21-25.</p>
+<p>模型结构如下所示：<br>
+<img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508010056345.png" alt=""></p>
+<p>模型输入混合语言信号<code>(x,R^T)</code>即输入是长度为T的实序列，先要经过一个卷积层编码器和激活函数得到h（在图中没有显示），从x到<code>(h,R^&#123;F*T'&#125;)</code>的的过程类似与短时傅里叶变换（STFT），然后进行一个LayerNorm和线性层（为什么是LayerNorm呢，论文并没有说明原因，只是说和Conv-TasNet相同，在Conv-TasNet论文给出的解释是：“归一化方法的选择依赖于因果性要求，对于非因果性要求他们实验发现全局层归一化（global Layer Norm）的效果最好”，所谓“因果性”指的是系统的输出不能依赖未来的的输入数据。在语言信号分离任务中，不涉及语言信号预测，可以充分利用全局的信息。关于归一化层朱老师还说过一个趣事，DeepMind在BYOL说无需显示提供负样本即可进行对比学习，有博客复现后发现不加BatchNorm模型训练容易坍塌，于是博客认为是BatchNorm对全局计算了一个平均样本提供了隐式负样本进行对比学习，后来DeepMind有出了一篇新的工作证明BatchNorm只是帮助模型训练而不是主要原因），然后将语言信号砍（Chopping）为有相互重叠的块（Chunk）此时数据形状为<code>(h',R^&#123;F*C*N_C&#125;)</code>，C是块（Chunk）的长度，接着进入Sepformer块，输出信号形状不变，信号出来后经过一个激活函数和一个线性变化，输出信号形状为<code>(h''',R^&#123;(F*N_s)*C*N_C&#125;)</code>，N_S是分离后信号数，经过一个overlap add块后（overlap add method重叠相加法在数字信号处理里是高效计算长序列卷积的方法，在论文里没有说理由和原因，而是又引用了一篇论文Dual-path rnn，在Dual-path rnn里也只是简单提了一下，因为之前将语言信号分为了有相互重叠的chunk，所有这里要做重叠相加，可能和DSP里的overlap add关系不大，之前在分块的时候特地说明重叠50%，可能这里就是把重叠部分相加即可。事实上这里并不复杂，论文如果把它写清楚，对读者可能会更友好。）输出信号变为<code>(h''',R^&#123;(F*N_s)*T&#125;)</code>，最后经过一个线性层输出分离后的信号。各分离信号还有经过解码器得到最终分离后的信号。</p>
+<p>信号处理流程如下所示：<br>
+<img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508010100785.png" alt=""></p>
+<p>总结一下，语言信号在输入前主要做了两件事，一是先进编码器提取类似STFT的特征，二是tokenize为有重叠的块。然后是进入Sepformer块变换处理，最后经过线性变换，重叠相加等操作得到分离的信号，经过解码器得到最终的分离信号。这里编码器、解码器，有点类似于信号处理先把信号变换到频域再进行处理，最后再变换回时域。这里使用编码器将原语言信号投影到特征空间再处理则比传统DSP频域方法更灵活，在Conv-TasNet里使用的也是编码器解码器结构；从另一个角度来看这步编码器就是transformer里的input embedding层，将输入信号映射到特征空间。</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/24/2025-7-24-%E6%97%B6%E9%97%B4%E5%BA%8F%E5%88%97%E6%A8%A1%E5%9E%8B%E6%A2%B3%E7%90%86/" data-id="cmdr3fksf0000v8t66jp9houw" data-title="2025.7 时间序列模型梳理" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/24/2025-7-24-%E6%97%B6%E9%97%B4%E5%BA%8F%E5%88%97%E6%A8%A1%E5%9E%8B%E6%A2%B3%E7%90%86/" data-id="cmdrot86z00004wt667imeeu0" data-title="2025.7 时间序列模型梳理" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -297,7 +304,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/22/2025-7-%E8%A7%86%E8%A7%89%E6%A8%A1%E5%9E%8B%E6%95%B0%E7%90%86/" data-id="cmdr3fksl0001v8t63u2z9gic" data-title="2025.7 视觉模型梳理" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/22/2025-7-%E8%A7%86%E8%A7%89%E6%A8%A1%E5%9E%8B%E6%95%B0%E7%90%86/" data-id="cmdrot87600014wt6fj9321hw" data-title="2025.7 视觉模型梳理" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -346,7 +353,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/21/Stanford-CS144-Lab1/" data-id="cmdr3fkss0007v8t68ku69wav" data-title="Stanford CS144 Lab1" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/21/Stanford-CS144-Lab1/" data-id="cmdrot87d00074wt6gp8haubo" data-title="Stanford CS144 Lab1" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -463,7 +470,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/19/Stanford-CS144-Winter-2025-Lab-Checkpoint-0/" data-id="cmdr3fksu0009v8t65ss26jmp" data-title="Stanford CS144 Winter 2025 Lab Check0" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/19/Stanford-CS144-Winter-2025-Lab-Checkpoint-0/" data-id="cmdrot87g00094wt65876az8y" data-title="Stanford CS144 Winter 2025 Lab Check0" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -522,7 +529,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/08/DP-%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/" data-id="cmdr3fksq0005v8t67sr2adpc" data-title="DP 刷题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/08/DP-%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/" data-id="cmdrot87c00054wt60rln2do0" data-title="DP 刷题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -673,7 +680,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/06/OS-%E8%87%AA%E5%AD%A6%E7%AC%94%E8%AE%B0/" data-id="cmdr3fkst0008v8t61ufwf6ps" data-title="OS 自学笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/06/OS-%E8%87%AA%E5%AD%A6%E7%AC%94%E8%AE%B0/" data-id="cmdrot87d00064wt6ca6geua8" data-title="OS 自学笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -771,7 +778,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/25/BUAA-CO-P4%E8%AF%BE%E4%B8%8A/" data-id="cmdr3fkso0003v8t6cdq98hwn" data-title="BUAA CO P4课上" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/25/BUAA-CO-P4%E8%AF%BE%E4%B8%8A/" data-id="cmdrot87900024wt64ipibiu0" data-title="BUAA CO P4课上" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -841,7 +848,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" data-id="cmdr3fksn0002v8t6967p8pyd" data-title="Chainer环境配置" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" data-id="cmdrot87a00034wt6egro2nqh" data-title="Chainer环境配置" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -889,7 +896,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/24/Liu-first-blog/" data-id="cmdr3fksr0006v8t6gth34qsz" data-title="&#39;Liu-first-blog&#39;" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/24/Liu-first-blog/" data-id="cmdrot87e00084wt6g27n4gto" data-title="&#39;Liu-first-blog&#39;" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
