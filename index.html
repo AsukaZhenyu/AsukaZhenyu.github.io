@@ -136,7 +136,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/25/CS143-PA1/" data-id="cmdils6bw0003tot6fuph55lv" data-title="CS143 PA1" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/25/CS143-PA1/" data-id="cmdr39lsj0002swt6gfc60p0v" data-title="CS143 PA1" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -172,14 +172,38 @@
       
         <p>本篇梳理我本科阶段（2022.09-2025.07）参与项目、竞赛中涉及到的时间序列模型，分为以下三个类介绍：简单时间序列预测模型、RNN、transformer。</p>
 <h2 id="简单时间序列预测模型">简单时间序列预测模型</h2>
-<p>根据我的数学建模参赛经历时间序列预测是非常常见的数学建模问题，如果是想要参加数学建模比赛却不知道怎么准备，我建议去学Kaggle上的教程，包括数据处理、特征工程、也包括时间序列预测等一系列常见问题的教程。而且Kaggle上的比赛和数学建模比赛的问题比较相似，可以积累经验。</p>
+<p>根据我的数学建模参赛经历，时间序列预测是非常常见的数学建模问题，个人感觉数学建模竞赛和Kaggle竞赛在内容、技巧等方面重叠性比较高，当时数学建模比赛时我们比较着急，现在借助Kaggle的学习资源和当时的笔记、论文，重新梳理一下。</p>
 <h2 id="RNN">RNN</h2>
 <h2 id="Transformer">Transformer</h2>
+<ol>
+<li>教师强制策略</li>
+</ol>
+<p>教师强制策略核心思想是在训练阶段用真实目标序列作为解码器的输入，而非模型的预测结果。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251946218.png" alt=""></p>
+<p>给定序列<code>[x(1),x(2),...x(T)]</code>预测<code>[x'(T+1),x'(T+2),...x'(T+n)]</code>，对于一般自回归预测模式是逐个预测，当预测<code>x'[T+i]</code>时，解码器输入是<code>[x(1),x(2),...,x[T],x'[T+1],...,x'(T+i-1)]</code>，而教师强制策略是解码器输入是<code>[x(1),x(2),...x(T+i-1)]</code>。</p>
+<p>教师强制策可以避免早期预测错误对后续训练的干扰，使模型<strong>更快</strong>地学到正确的模式，还有一个优点是教师强制策略可以<strong>并行处理所有时间步</strong>（因为直接用真值预测下一个值，而真值已知所有时间步可以同时计算，自回归模型依赖前面时刻的预测结果，必须串行执行）。但相较自回归预测，教师强制策略有暴露偏差，即训练和推理阶段输入分布不一致的问题，就是推理时采用自回归预测与训练时的策略不同。</p>
+<hr>
+<p><strong>项目介绍与反思</strong></p>
+<p>项目名字是地月空间飞行器轨道预测，我认为这个课题如果能弄出来会非常有价值，首先是做的人很少，目前没有人确定了地月空间轨道预测应该怎么做。这个项目用处很大不必多说。而且是非常有挑战性的工作，涉及轨道力学、混沌理论、数学、机器学习、深度学习等多个领域。</p>
+<p>这类项目可以归类为：用机器学习、神经网络解决专业问题，换言之是应用类的问题。举个例子：OpenAI的CodeX，用GPT3解决项目编程问题，DeepMind的AlphaCode，用transformer解决codeforces编程竞赛问题。我认为项目的重点应该放在对专业问题的分析上，不宜过早陷入模型选择、训练、优化等细节。这涉及到我个人看机器学习、深度学习的态度，我把它视为一种带有先验知识库（来源于训练数据）的隐函数（输入输出间必须存在某种规律），不同的模型就是具有不同特征，擅长解决不同问题的隐函数，模型的选择、优化甚至设计必须从对专业问题的分析和实验来确定。</p>
+<p>按照李沐老师的说法，科研工作可以分为工程类和研究类，对于工程类的科研问题，通常我们都知道肯定能提升表现的方法，例如增大传感器精度；对于研究型的科研问题，我们通常不能在实验结果出来前就确定这些方法能不能提升效果。我认为这属于研究型的科研问题，那么大量的实验、大量的失败和大量的反思总结是不可避免的，我们不知道我们的第一想法是否有效，而大部分情况下，我们的第一想法都是错的。</p>
+<p>最开始立项时，我认为轨道预测和GPT很像，输入一段token序列，输出一段预测未来的token序列，用transformer解码器做自回归预测。而且transformer很火，又大又强，而且和老师交流后，老师的意思是可以初步确定是CNN-Transformer的自编码器架构。于是用transformer训练了一个模型，在预测20个时间步后误差到200km，效果很差。</p>
+<p>我们来分析一下为什么效果差？对于理想限制性平面圆形三体问题，二阶分量即可完全描述这个系统<code>[x,y,vx,vy]</code>，下一步去向哪里，只取决于上一步的位置和速度。无需用transformer对已有的所有输入序列做自注意力机制来预测下一步状态。这就是用transformer效果差的原因，GPT处理的是文本数据，上下关联紧密性很强，下一步的输出的根据可能在很远之前，也可能近在咫尺，也有可能分散分布在前面所有的文字，而轨道预测问题，下一步的输出确定性地只取决于上一小段时间内的状态，因此无需transformer建立长期依赖关系。</p>
+<p>我认为项目核心难点是：地月空间如此广袤，如何编码飞行器的状态以确保表示精度、如何选取数据集进行训练、如何高精度地预测飞行器的状态。第二个问题，我们已经在冯如杯里调研了，那就是选择不动点附近的不变流形内的轨道，应用价值大且轨道规律性较强。<strong>我认为这个思路是正确的，是值得沿用的</strong>。在我们做的项目里，我们以地月引力中心为坐标原理，以地月距离做归一化（旋转脉冲坐标系），用transformer模型进行轨道预测，效果很差，原因在上面已经分析了。我现在的想法是，以不动点为中心，在不动点附近一点的空间范围内进行归一化，这样可以在有效计算精度条件下，通过减小编码空间范围，增加空间位置的表示精度。在轨道预测上，我建议不要再用时间序列预测模型了，绝对不要再用transformer了，完全和项目的特点不搭配，空白浪费了这么多的计算量。我建议先从简单的MLP开始做（当时老师这么给我建议的，但是我没听），你想想GAN在提出对抗生成思想时用的就是MLP，重点不是用多么新颖的模型，多么fancy的trick，重点是在你理解了问题的特征后要如何解决，是直接输入上一时刻的位置、速度，输出下一时刻的位置速度，还是先通过数值积分方法在理想圆形限制性三体问题下积分得到初步解，然后输入太阳相对位置、木星相对位置等用MLP回归到摄动后位置。有无数种想法和可能，经过多此尝试、实验和反思总结，与老师交流后确定了预测模型结构，你可以再去选更fancy的模型例如KAN、储池计算（似乎是2018年美军资助研究论文，使用储池计算可以延长精准预测时间）等。</p>
+<p>给你的一点建议：在读我们冯如杯论文时，只需关注轨道调研部分即可，了解完项目特点后尽快按照你的想法开始实验（不要拖，就像之前说的那样，结果出来前不知道效果怎么样，可能要有大量的实验、大量的失败和大量的反思，积极总结反思，这样即使你失败了也可供后人参考），尽量在寒假就有初步的结果，争取在下学期发论文找合作，这样获奖的概率大一些。在选队友的时候，选一个擅长软件的，专心负责可视化、软件封装的工作。</p>
+<p>在院审的时候老师问了我这个问题：为什么不用MLP而是用Transformer？我当时没有仔细想过这个问题，回答得很差，当时我回答的是：经过我们的调研，MLP或者香草网络在轨道预测里也是常用的方法，但是我们认为Transformer更灵活，未来我们添加状态维度只需修改线性投影层，而MLP需要重新训练。如果要预测不同长度的序列，Transformer只需要修改参数，而MLP需要重新训练。</p>
+<p>老师批评我说：不对，Transformer的核心在于建立长期依赖关系。</p>
+<p>我其实没有仔细想过为什么要用Transformer，当时立项的时候我着急确立方向，和老师交流的时候也是在半逼问老师：“我们应该采用哪种模型”，老师回答“可以初步确认是CNN-Transformer的自编码器架构”。之后在做项目的时候，老师和学长建议先从简单的MLP开始做，但是我没听，想要transformer一步到位。最后用transformer预测的效果也一般。</p>
+<hr>
+<ol start="2">
+<li>语言信号分离<br>
+这并不是时间序列预测，而是时间序列处理模型</li>
+</ol>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/24/2025-7-24-%E6%97%B6%E9%97%B4%E5%BA%8F%E5%88%97%E6%A8%A1%E5%9E%8B%E6%A2%B3%E7%90%86/" data-id="cmdils6bl0000tot62qv01g0c" data-title="2025.7 时间序列模型梳理" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/24/2025-7-24-%E6%97%B6%E9%97%B4%E5%BA%8F%E5%88%97%E6%A8%A1%E5%9E%8B%E6%A2%B3%E7%90%86/" data-id="cmdr39lsb0000swt6bbft7d8f" data-title="2025.7 时间序列模型梳理" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -218,7 +242,8 @@
 <p>最初接触计算机视觉就是CNN模型，最基础的计算机视觉任务就是图像分类，在这一节我要介绍下面几个专题：从MLP到CNN、ResNet系列、常见的改进思路。</p>
 <h3 id="从MLP到CNN">从MLP到CNN</h3>
 <h3 id="ResNet系列">ResNet系列</h3>
-<p>ResNet通过残差链接解决了深度神经网络的梯度消失和梯度爆炸问题，可视为深度神经网络的鼻祖，我最开始实践学习深度神经网络就是从ResNet开始的。我当时就是直接看的pytorch实现的ResNet代码，并且直接在这些代码上进行一些改进，详情请参见下一节<strong>常见的改进思路</strong>。</p>
+<p>ResNet通过残差连接解决了深度神经网络的梯度消失和梯度爆炸问题，使得深度神经网络成为可能，ResNet可视为深度神经网络的鼻祖，我最开始学习深度神经网络就是从ResNet开始的，直接看pytorch实现的ResNet代码，并且直接在这些代码上进行一些改进，详情请参见下一节<strong>常见的改进思路</strong>。</p>
+<p>我认为DenseNet也是ResNet系列的网络</p>
 <h3 id="常见的改进思路">常见的改进思路</h3>
 <p>对于图像分类问题，场景的改进思路有：多层金字塔、注意力机制、自蒸馏等等。</p>
 <h2 id="进阶任务">进阶任务</h2>
@@ -272,7 +297,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/22/2025-7-%E8%A7%86%E8%A7%89%E6%A8%A1%E5%9E%8B%E6%95%B0%E7%90%86/" data-id="cmdils6bs0001tot6eeg24nxg" data-title="2025.7 视觉模型梳理" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/22/2025-7-%E8%A7%86%E8%A7%89%E6%A8%A1%E5%9E%8B%E6%95%B0%E7%90%86/" data-id="cmdr39lsg0001swt6dooxgu9c" data-title="2025.7 视觉模型梳理" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -321,7 +346,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/21/Stanford-CS144-Lab1/" data-id="cmdils6c10009tot60n883qfm" data-title="Stanford CS144 Lab1" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/21/Stanford-CS144-Lab1/" data-id="cmdr39lsp0009swt69yke52dv" data-title="Stanford CS144 Lab1" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -438,7 +463,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/19/Stanford-CS144-Winter-2025-Lab-Checkpoint-0/" data-id="cmdils6c00008tot6h3sp76z3" data-title="Stanford CS144 Winter 2025 Lab Check0" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/19/Stanford-CS144-Winter-2025-Lab-Checkpoint-0/" data-id="cmdr39lso0008swt6fn1k2eqc" data-title="Stanford CS144 Winter 2025 Lab Check0" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -497,7 +522,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/08/DP-%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/" data-id="cmdils6bx0005tot6adb0afa3" data-title="DP 刷题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/08/DP-%E5%88%B7%E9%A2%98%E6%80%BB%E7%BB%93/" data-id="cmdr39lsl0005swt69cz7bw6u" data-title="DP 刷题总结" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -531,7 +556,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <p>刷完王道的课程后发现现在已经忘得差不多了，结合26年王道考研复习指导，边复习边刷题，记录一些比较难的知识点和错题作为备忘录。后续将不断更新。</p>
+        <p>刷完王道的课程后发现现在已经忘得差不多了，结合26年王道考研复习指导，边复习边刷题，记录一些比较难的知识点和错题作为备忘录。后续将不断更新。后续可能会做MIT 6.828的实验，到时候再更新。</p>
 <h2 id="第一章-计算机系统概述">第一章 计算机系统概述</h2>
 <h3 id="第一节-OS的概念">第一节 OS的概念</h3>
 <hr>
@@ -648,7 +673,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/06/OS-%E8%87%AA%E5%AD%A6%E7%AC%94%E8%AE%B0/" data-id="cmdils6bz0007tot6d7wrh2z2" data-title="OS 自学笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/06/OS-%E8%87%AA%E5%AD%A6%E7%AC%94%E8%AE%B0/" data-id="cmdr39lsn0007swt65p5z2vhy" data-title="OS 自学笔记" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -746,7 +771,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/25/BUAA-CO-P4%E8%AF%BE%E4%B8%8A/" data-id="cmdils6bv0002tot6e0g77m8e" data-title="BUAA CO P4课上" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/25/BUAA-CO-P4%E8%AF%BE%E4%B8%8A/" data-id="cmdr39lsk0003swt6bikza903" data-title="BUAA CO P4课上" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -816,7 +841,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" data-id="cmdils6bw0004tot65idudorh" data-title="Chainer环境配置" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/25/Chainer%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" data-id="cmdr39lsk0004swt6guun0ns4" data-title="Chainer环境配置" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -864,7 +889,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/24/Liu-first-blog/" data-id="cmdils6by0006tot6creu1qx0" data-title="&#39;Liu-first-blog&#39;" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/05/24/Liu-first-blog/" data-id="cmdr39lsm0006swt69xobg3ge" data-title="&#39;Liu-first-blog&#39;" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
