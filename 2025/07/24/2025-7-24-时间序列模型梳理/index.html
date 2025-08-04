@@ -28,7 +28,7 @@
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508010056345.png">
 <meta property="og:image" content="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508010100785.png">
 <meta property="article:published_time" content="2025-07-24T06:01:07.000Z">
-<meta property="article:modified_time" content="2025-08-04T07:58:29.936Z">
+<meta property="article:modified_time" content="2025-08-04T08:00:02.164Z">
 <meta property="article:author" content="Zhenyu">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508031341595.png">
@@ -193,7 +193,7 @@
 </ol>
 <p>[3]是一篇基于S-CTRNN的工作，核心思想是由S-CTRNN预测得到先验值，结合当前测量值，结合贝叶斯推断得到当前状态值。（思想有点像卡尔曼滤波，甚至都是用的高斯分布）论文的结论是人类小孩和黑猩猩的认知差别并不是缺少了某种认识上的机制，或者其他“硬件”条件，而是人类小孩会更多依赖先验知识（自己的预测），而黑猩猩则更多依赖当前测量值。</p>
 <p>我们项目想要验证影响人步态同步情况的也是人对先验的依赖程度，在生成仿真数据时，对不同网络在模拟同步过程改变不同先验参考权重H，观察同步过程的变化情况。导师好像后续联系医院要安排自闭症患者进行步态实验，我推测导师的意思是，自闭症患者不能接受外界信息，知识取决于自闭症患者对自己先验的依赖程度，而不涉及到认知层面或者其他病理层面上的原因，研究的目的是提出自闭症形成的原理，为自闭症治疗提供新思路。</p>
-<p>我在做的时候并没有组织自闭症患者实验，而是麻烦了实验室里的几位师兄和同来实习的同学，当时想要用“在腿上绑沙袋”改变“同步的难度”，设计受试者以同样的“意愿”与另一位受试者同步，进而模拟不同的“接受外来信息改变自身步态的程度”。这个思路对不对我不知道，我感觉认为把逻辑链放得太长了，并不好论证我们的目的。在做实验的时候就觉得，总共只有4个受试者，组织他们实验和实验数据，对我来说有点吃力。后来在看论文的时候，一看到一个方法动辄在20多个数据集上训练验证，采用及其复杂的训练策略，就觉得真是不容易啊。</p>
+<p>我在做的时候并没有组织自闭症患者实验，而是麻烦了实验室里的几位师兄和同来实习的同学，当时想要用“在腿上绑沙袋”改变“同步的难度”，设计受试者以同样的“意愿”与另一位受试者同步，进而模拟不同的“接受外来信息改变自身步态的程度”。这个思路对不对我不知道，我认为把逻辑链放得太长了，并不好论证我们的目的。在做实验的时候就觉得，总共只有4个受试者，组织他们实验和实验数据，对我来说有点吃力。后来在看论文的时候，一看到一个方法动辄在20多个数据集上训练验证，采用及其复杂的训练策略，就觉得真是不容易啊。</p>
 <p>[1] S. Murata, J. Namikawa, H. Arie, S. Sugano and J. Tani, “Learning to Reproduce Fluctuating Time Series by Inferring Their Time-Dependent Stochastic Properties: Application in Robot Learning Via Tutoring,” in IEEE Transactions on Autonomous Mental Development, vol. 5, no. 4, pp. 298-310, Dec. 2013, doi: 10.1109/TAMD.2013.2258019.</p>
 <p>[2] S. Heinrich, T. Alpay and Y. Nagai, “Learning Timescales in Gated and Adaptive Continuous Time Recurrent Neural Networks,” 2020 IEEE International Conference on Systems, Man, and Cybernetics (SMC), Toronto, ON, Canada, 2020, pp. 2662-2667, doi: 10.1109/SMC42975.2020.9282864.</p>
 <p>[3] A. Philippsen and Y. Nagai, “A predictive coding model of representational drawing in human children and chimpanzees,” 2019 Joint IEEE 9th International Conference on Development and Learning and Epigenetic Robotics (ICDL-EpiRob), Oslo, Norway, 2019, pp. 171-176, doi: 10.1109/DEVLRN.2019.8850701.</p>
