@@ -122,7 +122,7 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mv /media/sf_tmp/pa&lt;num&gt;-grading.pl /home/compilers/cool/assignment/PA&lt;num&gt;</span><br><span class="line">perl pa&lt;num&gt;-grading.pl</span><br></pre></td></tr></table></figure>
 <p>下面是&quot;Getting Started with the VM&quot;examples的编译结果：<br>
 <img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251353138.png" alt=""></p>
-<p>在虚拟机里有PA1和PAi、PAiJ（i:2~5），PA1是简单的熟悉COOL语言的项目（实现一个栈数据结构），后面四个才是编译器实现的核心实验（词法分析、语法分析、语义分析和代码生成）不带J的是C++实现版本，带J的是Java实现版本。</p>
+<p>在虚拟机里有PA1和PAi、PAiJ（i:2~5），PA1是简单的熟悉COOL语言的项目（实现一个stack machine），后面四个才是编译器实现的核心实验（词法分析、语法分析、语义分析和代码生成）不带J的是C++实现版本，带J的是Java实现版本。</p>
 <p>另外在edx里参与测试Quiz和提交作业需要交钱（$249，第一次买课可以30%off），即使打折对我而言也太贵了（￥1200+）而且必要性不大。</p>
 <p>关于测试文件，在edx每个实验都会给一个下载链接，如下所示：</p>
 <p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251441247.png" alt=""></p>
@@ -131,7 +131,25 @@
 <p>这些测试文件我也上传到上面北航云盘的文件夹下，自己直接根据edx下载也很快。</p>
 <p>后续在虚拟机里打开共享文件夹可以看到：</p>
 <p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251453483.png" alt=""></p>
-<h2 id="PA1-Stack">PA1 Stack</h2>
+<h2 id="PA1-Stack-Machine">PA1 Stack Machine</h2>
+<p>虚拟机里没有PA1相关的文档，你可以通过上面提到的方法下载课程文件，里面的handouts文件夹里有Cool语言的参考和各个作业的文档，还包括Stanford版本的作业5额外作业的文档。handouts文件夹我也上传到北航云盘里了。</p>
+<p>关于Cool语言的文档也可以通过课程官网下载（推荐，因为可能会更新修正错误），从官网上你可以下载到三分cool相关文档，分别是：cool-manual、cool-tour、cool-runtime。cool-manual是语法规范，分为不规范定义和规范定义两个部分，cool-tour是Cool编译器支持代码的说明，方便我们编写编译器，cool-runtime是cool的runtime系统介绍，主要用于MIPS汇编代码生成。</p>
+<p>对于PA1，你需要看的是cool-manual和example里的示例代码。cool-manual里的informal部分介绍了Cool语言的语法，基本类，基本运算，理论上看了informal部分就可以写代码了，formal部分主要介绍了类型检查和表达式计算的推演逻辑，formal部分推演和使用的符号是基于informal部分的，并且自定义了很多表示符号，你需要仔细阅读符号和运算的定义。</p>
+<p>下面是我总结的一部分Cool语言的要领：</p>
+<ol>
+<li>
+<p>单行注释: <code>--</code>，多行注释：<code>(**)</code></p>
+</li>
+<li>
+<p>一个Cool文件由多个类构成，一个Cool程序必须要有Main类，其中必须要有main方法。Cool类里面有属性和方法，所有的属性都不能从外面访问，所有的方法都可以从外面访问。</p>
+</li>
+<li>
+<p>Cool是表达式语言，每个表达式都有值和类型。在方法中没有<code>return</code>而是返回最后一个表达式的值。</p>
+</li>
+<li>
+<p>基础类：Object、IO、String、Int、Bool，接口参考manual的8节，布尔常量是<code>true</code>、<code>false</code>，Int常量是无符号整数，允许有前导零，字符串常量要用双引号括起来。</p>
+</li>
+</ol>
 
       
     </div>
