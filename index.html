@@ -73,6 +73,61 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-CS143-PA2" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2025/08/23/CS143-PA2/" class="article-date">
+  <time class="dt-published" datetime="2025-08-23T10:06:53.000Z" itemprop="datePublished">2025-08-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2025/08/23/CS143-PA2/">CS143-PA2 Lexer</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p><strong>edX课程资源</strong></p>
+<p>Lex论文地址：<a target="_blank" rel="noopener" href="https://wolfram.schneider.org/bsd/7thEdManVol2/lex/lex.pdf">https://wolfram.schneider.org/bsd/7thEdManVol2/lex/lex.pdf</a><br>
+Flex手册：<a target="_blank" rel="noopener" href="https://westes.github.io/flex/manual/">https://westes.github.io/flex/manual/</a><br>
+bison手册：<a target="_blank" rel="noopener" href="https://www.gnu.org/software/bison/manual/bison.html">https://www.gnu.org/software/bison/manual/bison.html</a></p>
+<p>GNU是啥？操作系统的核心是“内核”，除此之外还有大量的配套工具：命令行工具、编译器、文本编辑器etc.。我们常说的Linux操作系统，指的是GNU工具集+Linux内核，称为&quot;GNU/Linux&quot;。</p>
+<p>网站上还给了两篇文章，是Lex和yacc的作者写的介绍这两个工具的文章，连接打不开。还有一篇博客，是上个世纪的一位地球物理学家介绍了他使用Lex和yacc处理测井曲线数据的经验，但是在今天看来，用matlab导入数据外加几行代码就可以完成了。</p>
+<p><strong>前置知识</strong></p>
+<p>Lex是一个创建词法分析器的工具，Flex是Lex的一个更新、更强且开源的实现，yacc是一个创建语法分析器的工具，bison是yacc的一个更新、更强且开源的实现。在CS143的实验中我们要使用Flex和bison，Java版本则是使用另外两个工具。我们只需要根据COOL语言的手册，编写词法分析和语法分析的规则，Flex和bison就可以自动生成对应的<strong>实现有限自动机（FA）逻辑的词法分析器程序</strong>和<strong>构建抽象语法树（AST）的语法分析器程序</strong>。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508252113888.png" alt=""></p>
+<p>CS143不涉及中间表示（IR）和优化，后续还有进阶的课程CS243专门讲IR和优化，CS343讲其他专题。上图截自课程官网下载的PPT。</p>
+<p>词法分析（Lexical Analysis）把代码字符串切割为一个一个的token，并识别每个token的类别，例如：类名字，ID标识符，计算符等。语法分析（Parsing）将多个token组合为一个更大的单位，分析语句的结构，在中学期间，英语老师总是对我们说要分析句子的结构，找主句动词的位置，进而分析句子的结构，找出从句结构、短语结构，这些都分析出来了才能理解句子的意思，现在回想起来这一步其实就是parse，主句、从句的结构也和AST很像。语义分析（Semantic Analysis）直观上理解是理解语句的含义，但是编译器能力有限，更多地是检查不一致性，在COOL的manual文档里有很大一部分在讲<strong>表达式类型推导</strong>与<strong>上下文要求的类型推导</strong>，两者推导结果必须一致。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508252330267.png" alt=""></p>
+<p>token有“代币”的意思，在我的印象里token就是一个一个的小硬币。我认为其包含了三个含义：1. 他们是离散的，一个一个的，不是连续的；2. 他们是最小的单位，最基本的单位，不可拆分；3. 他们都被包含在某一个大集合里。</p>
+<p>在编程语言里，我们要定义一个有限大小的token集合，包括关键字&quot;IF&quot;、&quot;ELSE&quot;等，标识符即变量名ID，类名，运算符，数字，括号等。</p>
+<p>词法分析器（Lexer a.k.a scanner）返回的是&lt;token, lexeme&gt;对，token表示类别，lexeme词素就是token的内容，举个C语言的例子：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> a=<span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<p>当扫描到’a’的时候应该返回&lt;INT, “a”&gt;。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://asukazhenyu.github.io/2025/08/23/CS143-PA2/" data-id="cmerctczk0000s8t68gxa80fv" data-title="CS143-PA2 Lexer" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-CS143-PA1" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2025/07/25/CS143-PA1/" class="article-date">
@@ -167,13 +222,18 @@
 <li>
 <p>对于IF-ELSE中间空的部分，可以加一个new Object，什么都没有的话会报错。</p>
 </li>
+<li>
+<p>对象在使用前一定要new，不然会产生dispatch void的错误。</p>
+</li>
 </ol>
 <p>PA1要编写一个栈机器，输入可以是无符号整数，<code>s</code>，<code>+</code>，<code>e</code>、<code>d</code>、<code>s</code>，如果输入是无符号整数、<code>+</code>、<code>s</code>则直接放入栈中，如果输入是<code>d</code>则把栈中所有内容打印出来，如果输入是<code>e</code>则分两种情况，如果栈顶是<code>+</code>则把<code>+</code>弹出后，对栈顶两个数做加法然后放入，如果栈顶是<code>s</code>则把<code>s</code>弹出后，交换栈顶的两个元素。</p>
-<p>因为没有数组，需要我们自己实现相关数据结构，我看来example里大部分代码使用的都是链表数据结构，我直接参考里面的list.cl文件，使用链表实现。</p>
+<p>因为没有数组，需要我们自己实现相关数据结构，我看在example里大部分代码使用的都是链表数据结构，我直接参考里面的list.cl文件，使用链表实现。</p>
 <p>最后简单说一下，PA1文档里说命令前有’&gt;‘但是如果你运行<code>make test</code>输入没有’&gt;'，区别就是Main类里get_cmd函数。下面直接给stack.cl的代码：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">List</span>&#123;</span><br><span class="line">   isNil() : Bool &#123;<span class="literal">true</span>&#125;;</span><br><span class="line">   head() : String &#123;&#123;abort();<span class="string">&quot;&quot;</span>;&#125;&#125;;</span><br><span class="line">   tail() : List &#123;&#123;abort();self;&#125;&#125;;</span><br><span class="line">   cons(x : String) : List &#123;</span><br><span class="line">      (<span class="keyword">new</span> <span class="title class_">Cons</span>).init(x,self)</span><br><span class="line">   &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Cons</span> inherits List &#123;</span><br><span class="line">   car : String;</span><br><span class="line">   cdr : List;</span><br><span class="line"></span><br><span class="line">   init(x : String, y : List) : List &#123;&#123;</span><br><span class="line">      car &lt;- x;</span><br><span class="line">      cdr &lt;- y;</span><br><span class="line">      self;</span><br><span class="line">   &#125;&#125;;</span><br><span class="line"></span><br><span class="line">   isNil() : Bool &#123;<span class="literal">false</span>&#125;;</span><br><span class="line">   head() : String &#123;car&#125;;</span><br><span class="line">   tail() : List &#123;cdr&#125;;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Stack</span> inherits IO&#123;</span><br><span class="line"></span><br><span class="line">   st : List &lt;- <span class="keyword">new</span> <span class="title class_">List</span>;</span><br><span class="line">   z : A2I &lt;- <span class="keyword">new</span> <span class="title class_">A2I</span>;</span><br><span class="line"></span><br><span class="line">   get_list() : List &#123;st&#125;;</span><br><span class="line"></span><br><span class="line">   -- <span class="type">int</span>,+,s</span><br><span class="line">   <span class="title function_">push</span><span class="params">(x : String)</span> : Object &#123;</span><br><span class="line">      &#123;</span><br><span class="line">         st &lt;- st.cons(x);</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;;</span><br><span class="line">   -- e</span><br><span class="line"></span><br><span class="line">      <span class="title function_">pop</span><span class="params">()</span> : Object &#123;</span><br><span class="line">      <span class="keyword">if</span> st.isNil() then <span class="keyword">new</span> <span class="title class_">Object</span> <span class="keyword">else</span></span><br><span class="line">         (let top:String &lt;- st.head() in</span><br><span class="line">            <span class="type">if</span> <span class="variable">top</span> <span class="operator">=</span> <span class="string">&quot;+&quot;</span> then</span><br><span class="line">               &#123;</span><br><span class="line">                  -- pop and add</span><br><span class="line">                  st &lt;- st.tail();</span><br><span class="line">                  st &lt;- st.tail().tail().cons(z.i2a(z.a2i(st.head())+z.a2i(st.tail().head())));</span><br><span class="line">               &#125;</span><br><span class="line">            <span class="keyword">else</span> </span><br><span class="line">               <span class="type">if</span> <span class="variable">top</span> <span class="operator">=</span> <span class="string">&quot;s&quot;</span> then</span><br><span class="line">                  &#123;</span><br><span class="line">                     -- pop and swap</span><br><span class="line">                     st &lt;- st.tail();</span><br><span class="line">                     st &lt;- st.tail().tail().cons(st.head()).cons(st.tail().head());</span><br><span class="line">                  &#125;</span><br><span class="line">               <span class="keyword">else</span> <span class="keyword">new</span> <span class="title class_">Object</span> fi -- <span class="keyword">do</span> nothing</span><br><span class="line">            fi</span><br><span class="line">         )</span><br><span class="line">      fi</span><br><span class="line">   &#125;;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Main</span> inherits IO &#123;</span><br><span class="line"></span><br><span class="line">   st : Stack &lt;- <span class="keyword">new</span> <span class="title class_">Stack</span>;</span><br><span class="line">   cmd : String;</span><br><span class="line"></span><br><span class="line">   get_cmd() : String &#123;&#123;</span><br><span class="line">      cmd &lt;- in_string();</span><br><span class="line">      cmd &lt;- cmd.substr(<span class="number">1</span>,cmd.length()-<span class="number">1</span>);</span><br><span class="line">   &#125;&#125;;</span><br><span class="line">   print_list(l : List) : Object &#123;</span><br><span class="line">      <span class="keyword">if</span> l.isNil() then <span class="title function_">out_string</span><span class="params">(<span class="string">&quot;\n&quot;</span>)</span> <span class="keyword">else</span></span><br><span class="line">         &#123;</span><br><span class="line">            out_string(l.head());</span><br><span class="line">            out_string(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">            print_list(l.tail());</span><br><span class="line">         &#125; fi</span><br><span class="line">   &#125;;</span><br><span class="line">   main() : Object &#123;&#123;</span><br><span class="line">      -- out_string(<span class="string">&quot;Nothing implemented\n&quot;</span>)</span><br><span class="line">      <span class="keyword">while</span> (get_cmd()=<span class="string">&quot;x&quot;</span>)=<span class="literal">false</span> loop</span><br><span class="line">      </span><br><span class="line">         <span class="type">if</span> <span class="variable">cmd</span> <span class="operator">=</span> <span class="string">&quot;s&quot;</span> then st.push(cmd) <span class="keyword">else</span></span><br><span class="line">         <span class="type">if</span> <span class="variable">cmd</span> <span class="operator">=</span> <span class="string">&quot;+&quot;</span> then st.push(cmd) <span class="keyword">else</span></span><br><span class="line">         <span class="type">if</span> <span class="variable">cmd</span> <span class="operator">=</span> <span class="string">&quot;e&quot;</span> then st.pop() <span class="keyword">else</span></span><br><span class="line">         <span class="type">if</span> <span class="variable">cmd</span> <span class="operator">=</span> <span class="string">&quot;d&quot;</span> then <span class="title function_">print_list</span><span class="params">(st.get_list()</span>) <span class="keyword">else</span></span><br><span class="line">         st.push(cmd) fi fi fi fi</span><br><span class="line"></span><br><span class="line">      </span><br><span class="line">      pool;</span><br><span class="line">      -- elegant exit</span><br><span class="line">      -- st.abort();</span><br><span class="line">      -- cmd.abort();</span><br><span class="line">      -- abort()</span><br><span class="line">   &#125;&#125;;</span><br><span class="line"></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p>运行结果如下：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">compilers@compilers-vm:~/cool/assignments/PA1$ coolc stack.cl atoi.cl</span><br><span class="line">compilers@compilers-vm:~/cool/assignments/PA1$ spim stack.s</span><br><span class="line">SPIM Version 6.5 of January 4, 2003</span><br><span class="line">Copyright 1990-2003 by James R. Larus (larus@cs.wisc.edu).</span><br><span class="line">All Rights Reserved.</span><br><span class="line">See the file README for a full copyright notice.</span><br><span class="line">Loaded: /usr/class/cs143/cool/lib/trap.handler</span><br><span class="line"><span class="meta prompt_">&gt;</span><span class="language-bash">1</span></span><br><span class="line"><span class="meta prompt_">&gt;</span><span class="language-bash">1</span></span><br><span class="line"><span class="meta prompt_">&gt;</span><span class="language-bash">d</span></span><br><span class="line">1</span><br><span class="line">1</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">&gt;</span><span class="language-bash">+</span></span><br><span class="line"><span class="meta prompt_">&gt;</span><span class="language-bash">e</span></span><br><span class="line"><span class="meta prompt_">&gt;</span><span class="language-bash">d</span></span><br><span class="line">2</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">&gt;</span><span class="language-bash">1</span></span><br><span class="line"><span class="meta prompt_">&gt;</span><span class="language-bash">s</span></span><br><span class="line"><span class="meta prompt_">&gt;</span><span class="language-bash">e</span></span><br><span class="line"><span class="meta prompt_">&gt;</span><span class="language-bash">d</span></span><br><span class="line">2</span><br><span class="line">1</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">&gt;</span><span class="language-bash">x</span></span><br><span class="line">COOL program successfully executed</span><br><span class="line">Stats -- #instructions : 13174</span><br><span class="line">         #reads : 3109  #writes 1694  #branches 2923  #other 5448</span><br><span class="line">compilers@compilers-vm:~/cool/assignments/PA1$ make test</span><br><span class="line">stack.test</span><br><span class="line">/usr/class/cs143/cool/bin/spim -file stack.s &lt; stack.test</span><br><span class="line">SPIM Version 6.5 of January 4, 2003</span><br><span class="line">Copyright 1990-2003 by James R. Larus (larus@cs.wisc.edu).</span><br><span class="line">All Rights Reserved.</span><br><span class="line">See the file README for a full copyright notice.</span><br><span class="line">Loaded: /usr/class/cs143/cool/lib/trap.handler</span><br><span class="line">Index to substr is too big</span><br><span class="line">Execution aborted.</span><br><span class="line">Stats -- #instructions : 21374</span><br><span class="line">         #reads : 4960  #writes 2837  #branches 4799  #other 8778</span><br><span class="line">compilers@compilers-vm:~/cool/assignments/PA1$ make test</span><br><span class="line">/usr/class/cs143/cool/bin/coolc stack.cl atoi.cl </span><br><span class="line">stack.test</span><br><span class="line">/usr/class/cs143/cool/bin/spim -file stack.s &lt; stack.test</span><br><span class="line">SPIM Version 6.5 of January 4, 2003</span><br><span class="line">Copyright 1990-2003 by James R. Larus (larus@cs.wisc.edu).</span><br><span class="line">All Rights Reserved.</span><br><span class="line">See the file README for a full copyright notice.</span><br><span class="line">Loaded: /usr/class/cs143/cool/lib/trap.handler</span><br><span class="line">s</span><br><span class="line">2</span><br><span class="line">+</span><br><span class="line">1</span><br><span class="line"></span><br><span class="line">3</span><br><span class="line"></span><br><span class="line">s</span><br><span class="line">s</span><br><span class="line">s</span><br><span class="line">1</span><br><span class="line">+</span><br><span class="line">3</span><br><span class="line"></span><br><span class="line">4</span><br><span class="line"></span><br><span class="line">COOL program successfully executed</span><br><span class="line">Stats -- #instructions : 22896</span><br><span class="line">         #reads : 5693  #writes 2860  #branches 5190  #other 9153</span><br></pre></td></tr></table></figure>
+<p>其他：尽量不要在共享文件夹里新建工作文件夹在VS Code里编辑代码，会出现共享文件夹失效的问题，重启后甚至把我的VS Code删了，重新装了一次。</p>
+
       
     </div>
     <footer class="article-footer">
@@ -503,7 +563,7 @@ Subakan C, Ravanelli M, Cornell S, et al. Attention is all you need in speech se
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2025/07/21/Stanford-CS144-Lab1/">Stanford CS144 Lab1</a>
+      <a class="p-name article-title" href="/2025/07/21/Stanford-CS144-Lab1/">CS144 Lab1</a>
     </h1>
   
 
@@ -526,7 +586,7 @@ Subakan C, Ravanelli M, Cornell S, et al. Attention is all you need in speech se
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/21/Stanford-CS144-Lab1/" data-id="cmdsjmhw80007f0t60jd3b7pr" data-title="Stanford CS144 Lab1" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/21/Stanford-CS144-Lab1/" data-id="cmdsjmhw80007f0t60jd3b7pr" data-title="CS144 Lab1" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -552,7 +612,7 @@ Subakan C, Ravanelli M, Cornell S, et al. Attention is all you need in speech se
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2025/07/19/Stanford-CS144-Winter-2025-Lab-Checkpoint-0/">Stanford CS144 Winter 2025 Lab Check0</a>
+      <a class="p-name article-title" href="/2025/07/19/Stanford-CS144-Winter-2025-Lab-Checkpoint-0/">CS144 Lab0</a>
     </h1>
   
 
@@ -643,7 +703,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/07/19/Stanford-CS144-Winter-2025-Lab-Checkpoint-0/" data-id="cmdsjmhw80008f0t6e95rgp3l" data-title="Stanford CS144 Winter 2025 Lab Check0" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://asukazhenyu.github.io/2025/07/19/Stanford-CS144-Winter-2025-Lab-Checkpoint-0/" data-id="cmdsjmhw80008f0t6e95rgp3l" data-title="CS144 Lab0" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -1033,55 +1093,12 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
 
 
   
-    <article id="post-Liu-first-blog" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2025/05/24/Liu-first-blog/" class="article-date">
-  <time class="dt-published" datetime="2025-05-24T11:18:21.000Z" itemprop="datePublished">2025-05-24</time>
-</a>
+
+
+  <nav id="page-nav">
     
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2025/05/24/Liu-first-blog/">&#39;Liu-first-blog&#39;</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>本人力扣主页：<a target="_blank" rel="noopener" href="https://leetcode.cn/u/elastic-dewdney7o3/">今天你带摩拉了吗 - 力扣（LeetCode）</a></p>
-<p>牛客竞赛主页：<a target="_blank" rel="noopener" href="https://ac.nowcoder.com/acm/contest/profile/776553378"> 睦头人出击的比赛主页</a></p>
-<p>codeforces：<a target="_blank" rel="noopener" href="https://codeforces.com/profile/uesugierii">uesugierii - Codeforces</a></p>
-<p>Atcoder：<a target="_blank" rel="noopener" href="https://atcoder.jp/users/iloveasuka">iloveasuka - AtCoder</a></p>
-<p>洛谷：<a target="_blank" rel="noopener" href="https://www.luogu.com.cn/user/942776#practice">Sgayter 的个人中心 - 洛谷 | 计算机科学教育新生态</a></p>
-<p>采用jsDelivr免费域名访问图片，直接访问（不开加速器和梯子）图片可以正常加载，只开加速器可能导致图片无法正常加载，解决方法是关闭加速器或打开梯子。</p>
-        
-          <p class="article-more-link">
-            <a href="/2025/05/24/Liu-first-blog/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://asukazhenyu.github.io/2025/05/24/Liu-first-blog/" data-id="cmdsjmhw60005f0t68zxm4rbl" data-title="&#39;Liu-first-blog&#39;" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">下一页 &raquo;</a>
+  </nav>
 
 </section>
         
@@ -1099,7 +1116,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/07/">七月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/05/">五月 2025</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/08/">八月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/07/">七月 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/05/">五月 2025</a></li></ul>
     </div>
   </div>
 
@@ -1110,6 +1127,10 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
     <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2025/08/23/CS143-PA2/">CS143-PA2 Lexer</a>
+          </li>
         
           <li>
             <a href="/2025/07/25/CS143-PA1/">CS143 PA1 熟悉COOL语言</a>
@@ -1124,11 +1145,7 @@ Socket类继承自FileDescriptor类，TCPSocket类继承自Socket类，FileDescr
           </li>
         
           <li>
-            <a href="/2025/07/21/Stanford-CS144-Lab1/">Stanford CS144 Lab1</a>
-          </li>
-        
-          <li>
-            <a href="/2025/07/19/Stanford-CS144-Winter-2025-Lab-Checkpoint-0/">Stanford CS144 Winter 2025 Lab Check0</a>
+            <a href="/2025/07/21/Stanford-CS144-Lab1/">CS144 Lab1</a>
           </li>
         
       </ul>
