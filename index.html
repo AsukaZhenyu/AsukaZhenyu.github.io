@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>交互式选择页面</title>
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome -->
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <!-- 配置Tailwind自定义主题 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#165DFF',
+            secondary: '#36CFC9',
+            neutral: '#F5F7FA',
+            dark: '#1D2129',
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .transition-custom {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+    }
+  </style>
+  
+  <style>
+    /* 导入Inter字体 */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      scroll-behavior: smooth;
+    }
+    
+    /* 选择区域的动画效果 */
+    .option-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .option-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    /* 页面载入动画 */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .intro-section, .selection-section {
+      animation: fadeIn 0.8s ease forwards;
+    }
+    
+    .intro-section {
+      animation-delay: 0.1s;
+      opacity: 0;
+    }
+    
+    .selection-section {
+      animation-delay: 0.3s;
+      opacity: 0;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-dark">
+  <!-- 页面容器 -->
+  <div class="container mx-auto px-4 py-8 md:py-16 max-w-6xl">
+    
+    <!-- 介绍部分 -->
+    <section class="intro-section mb-12 md:mb-20">
+      <div class="max-w-3xl mx-auto text-center">
+        <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold text-dark mb-6 leading-tight text-shadow">
+          欢迎使用交互式选择工具
+        </h1>
+        <p class="text-gray-600 text-lg md:text-xl mb-8 leading-relaxed">
+          这个工具可以帮助您快速筛选和选择所需的选项。请在下方的选择区域中，根据您的需求进行操作，
+          我们会根据您的选择提供相应的结果和建议。
+        </p>
+        <div class="flex justify-center space-x-4 text-primary">
+          <div class="flex items-center">
+            <i class="fa fa-check-circle mr-2"></i>
+            <span>简单易用</span>
+          </div>
+          <div class="flex items-center">
+            <i class="fa fa-bolt mr-2"></i>
+            <span>快速响应</span>
+          </div>
+          <div class="flex items-center">
+            <i class="fa fa-shield mr-2"></i>
+            <span>安全可靠</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 选择区域部分 -->
+    <section class="selection-section">
+      <!-- 选择区域框 -->
+      <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-gray-100">
+        <div class="mb-8">
+          <h2 class="text-2xl md:text-3xl font-semibold mb-2 text-dark">请做出您的选择</h2>
+          <p class="text-gray-500">从以下选项中选择适合您的内容，完成后点击确认按钮</p>
+        </div>
+        
+        <!-- 选择内容区域 -->
+        <div class="space-y-8">
+          <!-- 第一个选择项：单选 -->
+          <div>
+            <label class="block text-lg font-medium text-gray-700 mb-4">选择类型</label>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="option-card border border-gray-200 rounded-xl p-5 cursor-pointer hover:border-primary hover:shadow-md">
+                <input type="radio" id="type1" name="type" class="hidden peer">
+                <label for="type1" class="flex flex-col items-center cursor-pointer">
+                  <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3 text-primary peer-checked:bg-primary peer-checked:text-white transition-custom">
+                    <i class="fa fa-file-text-o text-xl"></i>
+                  </div>
+                  <span class="font-medium peer-checked:text-primary transition-custom">文档类型</span>
+                </label>
+              </div>
+              
+              <div class="option-card border border-gray-200 rounded-xl p-5 cursor-pointer hover:border-primary hover:shadow-md">
+                <input type="radio" id="type2" name="type" class="hidden peer">
+                <label for="type2" class="flex flex-col items-center cursor-pointer">
+                  <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3 text-primary peer-checked:bg-primary peer-checked:text-white transition-custom">
+                    <i class="fa fa-image text-xl"></i>
+                  </div>
+                  <span class="font-medium peer-checked:text-primary transition-custom">图像类型</span>
+                </label>
+              </div>
+              
+              <div class="option-card border border-gray-200 rounded-xl p-5 cursor-pointer hover:border-primary hover:shadow-md">
+                <input type="radio" id="type3" name="type" class="hidden peer">
+                <label for="type3" class="flex flex-col items-center cursor-pointer">
+                  <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3 text-primary peer-checked:bg-primary peer-checked:text-white transition-custom">
+                    <i class="fa fa-video-camera text-xl"></i>
+                  </div>
+                  <span class="font-medium peer-checked:text-primary transition-custom">视频类型</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 第二个选择项：复选 -->
+          <div>
+            <label class="block text-lg font-medium text-gray-700 mb-4">选择功能（可多选）</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="option-card border border-gray-200 rounded-xl p-4 cursor-pointer hover:border-primary hover:shadow-md">
+                <input type="checkbox" id="feature1" class="hidden peer">
+                <label for="feature1" class="flex items-center cursor-pointer">
+                  <div class="w-6 h-6 rounded border border-gray-300 mr-3 flex items-center justify-center peer-checked:bg-primary peer-checked:border-primary transition-custom">
+                    <i class="fa fa-check text-white text-xs opacity-0 peer-checked:opacity-100"></i>
+                  </div>
+                  <span class="peer-checked:text-primary transition-custom">自动分类</span>
+                </label>
+              </div>
+              
+              <div class="option-card border border-gray-200 rounded-xl p-4 cursor-pointer hover:border-primary hover:shadow-md">
+                <input type="checkbox" id="feature2" class="hidden peer">
+                <label for="feature2" class="flex items-center cursor-pointer">
+                  <div class="w-6 h-6 rounded border border-gray-300 mr-3 flex items-center justify-center peer-checked:bg-primary peer-checked:border-primary transition-custom">
+                    <i class="fa fa-check text-white text-xs opacity-0 peer-checked:opacity-100"></i>
+                  </div>
+                  <span class="peer-checked:text-primary transition-custom">智能推荐</span>
+                </label>
+              </div>
+              
+              <div class="option-card border border-gray-200 rounded-xl p-4 cursor-pointer hover:border-primary hover:shadow-md">
+                <input type="checkbox" id="feature3" class="hidden peer">
+                <label for="feature3" class="flex items-center cursor-pointer">
+                  <div class="w-6 h-6 rounded border border-gray-300 mr-3 flex items-center justify-center peer-checked:bg-primary peer-checked:border-primary transition-custom">
+                    <i class="fa fa-check text-white text-xs opacity-0 peer-checked:opacity-100"></i>
+                  </div>
+                  <span class="peer-checked:text-primary transition-custom">数据导出</span>
+                </label>
+              </div>
+              
+              <div class="option-card border border-gray-200 rounded-xl p-4 cursor-pointer hover:border-primary hover:shadow-md">
+                <input type="checkbox" id="feature4" class="hidden peer">
+                <label for="feature4" class="flex items-center cursor-pointer">
+                  <div class="w-6 h-6 rounded border border-gray-300 mr-3 flex items-center justify-center peer-checked:bg-primary peer-checked:border-primary transition-custom">
+                    <i class="fa fa-check text-white text-xs opacity-0 peer-checked:opacity-100"></i>
+                  </div>
+                  <span class="peer-checked:text-primary transition-custom">历史记录</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 第三个选择项：下拉选择 -->
+          <div>
+            <label for="priority" class="block text-lg font-medium text-gray-700 mb-3">选择优先级</label>
+            <div class="relative max-w-md">
+              <select id="priority" class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white appearance-none focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-custom">
+                <option value="" disabled selected>请选择优先级</option>
+                <option value="high">高优先级</option>
+                <option value="medium">中优先级</option>
+                <option value="low">低优先级</option>
+              </select>
+              <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+                <i class="fa fa-chevron-down"></i>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 确认按钮 -->
+          <div class="pt-4 flex justify-end">
+            <button id="confirmBtn" class="px-6 py-3 bg-primary hover:bg-primary/90 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-custom flex items-center">
+              <span>确认选择</span>
+              <i class="fa fa-arrow-right ml-2"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 结果显示区域（默认隐藏） -->
+    <section id="resultSection" class="mt-8 hidden">
+      <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-gray-100">
+        <h3 class="text-xl font-semibold mb-4 flex items-center text-secondary">
+          <i class="fa fa-check-circle mr-2"></i>
+          您的选择结果
+        </h3>
+        <div id="resultContent" class="text-gray-700">
+          <!-- 结果将通过JavaScript动态填充 -->
+        </div>
+      </div>
+    </section>
+  </div>
+  
+  <!-- 页脚 -->
+  <footer class="mt-16 py-8 border-t border-gray-200">
+    <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
+      <p>© 2023 交互式选择工具 | 设计与开发</p>
+    </div>
+  </footer>
+
+  <script>
+    // 处理确认按钮点击事件
+    document.getElementById('confirmBtn').addEventListener('click', function() {
+      // 获取选择的类型
+      const selectedType = document.querySelector('input[name="type"]:checked');
+      // 获取选择的功能
+      const selectedFeatures = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(el => el.nextElementSibling.textContent.trim());
+      // 获取选择的优先级
+      const selectedPriority = document.getElementById('priority').value;
+      
+      // 验证是否完成所有选择
+      if (!selectedType || selectedFeatures.length === 0 || !selectedPriority) {
+        alert('请完成所有选项的选择');
+        return;
+      }
+      
+      // 构建结果内容
+      const resultContent = `
+        <div class="space-y-4">
+          <div>
+            <span class="font-medium">选择类型：</span>
+            <span>${selectedType.nextElementSibling.querySelector('span').textContent}</span>
+          </div>
+          <div>
+            <span class="font-medium">选择功能：</span>
+            <span>${selectedFeatures.join('、')}</span>
+          </div>
+          <div>
+            <span class="font-medium">优先级：</span>
+            <span>${selectedPriority === 'high' ? '高优先级' : selectedPriority === 'medium' ? '中优先级' : '低优先级'}</span>
+          </div>
+        </div>
+      `;
+      
+      // 显示结果区域
+      document.getElementById('resultContent').innerHTML = resultContent;
+      document.getElementById('resultSection').classList.remove('hidden');
+      
+      // 平滑滚动到结果区域
+      document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  </script>
+</body>
+</html>
