@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>2025.7 时间序列模型梳理</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 60%;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">2025.7 时间序列模型梳理</h1>
+<p class="date">2025-07-24 14:01:07</p>
+</header>
+<p>本篇梳理我本科阶段（2022.09-2025.07）参与项目、竞赛中涉及到的时间序列模型，分为以下三个类介绍：简单时间序列预测模型、RNN、transformer。</p>
+<h2 id="简单时间序列预测模型">简单时间序列预测模型</h2>
+<p>根据我的数学建模参赛经历，时间序列预测是非常常见的数学建模问题，个人感觉数学建模竞赛和Kaggle竞赛在内容、技巧等方面重叠性比较高，当时数学建模比赛时我们比较着急，现在借助Kaggle的学习资源和当时的笔记、论文，重新梳理一下。</p>
+<p>（未完待续）</p>
+<h2 id="rnn">RNN</h2>
+<ol type="1">
+<li>简单循环网络（Simple Recurrent Network,SRN）</li>
+</ol>
+<div style="text-align: center;">
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508031341595.png" width="20%"></p>
+</div>
+<p>h为隐藏层状态，f为非线性激活函数，x输入y输出。一个完全连接的循环神经网络有足够数量的sigmoid型隐藏神经元，它可以以任意的准确率去近似任何一个非线性动力系统。RNN在混沌系统求解中也有用处，例如储池计算（Reservoir
+Compute）随机初始连接若干RNN节点，在混沌系统求解中可以达到很好的效果。</p>
+<p>根据通用近似定理，两层的前馈神经网络可以近似任意有界闭集上的任意连续函数，一个RNN可以视为MLP加上一个延迟器，相当于在MLP上加上了记忆能力，加上了时间维度上的推理能力。一个完全连接的循环神经网络可以近似解决所有<strong>可</strong>计算问题。</p>
+<div style="text-align: center;">
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508031355586.png" width="30%"></p>
+</div>
+<p>RNN一般有三种应用：</p>
+a）
+序列到类别，也就是序列分类，例如：判断一句话的情感类别，判断序列是否正常等
+<div style="text-align: center;">
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508031400567.png" width="50%"></p>
+</div>
+<ol start="2" type="a">
+<li>同步的序列到序列，也就是对于序列的每一项都有一个输出，例如：标注单词词性
+<div style="text-align: center;">
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508031402745.png" width="24%"></p>
+</div></li>
+<li>异步的序列到序列，由两个RNN网络构成编码器-解码器架构，例如：机器翻译、序列预测
+<div style="text-align: center;">
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508031405841.png" width="50%"></p>
+</div></li>
+</ol>
+<ol start="2" type="1">
+<li>LSTM（Long Short-Term Memory）</li>
+</ol>
+<div style="text-align: center;">
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508031520420.png"/></p>
+</div>
+<ol start="3" type="1">
+<li>GRU（Gated Recurrent Unit）</li>
+</ol>
+<div style="text-align: center;">
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508031529376.png"/></p>
+</div>
+<hr />
+<p><strong>项目故事</strong>：
+我是在2022年入学的，大概是在2023年1月的时候联系导师，开始做的这个基于RNN的项目。现在几乎看不到基于RNN的论文了，Chat
+GPT也是在我本科入学后几个月才发布的，事实上在2020-2022年间很多基于transformer的工作都已经出来了，NLP领域GPT3已经出来2年多了，在2022年transformer也已经进军CV领域，ViT、Swin
+Transformer、CLIP、DETR、ViLT等等，在视频理解领域也早就淘汰了CNN+LSTM的结构，3D卷积、双流网络、I3D等模型出来了。我个人感觉2022年左右发展得太快了，太多新东西涌现，变化也太快了。当然我并不认为transformer就能在各方面完全取代RNN，学习RNN的结构和思想并没有坏处。RNN相对于transformer的缺点也许在另一个场景下就是它的优点。在2020年IEEE上<a
+href="https://ieeexplore.ieee.org/document/9282864">https://ieeexplore.ieee.org/document/9282864</a>在机器人领域还是有新的基于RNN的工作的。</p>
+<p>导师的这个RNN项目在此前已经有很多学长在做，在我开始做之前已经有一位做这个课题的学长本科毕业了，最开始带我做的学长带我半年后硕士毕业了，之后又换了一个博士师姐带我做这个项目，接盘这个项目的时候项目结构很乱，各种乱七八糟git下来的项目和模型混在一起放，没有交接文档，学长直接把代码文件给我看，又发了几本深度学习的电子书和论文给我学习，在学完模式识别和概率论后才能勉强看懂。据学姐说，这个项目是导师在东京大学博士后的项目，用的还是Chainer框架，主要参考的论文都是2012、2014年左右的，如果让我站在导师的角度，而且在这个课题已经指导了很多学生，老师自然也不想对每个新来的同学重复指导。</p>
+<p>在看、做这个项目的时候，可以看到自己能力的增长，首先是计算机能力，shell、markdown、conda等工具就是这期间学的；其次是配环境的能力，Chainer框架在国内鲜有人用，只能自己去找文档配环境；与人交流的能力，与师姐交流进度时，设计实验流程安排受试者进行实验都需要准确地表达自己的意思，如果表达和理解有误可能会导致重复工作，最好自己反复组织表达语言，让别人能够更精准地理解我的思想；最后就是深度学习代码能力，最基础的编程与调试，数据处理，修改模型，训练模型，整理实验数据。这个项目算是我深度学习入门项目，在师姐指导下完成了实验设计到结果整理全过程。</p>
+<p>还记得做完的时候师姐说可以给我安排一个二作，还说尽快把论文写出来给我保研的时候用。后来学姐跟我说实验要重做，最后我就把我所有的数据、代码和文档整理好交给师姐后就没有后续了。就我个人的感觉，单就我个人的工作也很难发论文，我在实验室里每天都能看到另一位学长的工作，他的工作时长、工作质量、团队人数、实验过程都远胜于我，专门有另一个导师指导论文写作，那位学长还有其他学长帮忙处理机械问题，医学实验伦理审查，数据处理等，而且听这位学长说他已经高强度工作了大半年了。我做的项目实际上只有我一个人在做，我只每天和师姐交流进展，确定方向，师姐本身负责另外的项目，导师也很少给指导，实验器材，服务器租用都是我自己垫钱在做，各方面都达不到发表论文的标准，我个人感觉导师让我做这个项目主要目的是教育，并没有发论文的打算。另外对于没有接受严格的科研训练的本科生来说，实验设计、数据收集、数据处理、表达有不严谨的地方，这是导师否认我的数据的原因。在做项目时，我大部分时间在“做出来”挣扎，做的时候缺乏宏观上、质量上的把控。</p>
+<p><strong>项目介绍</strong>：</p>
+<p>简言之是用RNN对人行走步态进行建模，并研究行人两两并排行走时同步的过程。项目有两个大问题，如何用RNN对人行走的步态这种周期波动且带有些许随机性质的序列信号进行建模；还有影响行人间步态同步的因素是什么，或者说是什么影响了一个行人和另一个行人（步频、步幅、其他体现行走风格的特征）同步的过程。</p>
+<ol type="1">
+<li><strong>步态数据RNN建模</strong></li>
+</ol>
+<p>项目采用S-CTRNN模型，在这里我先介绍Continuous-Time
+RNN及其改进模型：</p>
+<strong>CTRNN</strong>通过常微分方程ODE将每一个神经元的状态描述为时间的连续函数，<code>x_i(t)</code>表示第i个神经元在t时刻下的状态，
+<div style="text-align: center;">
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508031845130.png"/></p>
+</div>
+<p>其中<code>I_i(t)</code>表示外部输入信号，<code>\tau_i</code>是神经元i的“惯性变量”，控制神经元更新的速度。</p>
+<p>计算机需要离散化才能计算，最终化解的状态转移方程：</p>
+<div style="text-align: center;">
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508031854647.png"/></p>
+</div>
+<p>CTRNN被应用在进化机器人中，用于解决视觉、协作和最小认知问题。所谓最小认知问题，指的是最基础的“智能反应”例如短期记忆、灵活避障，实现让机器人自主适应未知环境。我在做无人机自主除冰项目的时候，当时学长和我们都基本上确定了要用强化学习去做，老师问能不能用基础的深度学习去做，RL还是太复杂了，当时我觉得不太行深度学习不能做决策问题，现在觉得CTRNN和MPC（model
+predict control）结合分别处理感知和决策是一个不错的方向。</p>
+<p><strong>SCTRNN</strong>:因为RNN预测模式的确定性，不能学习到数据中隐藏的随机结构，如果RNN学习这种带有噪声的数据，学习过程将因为这些累积误差而变得不稳定。（我认为这说的就是RNN容易对带有噪声的数据过拟合）在[1]中作者提出了改进CTRNN的思路，在预测状态值的同时预测状态值的方差，在训练反向传播过程中，如果预测到状态值的方差越大，由这个预测状态值计算的误差反向传播、模型参数更新时的权重就越小。</p>
+<p>核心思想是把状态值分为两个部分，预测均值和方差，随机性其实就隐藏在方差这里，想象一下如果把我们用手去摸一个物品的过程的传感器数据序列拿去给模型学习，在数据集中不同轨迹的某一时刻某个传感器的值一点是不一样的，但是大致位置是固定的，可以视为训练数据在某一时刻的状态值的随机性。通过SCTRNN结构显式地把这个随机结构表示出来，避免了RNN学到这个随机特征而过拟合。</p>
+<p>现在重读这篇论文发现其实很有启发性，通过分离随机变化部分解决过拟合问题（感觉残差结构真是无处不在，但这里的设计比残差要巧妙），通过给不同样本反向传递赋予不同权重解决数据“质量”不一致导致训练不稳定的问题（这个思路在CV里感觉是很常用的，不过解决的是样本分布不均匀的问题），在模型中引入随机成分，而且做了数值验证和机器人验证工作。演示效果也令人印象深刻：</p>
+<div style="text-align: center;">
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508032015887.png"/></p>
+</div>
+<p>在训练后模型控制下，改变物品位置，机器人也能精准摸到物体位置。最后我们项目用的就是SCTRNN对人的步态数据建模，尽管是2013年的工作，但感觉在现在看来依然很有价值。</p>
+<p><strong>GACTRNN</strong>：这是2020年的一篇工作，也是在CTRNN上进行改进，CTRNN每个神经元的<code>\tau_i</code>参数都是提前决定好的参数，不同的神经元设计不同的<code>tau_i</code>可以用于不足不同时间尺度下的序列特征，作者的想法是让<code>tau_i</code>变为可自主学习的参数，增加模型捕捉不同时间尺度下序列特征的能力。[2]</p>
+<p>G指的是Gate，用于门控上一时刻对当前<code>tau_i</code>的影响，A指的是Adaptive，它的作用是让<code>tau_i</code>自适应第调整到对应时间尺度下最好的值。GA更新<code>tau_i</code>的计算公式是：</p>
+<div style="text-align: center;">
+<p><img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508032030802.png"/></p>
+</div>
+<p>这篇文章的卖点就是模型可以学到多尺度时间特征，并且对于复杂的时间序列建模能力比较强。我认为导师当年可能是考虑到人同步时步频会变化，所以找到这篇论文，但是最后为什么没用呢，我觉得一方面是人在行走时步频的变化不大，在我们的实验中步态周期集中在1s-1.5s，直观上看就是单一周期的波动序列，而且模型是对人行走的特定建模，而不是对同步过程建模，训练数据在频率上变化不大，但是人在行走时的波动、随机性影响更大。</p>
+<ol start="2" type="1">
+<li><strong>先验依赖程度</strong></li>
+</ol>
+<p>[3]是一篇基于S-CTRNN的工作，核心思想是由S-CTRNN预测得到先验值，结合当前测量值，结合贝叶斯推断得到当前状态值。（思想有点像卡尔曼滤波，甚至都是用的高斯分布）论文的结论是人类小孩和黑猩猩的认知差别并不是缺少了某种认识上的机制，或者其他“硬件”条件，而是人类小孩会更多依赖先验知识（自己的预测），而黑猩猩则更多依赖当前测量值。</p>
+<p>我们项目想要验证影响人步态同步情况的也是人对先验的依赖程度，在生成仿真数据时，对不同网络在模拟同步过程改变不同先验参考权重H，观察同步过程的变化情况。导师好像后续联系医院要安排自闭症患者进行步态实验，我推测导师的意思是，自闭症患者不能接受外界信息，知识取决于自闭症患者对自己先验的依赖程度，而不涉及到认知层面或者其他病理层面上的原因，研究的目的是提出自闭症形成的原理，为自闭症治疗提供新思路。</p>
+<p>我在做的时候并没有组织自闭症患者实验，而是麻烦了实验室里的几位师兄和同来实习的同学，当时想要用“在腿上绑沙袋”改变“同步的难度”，设计受试者以同样的“意愿”与另一位受试者同步，进而模拟不同的“接受外来信息改变自身步态的程度”。这个思路对不对我不知道，我认为把逻辑链放得太长了，并不好论证我们的目的。在做实验的时候就觉得，总共只有4个受试者，组织他们实验和实验数据，对我来说有点吃力。后来在看论文的时候，一看到一个方法动辄在20多个数据集上训练验证，采用及其复杂的训练策略，就觉得真是不容易啊。</p>
+<p>[1] S. Murata, J. Namikawa, H. Arie, S. Sugano and J. Tani, “Learning
+to Reproduce Fluctuating Time Series by Inferring Their Time-Dependent
+Stochastic Properties: Application in Robot Learning Via Tutoring,” in
+IEEE Transactions on Autonomous Mental Development, vol. 5, no. 4,
+pp. 298-310, Dec. 2013, doi: 10.1109/TAMD.2013.2258019.</p>
+<p>[2] S. Heinrich, T. Alpay and Y. Nagai, “Learning Timescales in Gated
+and Adaptive Continuous Time Recurrent Neural Networks,” 2020 IEEE
+International Conference on Systems, Man, and Cybernetics (SMC),
+Toronto, ON, Canada, 2020, pp. 2662-2667, doi:
+10.1109/SMC42975.2020.9282864.</p>
+<p>[3] A. Philippsen and Y. Nagai, “A predictive coding model of
+representational drawing in human children and chimpanzees,” 2019 Joint
+IEEE 9th International Conference on Development and Learning and
+Epigenetic Robotics (ICDL-EpiRob), Oslo, Norway, 2019, pp. 171-176, doi:
+10.1109/DEVLRN.2019.8850701.</p>
+<hr />
+<h2 id="transformer">Transformer</h2>
+<ol type="1">
+<li>教师强制策略</li>
+</ol>
+<p>教师强制策略核心思想是在训练阶段用真实目标序列作为解码器的输入，而非模型的预测结果。</p>
+<p><img
+src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202507251946218.png" /></p>
+<p>给定序列<code>[x(1),x(2),...x(T)]</code>预测<code>[x'(T+1),x'(T+2),...x'(T+n)]</code>，对于一般自回归预测模式是逐个预测，当预测<code>x'[T+i]</code>时，解码器输入是<code>[x(1),x(2),...,x[T],x'[T+1],...,x'(T+i-1)]</code>，而教师强制策略是解码器输入是<code>[x(1),x(2),...x(T+i-1)]</code>。</p>
+<p>教师强制策可以避免早期预测错误对后续训练的干扰，使模型<strong>更快</strong>地学到正确的模式，还有一个优点是教师强制策略可以<strong>并行处理所有时间步</strong>（因为直接用真值预测下一个值，而真值已知所有时间步可以同时计算，自回归模型依赖前面时刻的预测结果，必须串行执行）。但相较自回归预测，教师强制策略有暴露偏差，即训练和推理阶段输入分布不一致的问题，就是推理时采用自回归预测与训练时的策略不同。</p>
+<hr />
+<p><strong>项目介绍与反思&amp;&amp;写给后继者的一些话</strong></p>
+<p>项目名字是地月空间飞行器轨道预测，我认为这个课题如果能弄出来会非常有价值，首先是做的人很少，目前没有人确定了地月空间轨道预测应该怎么做。这个项目用处很大不必多说。而且是非常有挑战性的工作，涉及轨道力学、混沌理论、数学物理、机器学习、深度学习等多个领域。</p>
+<p>这类项目可以归类为：用机器学习、神经网络解决专业问题，换言之是应用类的问题。举个例子：OpenAI的CodeX，用GPT3解决项目编程问题，DeepMind的AlphaCode，用transformer解决codeforces编程竞赛问题。我认为项目的重点应该放在对专业问题的分析上，不宜过早陷入模型选择、训练、优化等细节。这涉及到我个人看机器学习、深度学习的态度，我把它视为一种带有先验知识库（来源于训练数据）的隐函数（输入输出间必须存在某种规律），不同的模型就是具有不同特征，擅长解决不同问题的隐函数，模型的选择、优化甚至设计必须从对专业问题的分析和实验来确定。</p>
+<p>按照李沐老师的说法，科研工作可以分为工程类和研究类，对于工程类的科研问题，通常我们都知道肯定能提升表现的方法，例如增大传感器精度；对于研究型的科研问题，我们通常不能在实验结果出来前就确定这些方法能不能提升效果。我认为这属于研究型的科研问题，那么大量的实验、大量的失败和大量的反思总结是不可避免的，我们不知道我们的第一想法是否有效，而大部分情况下，我们的第一想法都是错的。</p>
+<p>最开始立项时，我认为轨道预测和GPT很像，输入一段token序列，输出一段预测未来的token序列，用transformer解码器做自回归预测。而且transformer很火，又大又强，而且和老师交流后，老师的意思是可以初步确定是CNN-Transformer的自编码器架构。于是用transformer训练了一个模型，在预测20个时间步后误差到200km，效果很差。现在看来我当时急着确定transformer为项目核心模型，颇有一点“拿着锤子看什么都像钉子”的感觉，这也是我建议先充分调查、分析项目问题的特点，可以先试试各个模型看看效果如何，不要过早陷入某特定模型、训练、技巧等细节就出不来了。</p>
+<p>我们来分析一下为什么要用深度学习来解决轨道预测问题？对于理想限制性平面圆形三体问题，二阶分量即可完全描述这个系统<code>[x,y,vx,vy]</code>，下一步去向哪里，只取决于上一步的位置和速度，我们可以直接数值积分得到结果，但是这个模型简化得太过，很多因素我们没有考虑，月球相对地球椭圆轨道摄动、太阳系其它天体引力、太阳光压、卫星燃料消耗、卫星姿态、太阳风等等等，这些摄动因素我们很难显式建模，但是我们知道太阳系天体运动是周期的，我们希望模型从历史数据中学习到不同情况下卫星摄动影响是怎样的。</p>
+<p>我认为项目核心难点是：地月空间如此广袤，如何编码飞行器的状态以确保表示精度、如何选取数据集进行训练、如何高精度地预测飞行器的状态。第一个问题，在我们做的项目里，我们以地月引力中心为坐标原点，以地月距离做归一化（旋转脉冲坐标系）。我的一个想法是，以不动点为中心，在不动点附近一点的空间范围内进行归一化，这样可以在有效计算精度条件下，通过减小编码空间范围，增加空间位置的表示精度。第二个问题，我们已经在冯如杯论文里调研了，那就是选择不动点附近的不变流形内的轨道，应用价值大且轨道规律性较强。</p>
+<p>还有一个原因是我太贪了，想要解决的问题太大了，想要覆盖所有不变流形内所有的轨道，包括稳定的停留轨道和不稳定的转移轨道，问题还可以进一步缩小，只考虑halo轨道和李萨如轨道，这样轨道数据在可接受的长度内就有周期性等规律了，那么预测模型的选择就放宽了很多，而且还可以和国内天文台合作解决鹊桥卫星的定位问题，有了真实数据项目的说服力和价值就更好了。稳定不变流形和不稳定不变流形的轨道特征很不一样，也许采取同一个模型进行预测本来思路就是错的。如果是稳定不变流形的轨道，一个模型对应一个卫星的一个轨道即可，训练数据训练难度大大降低。我们当时构建了一个很大的数据集，想要一个模型去学习不变流形内所有的轨道的规律，首先是数据太多训不动，其次是这样做模型精度能高吗？对于学生项目来说，还是不要贪图又大又强的模型。针对一个卫星例如鹊桥把轨道预测工作做好就很了不起了。</p>
+<p>所以反思到现在，我认为我犯的错是没有仔细思考针对什么样的问题选什么样的模型，而是从模型出发从题目出发，太想要弄一个又大又强的模型，弄一些新颖的技巧，完成一个很大的课题，看问题的方式不科学，没有仔细思考原理、可行性，把transformer视为能够砸平一切的“锤子”，迷信transformer模型。地月空间轨道预测，这个课题太大了，作为学生项目应该变小，比如“使用深度学习方法解决L2点附近稳定不变流形轨道预测，以鹊桥中继卫星为例，并可推广到L4、L5点”。想要做物理嵌入的预测模型解决真实情况下的三体问题，有点天方夜谭的感觉。</p>
+<ol type="1">
+<li>地月空间广袤，再考虑太阳系其他天体相对位置变化再时间上的维度，数据量大到不可接受</li>
+<li>混沌效应，计算精度、观测精度限制，想要做地月空间内的轨道精准预测不可能</li>
+<li>大部分轨道不呈现周期性，再加上混沌效应，学习大量、长的历史数据没有意义</li>
+</ol>
+<p>所以再我们的项目中，尝试用transformer模型，用大规模数据集预训练、自回归推理的思路解决轨道预测是不科学的，不可能的。不能够采用GPT类似的结构解决问题，目前我的想法是用RNN或储池存下近期一小段的真实值和预测值，计算近期的偏差情况，预测现在的偏差值，也就是不尝试再全局建立状态到摄动的模型（根据1我认为这是不可能的），而是对局部摄动进行时间序列建模。既然空间时间范围太大，混沌效应又导致长时间序列没有意义，不如对短期摄动用RNN建模，这样不仅能解决摄动预测，还可能解决卫星自主推进预测的情况，还可以识别卫星异常机动情况（基于假设：摄动力大小和方向的变化是连续的）。这样做可解释性差，而且不知道效果究竟如何，而且没有真实数据。</p>
+<p>给本项目后继者的一点建议：在读我们冯如杯论文时，重点关注轨道预测方法调研以及不动点附近不变流形轨道推演两个部分，商业部分可以直接挪用，了解完项目特点后尽快按照你的想法开始实验（不要拖，就像之前说的那样，结果出来前不知道效果怎么样，可能要有大量的实验、大量的失败和大量的反思，积极总结反思，这样即使你失败了也可供后人参考），尽量在寒假就有初步的结果，争取在下学期发论文找合作（类似于商业立项书，这一切的前提是你必须要有一个还行的结果），这样获奖的概率大一些。在选队友的时候，选一个擅长软件的，专心负责可视化、软件封装的工作。（一个人的力量是多么有限啊，团队协作很重要）</p>
+<hr />
+<ol start="2" type="1">
+<li>语言信号分离</li>
+</ol>
+<p>本节介绍Sepformer这个模型，对应论文资源如下： Subakan C, Ravanelli M,
+Cornell S, et al. Attention is all you need in speech
+separation[C]//ICASSP 2021-2021 IEEE International Conference on
+Acoustics, Speech and Signal Processing (ICASSP). IEEE, 2021: 21-25.</p>
+<p>模型结构如下所示： <img
+src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508010056345.png" /></p>
+<p>模型输入混合语言信号<code>(x,R^T)</code>即输入是长度为T的实序列，先要经过一个卷积层编码器和激活函数得到h（在图中没有显示），从x到<code>(h,R^{F*T'})</code>的的过程类似与短时傅里叶变换（STFT），然后进行一个LayerNorm和线性层（为什么是LayerNorm呢，论文并没有说明原因，只是说和Conv-TasNet相同，在Conv-TasNet论文给出的解释是：“归一化方法的选择依赖于因果性要求，对于非因果性要求他们实验发现全局层归一化（global
+Layer
+Norm）的效果最好”，所谓“因果性”指的是系统的输出不能依赖未来的的输入数据。在语言信号分离任务中，不涉及语言信号预测，可以充分利用全局的信息。关于归一化层朱老师还说过一个趣事，DeepMind在BYOL说无需显示提供负样本即可进行对比学习，有博客复现后发现不加BatchNorm模型训练容易坍塌，于是博客认为是BatchNorm对全局计算了一个平均样本提供了隐式负样本进行对比学习，后来DeepMind有出了一篇新的工作证明BatchNorm只是帮助模型训练而不是主要原因），然后将语言信号砍（Chopping）为有相互重叠的块（Chunk）此时数据形状为<code>(h',R^{F*C*N_C})</code>，C是块（Chunk）的长度，接着进入Sepformer块，输出信号形状不变，信号出来后经过一个激活函数和一个线性变化，输出信号形状为<code>(h''',R^{(F*N_s)*C*N_C})</code>，N_S是分离后信号数，经过一个overlap
+add块后（overlap add
+method重叠相加法在数字信号处理里是高效计算长序列卷积的方法，在论文里没有说理由和原因，而是又引用了一篇论文Dual-path
+rnn，在Dual-path
+rnn里也只是简单提了一下，因为之前将语言信号分为了有相互重叠的chunk，所有这里要做重叠相加，可能和DSP里的overlap
+add关系不大，之前在分块的时候特地说明重叠50%，可能这里就是把重叠部分相加即可。事实上这里并不复杂，论文如果把它写清楚，对读者可能会更友好。）输出信号变为<code>(h''',R^{(F*N_s)*T})</code>，最后经过一个线性层输出分离后的信号。各分离信号还有经过解码器得到最终分离后的信号。</p>
+<p>信号处理流程如下所示： <img
+src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508010100785.png" /></p>
+<p>总结一下，语言信号在输入前主要做了两件事，一是先进编码器提取类似STFT的特征，二是tokenize为有重叠的块。然后是进入Sepformer块变换处理，最后经过线性变换，重叠相加等操作得到分离的信号，经过解码器得到最终的分离信号。这里编码器、解码器，有点类似于信号处理先把信号变换到频域再进行处理，最后再变换回时域。这里使用编码器将原语言信号投影到特征空间再处理则比传统DSP频域方法更灵活，在Conv-TasNet里使用的也是编码器解码器结构；从另一个角度来看这步编码器就是transformer里的input
+embedding层，将输入信号映射到特征空间。</p>
+<p>接下来是Sepformer块的介绍，输入<code>(h',R^{F*C*N_C})</code>，输出的形状不变。Sepformer块里面有三个大结构：intraTransformer、permute、interTransformer。intra和inter的Transformer块结构都一样，核心在转置这一块，转置是将数据的最后两维转置，形状为<code>(F,N_C,C)</code>，intra块对一个chunk的N_C长度的序列进行操作，对短程依赖进行建模，转置后inter块对不同的chunk块进行计算，对长程依赖进行建模。</p>
+</body>
+</html>

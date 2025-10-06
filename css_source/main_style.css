@@ -1,0 +1,88 @@
+/* style.css：全局样式与布局控制 */
+body {
+  font-family: "Times New Roman", Times, serif; /* 模仿参考图的衬线字体 */
+  max-width: 800px; /* 内容最大宽度，居中显示 */
+  margin: 0 auto;
+  padding: 20px;
+  line-height: 1.6; /* 行高，增强可读性 */
+}
+
+/* 头部区域：标题与导航 */
+header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+header h1 {
+  font-size: 28px;
+  font-weight: normal; /* 标题不加粗，更优雅 */
+  margin-bottom: 10px;
+}
+
+nav a {
+  margin-right: 10px;
+  text-decoration: none;
+  color: #000;
+  font-size: 14px;
+}
+
+nav a:hover {
+  text-decoration: underline; /* hover时下划线 */
+}
+
+/* 分隔线 */
+hr {
+  margin: 20px 0;
+  border: none;
+  border-top: 1px solid #ccc;
+}
+
+/* 文章列表样式 */
+.posts-list {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.posts-list td {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee; /* 每行底部浅灰分割线 */
+  vertical-align: top;
+}
+
+.posts-list td:first-child {
+  width: 70%; /* 标题占比更大 */
+}
+
+/* 文章标题组：英文在上，中文在下 */
+.title-link {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none; /* 初始无下划线，hover时显示 */
+}
+
+.title-link:hover {
+  text-decoration: underline; /* hover时整个标题组下划线 */
+}
+
+.en-title {
+  font-size: 16px;
+  color: #000;
+  margin-bottom: 2px; /* 英文与中文的间距 */
+}
+
+.zh-title {
+  font-size: 14px;
+  color: #666; /* 中文用浅灰色，弱化视觉优先级 */
+}
+
+/* 日期样式 */
+.date {
+  font-size: 14px;
+  color: #666; /* 浅灰色，弱化视觉优先级 */
+}
+
+/* 中文说明区域 */
+.intro-zh {
+  margin: 10px 0;
+  color: #333;
+}
