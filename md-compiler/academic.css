@@ -1,0 +1,97 @@
+/* academic.css: Formal style for research papers and technical articles */
+
+body {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 60px 40px;
+    font-family: "Times New Roman", Georgia, serif;
+    font-size: 12pt;
+    line-height: 1.8;
+    color: #222;
+    background-color: #fff;
+}
+
+h1 {
+    font-size: 18pt;
+    font-weight: bold;
+    text-align: center;
+    margin: 48px 0 32px 0;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #ddd;
+}
+
+h2 {
+    font-size: 14pt;
+    font-weight: bold;
+    margin: 40px 0 24px 0;
+    color: #333;
+}
+
+h3 {
+    font-size: 12pt;
+    font-weight: bold;
+    margin: 32px 0 20px 0;
+    color: #444;
+}
+
+p {
+    margin: 0 0 24px 0;
+    text-align: justify;
+    text-justify: inter-word;
+    hyphens: auto;
+}
+
+pre, .codehilite {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-left: 4px solid #ccc;
+    overflow-x: auto;
+    font-family: "Courier New", monospace;
+    font-size: 11pt;
+    margin: 24px 0;
+}
+
+/* --- Three-line Table --- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 32px 0;
+    font-size: 0.95em;
+    font-family: "Times New Roman", serif;
+    text-align: center;
+    border-top: 2px solid #000;
+    border-bottom: 2px solid #000;
+}
+
+thead tr {
+    border-bottom: 1.5px solid #000;
+}
+
+th, td {
+    padding: 12px 16px;
+    vertical-align: middle;
+    border-left: none;
+    border-right: none;
+}
+
+th {
+    font-weight: bold;
+}
+
+td {
+    border-bottom: 1px solid #eee;
+}
+
+/* --- Math Styles --- */
+.math-display {
+    text-align: center;
+    margin: 32px 0;
+    font-family: "Latin Modern Math", "STIX Two Math", Cambria, serif;
+    font-size: 1.1em;
+    overflow-x: auto;
+}
+
+.math-inline {
+    font-family: "Latin Modern Math", "STIX Two Math", Cambria, serif;
+    font-size: 1.05em;
+}

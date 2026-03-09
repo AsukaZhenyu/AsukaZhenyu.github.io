@@ -1,0 +1,115 @@
+/* casual.css: Modern, dark theme inspired by laplace.live */
+
+:root {
+    --bg-color: #1a1a1a; /* Dark background */
+    --text-color: #e0e0e0; /* Soft white text */
+    --heading-color: #ffffff; /* Bright white for headings */
+    --accent-color: #00bcd4;  /* Bright cyan for links and accents */
+    --card-bg-color: #262626; /* Slightly lighter background for cards/code */
+    --border-color: #333;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 17px;
+    line-height: 1.8;
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.main-container {
+    padding: 10px;
+}
+
+h1, h2, h3 {
+    color: var(--heading-color);
+    margin: 48px 0 24px 0;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 12px;
+}
+h1 { font-size: 2.8em; }
+h2 { font-size: 2.2em; }
+h3 { font-size: 1.6em; }
+
+p {
+    margin-bottom: 24px;
+}
+
+a {
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+/* --- Modern, Dark Code Blocks --- */
+pre, .codehilite {
+    background: var(--card-bg-color);
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    overflow-x: auto;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 15px;
+    margin: 24px 0;
+}
+
+/* --- Dark Theme Table Style --- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 32px 0;
+    font-size: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+thead tr {
+    background-color: var(--card-bg-color);
+    color: var(--heading-color);
+    text-align: left;
+}
+
+th, td {
+    padding: 14px 18px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+tbody tr:hover {
+    background-color: #2a2a2a;
+}
+
+/* --- Dark Theme Math Styles --- */
+.math-display {
+    display: block;
+    text-align: center;
+    margin: 32px auto;
+    padding: 20px;
+    background-color: var(--card-bg-color);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    overflow-x: auto;
+    font-size: 1.1em;
+}
+
+.math-inline {
+    color: #cceeff; /* Slightly different color for inline math */
+}
+
+/* --- Blockquotes --- */
+blockquote {
+    border-left: 4px solid var(--accent-color);
+    margin: 24px 0;
+    padding: 12px 24px;
+    background-color: var(--card-bg-color);
+}

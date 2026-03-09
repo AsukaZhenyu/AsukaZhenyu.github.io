@@ -27,7 +27,7 @@ source /root/miniconda3/etc/profile.d/conda.sh
 ```
 按下ESC，输入`:wq`保存并退出
 
-回到终端后输入`bash`刷新。上面这些步骤是autodl里实验conda必须的流程。
+回到终端后输入`bash`刷新。上面这些步骤是autodl里使用conda必须的流程。
 
 新建环境
 ```bash
