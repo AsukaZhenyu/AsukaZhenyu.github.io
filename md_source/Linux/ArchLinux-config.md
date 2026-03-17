@@ -112,6 +112,15 @@ paru在安装的时候，会进入review模式，他会给你一下下载的信�
 
 **联网**
 
+（2025.3.10更新）
+如果觉得下面的nmcli用起来太麻烦，可以试试:
+```bash
+sudo nmtui
+```
+直接在tui下联网，在连接校园网时特别方便，否则可能还要自己根据学校使用的网络协议自己新建con，然后配置证书之类的，非常复杂。
+
+---
+
 多个联网工具systemd-networkd、network manager、iwctl、wpa_suplicant等，只能有一个在运行，否则可能导致冲突。
 使用systemctl来停止和启动服务，现在就保证只有network manager在运行。
 ```bash
