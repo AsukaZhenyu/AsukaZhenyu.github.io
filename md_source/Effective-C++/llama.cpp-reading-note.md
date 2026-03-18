@@ -57,8 +57,24 @@ extern "C" {
 ## include路径
 
 在阅读代码的时候可能会产生疑惑，为什么/src/llama-model.h，能通过`#include "llama.h"`直接导入/include/llama.h。答案可能比想象中的简单，这是因为CMakeLists里有相关指令可以找到。在/src/CMakeLists.txt里第160行：
-```CMakeLists
+```cmake
 target_include_directories(llama PUBLIC ../include)
 ```
 
 ## using的作用范围
+using的语法比typedef更友好，并且能够支持模板别名，是C++11标准后的推荐写法。
+
+using 类型别名的作用范围与 typedef 完全相同，遵循 C++ 的作用域规则：
+
+在命名空间内定义：作用于整个命名空间（需通过命名空间访问或 using 声明引入）。
+
+在类内定义：作用于该类及其派生类（受访问控制影响）。
+
+在函数内定义：仅作用于该函数块。
+
+在全局作用域定义：作用于整个文件（从定义点开始）。
+
+
+## C++中的作用域
+
+## C++中的模板编程
