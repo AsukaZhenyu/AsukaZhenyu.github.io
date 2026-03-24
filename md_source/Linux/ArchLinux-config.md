@@ -413,6 +413,8 @@ spawn-at-startup "fcitx5" "-d"
 
 **剪切板**
 
+安装的是`wl-clipboard`
+
 **截屏与录屏**
 
 **蓝牙**
