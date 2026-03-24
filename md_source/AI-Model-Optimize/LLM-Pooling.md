@@ -1,0 +1,33 @@
+# LLM池化
+
+我本科是学CV的，我知道CNN里的池化是什么意思，就是缩小目标图的意思，在LLM里的Pooling，就是把变长的输入张量变成固定大小的张量。
+
+对于输入$X = [x_1, x_2, ... , x_t]$，这是此前输入的$t$个tokens，$x_i \in R^d$，$d$为隐藏层维度，输入$X \in R^{t \times d}$，大小随输入长度变化。经过池化后大小变为固定的，例如：$R^{1 \times d}$
+
+当然在CV领域Pooling也有其他意思，在目标检测领域的一个经典模型Fast RCNN里，在卷积后的特征图上选取大小各异的ROI（region of interest，感兴趣的区域，可能存在目标的区域），然后经过ROI Pooling缩放到同一大小，然后再进行分类和回归。
+
+在LLM里，transformer对文本的处理有许多应用，例如语义搜索、句子分类。用多层感知机做分类的经验告诉我，分类网络的输入确实要保证输入向量的形状要一致。另一个原因和CV里的一样，可以减少计算量。
+
+Pooling层通常在embedding之后，或者encode输出层。这也很好理解，还只是token id的时候数据不包含语义信息，那就更不存在融合语义信息，在encode输出层则是输出经过处理后的特征张量，将语义信息压缩打包后扔给解码器或者分类器（这在CV里是常规操作了）。
+
+## CLS Pooling
+
+在读llama.cpp源码的时候，你会大量读到cls_xxx的结构体/变量，这里的cls指的就是classifier分类器，或者分类的意思。
+
+BERT 等模型在输入序列的开头会自动添加一个 [CLS] 特殊标记。经过模型处理后，直接取该位置对应的输出向量作为整个序列的“聚合表示”。
+
+常被用于文本分类。
+
+## Mean Pooling
+
+对于每个维度，取所有tokens对应的值取平均。
+
+在生成语义向量（Embedding）时，效果往往优于 CLS Pooling，因为它考虑了全局信息。目前主流的 Embedding 模型（如 text-embedding-3-small 或 bge 系列）通常默认使用 Mean Pooling。
+
+## Max Pooling
+
+对于每个维度，取最大值。较少用于 LLM 的通用语义表示，更多见于传统 CNN 或特定特征提取场景
+
+## Last Token Pooling
+
+因果模型（Causal LM，如 GPT 系列）在做语义向量提取时常用。因为因果模型是单向注意力，最后一个 Token 蕴含了之前所有 Token 的信息。
