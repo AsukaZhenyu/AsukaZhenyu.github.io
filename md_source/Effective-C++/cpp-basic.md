@@ -1,8 +1,8 @@
-# llama.cpp源码阅读笔记
+# C++ basic
 
 [toc]
 <br/>
-本文记录一下，我在阅读llama.cpp源码时，不太熟悉的C++用法。
+本文记录C++基础，包括：C++本身的一些特性、在项目实践中常见的写法、设计模式基础。主要是为从ACM到大型C++项目迁移做准备。
 
 ## 前向声明
 
@@ -54,14 +54,8 @@ extern "C" {
 
 为什么要用C，因为C风格结构体内存规律，枚举类的本质就是枚举整数，ABI稳定。C++会有额外开销，而且不同C++编译器的处理方式不一样。为了稳定性和方便调用。
 
-## include路径
 
-在阅读代码的时候可能会产生疑惑，为什么/src/llama-model.h，能通过`#include "llama.h"`直接导入/include/llama.h。答案可能比想象中的简单，这是因为CMakeLists里有相关指令可以找到。在/src/CMakeLists.txt里第160行：
-```cmake
-target_include_directories(llama PUBLIC ../include)
-```
-
-## using的作用范围
+## using
 using的语法比typedef更友好，并且能够支持模板别名，是C++11标准后的推荐写法。
 
 using 类型别名的作用范围与 typedef 完全相同，遵循 C++ 的作用域规则：
