@@ -25,6 +25,8 @@ Decode Attention和KV Cache是一对烂兄烂弟，它们以低ARI（计算密�
 
 推理过程只需用到当前token的$Q_t=W_q*x_t \in R^{1*d}$，所以无需Q Cache。
 
+有必要说明一下自回归推理过程，prompt输入后，经过chunk，embedding以及位置编码后，$X \in R^{\ t  \ * \ d\_model}$，这个时候就是正常注意力计算，输出一个矩阵$atten\_res \in R^{\ t \ * \ d\_model}$，将prompt的最后一个token对应的注意力结果，作为自回归生成的输入，询问的长度是1，键-值对的长度是历史文本的长度，通过历史文本输出下一个token。
+
 $K_t=W_k*x_t$、$V_t=W_v*x_t \in R^{1*d}$，
 
 $$
@@ -49,9 +51,96 @@ Attention Score非常小时，该token在本次生成时影响也非常小。
 
 ### 单层、多头注意力计算（MHA）
 
+多头注意力的本质是：并行将单头注意力计算多次。
 
+输入还是$X \in R^{n*d\_model}$
 
-### MHA/GQA/MQA/Sparse Attention
+同一个输入$X$，经过不同头的投影矩阵$WQ_i$、$WK_i$、$WV_i\ \in\R^{d\_model*d\_k}$，其中$i \in [0,h-1]$，$d\_k=d\_model/h$，
+
+$$
+Q_i = X * WQ_i \in R^{n*d_k}
+$$
+$K_i$、$V_i$也类似得到，每个头分别自己做单头注意力：
+
+$$
+head_i = Attention(Q_i,K_i,V_i) = softmax(\frac{Q_iK_i^T}{\sqrt{d_k}})V_i
+$$
+
+然后把所有的头拼接在一起：
+
+$$
+Concat(head_1,head_2,...,head_h)=[head_1:head_2:...:head_h]
+$$
+
+然后再经过一次投影变换：
+
+$$
+MultiHead = Concat(head_1,head_2,...,head_h)W^O
+$$
+
+### 单层、多批次的多头注意力实际计算流程
+
+在实际计算的时候，会把所有头的投影矩阵拼接，充分并行计算：
+
+输入：$X \in R^{ \ batch\_size \ * \ seq\_len \ * \ d\_model}$
+
+投影矩阵：
+$$
+WQ = [WQ_1:WQ_2:...:WQ_h] \in R^{ \ d\_model \ * \ (h \ * \ d\_k)}
+$$
+
+Q、K、V矩阵：
+$$
+Q = X \ * \ WQ \in R^{ \ batch\_size \ * \ seq\_len \ * \ (h \ * \ d\_k)}
+$$
+
+把最后一个维度拆开：
+$$
+Q \in R^{ \ batch\_size \ * \ seq\_len \ * \ h \ * \  d\_k }
+$$
+
+转置，把h个头的维度放到前面去，也就是交换seq_len和h的两个维度：
+$$
+Q \in R^{ \ batch\_size \ * \ h \ * \ seq\_len \ * \ d\_k }
+$$
+
+然后对后面两个维度正常做注意力计算就可以了，四维张量怎么做矩阵乘法呢？想象一个矩阵，行数是batch_size，列数是h，每个元素都是一个矩阵，每个元素之间是相互独立的，每个元素自己做好注意力计算就好了，四维张量做乘法，就看后面两个维度就可以了。
+
+$$
+score = Q \ * \ K.T(-2,-1) / \sqrt{some\_const} \in R^{ \ batch\_size \ * \ h \ * \ q\_len \ * \ k\_len }
+$$
+
+现在q_len和k_len就是seq_len，但是在后面的自回归推理阶段，q_len就是1，k_len和v_len是seq_len，所以先在这里做区分。
+
+对最后一维做softmax：
+
+$$
+atten\_weight \in R^{ \ batch\_size \ * \ h \ * \ q\_len \ * \ k\_len }
+$$
+
+和V做加权求和：
+
+$$
+head\_output = atten\_weight \ * \ V \in R^{ \ batch\_size \ *\ h \ * \ q\_len \ * \ d\_k }
+$$
+
+交换维度，然后拼接：
+$$
+head\_output \in R^{ \ batch_size \ * \ q\_len \ * \ h \ * \ d\_k }
+$$
+$$
+head\_output \in R^{ \ batch\_size \ * \ q\_len \ * \ d\_model}
+$$
+最后再投影，投影矩阵$W^O \in R^{ \ d\_model \ * \ d\_model}$：
+$$
+output = head\_output \ * \ W^O \in R^{ \ batch\_size \ * \ q\_len \ * \ d\_model}
+$$
+
+在推理情况下，加上KV Cache的流程：
+
+那就是上一轮自回归的输出$x_t \in R^{\ 1\ *\ d\_model}$，K、V矩阵复用之前的计算结果，q_len为1，k_len和v_len为历史生成文本。参考上面的单头注意力部分的描述吧。
+
+### GQA/MQA/Sparse Attention
 
 [https://zhuanlan.zhihu.com/p/1891136980370302219](https://zhuanlan.zhihu.com/p/1891136980370302219) 知乎博客介绍各种Attention
 
