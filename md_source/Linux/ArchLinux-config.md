@@ -108,8 +108,6 @@ paru在安装的时候，会进入review模式，他会给你一下下载的信�
 
 ----
 
-
-
 **联网**
 
 （2025.3.10更新）
@@ -119,7 +117,7 @@ sudo nmtui
 ```
 直接在tui下联网，在连接校园网时特别方便，否则可能还要自己根据学校使用的网络协议自己新建con，然后配置证书之类的，非常复杂。
 
----
+（原本nmcli的连接笔记）
 
 多个联网工具systemd-networkd、network manager、iwctl、wpa_suplicant等，只能有一个在运行，否则可能导致冲突。
 使用systemctl来停止和启动服务，现在就保证只有network manager在运行。
@@ -141,6 +139,8 @@ sudo systemctl restart NetworkManager
 nmcli device wifi connect "TP-LINK_481A" password "password"
 ```
 来连接互联网，而且连接完后还有可能断开连接，也有可能是网络情况不稳定。后续再配置waybar运行一键重新连接互联网。
+
+---
 
 **代理**：
 使用mihomo
@@ -165,26 +165,69 @@ export http_proxy=http://127.0.0.1:7890
 export https_proxy=http://127.0.0.1:7890
 ```
 
+由于连接校园网需要断开代理，所以需要简单轻便的开关mihomo的方法，将下面的内容放入~/.zshrc：
+
+```bash
+alias m-on='sudo systemctl start mihomo && echo "Mihomo 已启动"'
+alias m-off='sudo systemctl stop mihomo && echo "Mihomo 已停止"'
+alias m-st='systemctl status mihomo'
+alias m-up='~/bin/update_mihomo.sh'
+```
+
+这里因为每次需要从代理网站下载配置文件后要复制到对应的地方也非常麻法，所以写了一个脚本，在Downloads文件夹下根据时间戳找到最新的配置文件然后复制到对应的地方，可以快捷地完成代理配置：
+
+```bash
+#!/bin/bash
+
+src="$HOME/Downloads"
+dest="/etc/mihomo/config.yaml"
+
+# 获取所有匹配的文件列表
+files=("$src"/config-*.yaml)
+if [ ! -e "${files[0]}" ]; then
+    echo "未找到 config-*.yaml 文件"
+    exit 1
+fi
+
+# 找出文件名中时间戳最大的文件
+latest=""
+max_ts=0
+for f in "${files[@]}"; do
+    base=$(basename "$f")
+    if [[ $base =~ ^config-([0-9]{14})\.yaml$ ]]; then
+        ts=${BASH_REMATCH[1]}
+        if (( ts > max_ts )); then
+            max_ts=$ts
+            latest="$f"
+        fi
+    fi
+done
+
+if [ -z "$latest" ]; then
+    echo "没有符合 config-YYYYMMDDHHMMSS.yaml 格式的文件"
+    exit 1
+fi
+
+# 复制到目标位置（覆盖已存在的文件）
+sudo cp "$latest" "$dest"
+echo "已用 $latest 更新 $dest"
+```
 
 ----
 
-
-
-
-
 **桌面环境DE**
 
-接下来配置 桌面环境 Desktop Environment DE
-GNOME 和 KDE这些是集成好了的DE 就什么都有可以开箱即用
+接下来配置 桌面环境（ Desktop Environment， DE），
+GNOME 和 KDE这些是集成好了的DE， 就什么都有可以开箱即用。
 
-arch刚安装完，我们面对的是系统第一个虚拟控制台tty1，tty是由linux内核提供的虚拟控制台/虚拟终端。真实终端指的是物理显示屏和键盘。
+arch刚安装完，我们面对的是系统第一个虚拟控制台tty1，tty是由linux内核提供的虚拟控制台/虚拟终端，tty是电传打字机Teletypewriter的缩写。真实终端指的是物理显示屏和键盘。这个词非常有年代感，想象很久以前一个电脑有一个房间那么大，你通过一个长长的线连接着的电传打字机与计算机交互。我做为笔电男大，眼前的屏幕和键盘就是一切，挺难体会什么叫tty什么叫终端（Terminal）。大大的计算机连出来一块小小的屏幕，这一小块屏幕就是终端、末端，你可以与之交互。
 
 shell是运行在TTY或者终端模拟器上的程序，常见的有bash、zsh、fish
-shell运行在TTY之上，我理解为命令行，你可以输入类似自然语言的预设命令，就可以调用系统完成某些任务。TTY是Linux最底层的文本输入输出，shell是进程运行在TTY和模拟终端中的命令解释工具。
+shell运行在TTY之上的命令行，你可以输入类似自然语言的预设命令，就可以调用系统完成某些任务。TTY是Linux最底层的文本输入输出，shell是进程运行在TTY和模拟终端中的命令解释工具。
 
 当进入图形界面后就不能直接使用TTY了，必须安装终端模拟器在图形界面里使用命令行（当然也可以退出图形界面使用TTY）
 
-先安装图形工具是对的，据我所知，只有滚挂的时候才会进入TTY修复，在图形界面下再运行模拟终端，由图形合成器提供的终端在字体、背景等观感上更美观。之后有什么工具、插件想要安装使用，还是在图形工具下的模拟终端里安装比较好（比如我现在想要安装的Yazi）。在阅读相关文档时也会看到在TTY和模拟终端之间有所不同。
+先安装图形工具是对的，据我所知，只有滚挂的时候才会进入TTY修复，在图形界面下再运行模拟终端，由图形合成器提供的终端在字体、背景等观感上更美观。之后有什么工具、插件想要安装使用，还是在图形工具下的模拟终端里安装比较好。在阅读相关文档时也会看到在TTY和模拟终端之间有所不同。
 
 在我的电脑上，super键指的就是win键。
 
@@ -202,39 +245,13 @@ shell运行在TTY之上，我理解为命令行，你可以输入类似自然语
 
 为什么需要XDG Desktop Portal这个中间层，这是出于安全考虑，类似于传达室大爷。外界任何请求，叫一个学生，送衣服，送餐都必须经过传达室大爷。防止恶意读取系统信息或访问系统资源，例如进入传销人员或者恐怖分子Allahu Akbar。不能让应用直接访问系统资源，好比不能让外人随意进入校园。
 
-来自视频BV1fgUEBMEMZ，可能涉及到的包的名字与功能：
-|名字|功能|
-|-|-|
-|niri|-|
-|xwayland-satellite|-|
-|xdg-desktop-portal-gnome|默认会安装nautilus文档管理器|
-|fuzzel|菜单栏，提供打开应用的GUI方式|
-|kitty|终端模拟器|
-|libnotify|通知相关的库|
-|mako|显示通知栏|
-|polkit-gnome|方便应用询问管理员权限|
-
-
-下面的部分是设置文档管理器nautilus相关的包
-|名字|功能|
-|-|-|
-|ffmpegthumbnailer|视频缩略图功能|
-|gvfs-smb|允许访问远程NAS服务器|
-|nautilus-open-my-terminal||
-|file-roller|压缩解压缩软件|
-|gnome-keyring|密码保存|
-|gst-plugins-base|视频信息预览功能|
-|gst-plugins-good||
-|gst-libav||
-
-
-我不打算安装gnome的中控，也不打算使用其自带的文件管理系统
+我不打算安装gnome的中控，也不打算使用其自带的文件管理系统，我计划安装TUI文件管理器Yazi，这玩意的好处是在tty也能用，在修系统的时候非常方便。
 ```bash
 sudo pacman -S niri xwayland-satellite kitty fuzzel mako libnotify \
 polkit-gnome xdg-desktop-portal xdg-desktop-portal-gtk xdg-desktop-portal-wlr
 ```
 
-允许niri-session打开niri会话，会生成默认配置文件
+通过niri-session打开niri会话，会生成默认配置文件
 `/home/yanagi/.config/niri/config.kdl`
 
 在类Unix系统中，路径中的`~`会自动展开为`/home/yourusrname/`，你可以用`echo ~`来查看
@@ -411,29 +428,141 @@ spawn-at-startup "fcitx5" "-d"
 
 目前就是日语输入法有点问题，之前在win上用日语输入法时也是需要手动变换日语输入法，换到日语输入法后还有两种模式，英文和假名。我希望达到的目的是按Shift在英中日三个模式里切换，目前还没解决。
 
+---
+
 **剪切板**
 
-安装的是`wl-clipboard`
+没想到Arch Linux连系统剪切板都没有，想要复制的内容在不同软件直接粘贴，需要有一个系统剪切板来存。这里安装的是`wl-clipboard`。
+
+---
 
 **截屏与录屏**
 
+这里就弄截屏，之后又需要的时候再弄录屏吧，截屏需要一定的易用性，截完屏后存储在一个固定的地方，然后放到系统剪切板中，并弹出通知提示截屏完成。
+
+需要两个包作为截屏基础：`grim`截屏工具、 `slurp`交互式选择区域。还需要一个包`jq`用于解析json数据，用于提取json文本中的数据，用于窗口截图。
+
+```bash
+sudo pacman -S grim slurp jq
+```
+
+在`~/.config/niri/config.kdl`里写入，注意要在大括号bind内：
+```kdl
+
+    Mod+S{ 
+      // screenshot; 
+      // spawn "notify-send" "Print works";
+      // spawn "ehco 'strat screenshot'"
+      spawn "/home/yanagi/bin/niri-screenshot" "full";
+    }
+    Ctrl+S{ 
+      // screenshot-screen; 
+      spawn "/home/yanagi/bin/niri-screenshot" "area";
+    }
+    Alt+S{ 
+      // screenshot-window; 
+      spawn "/home/yanagi/bin/niri-screenshot" "window";
+    }
+
+```
+注意niri配置文件的spawn的解法，一行命令有多个参数要分开引号来写，最后要加上分号，否则不会执行。
+
+这里本来想window截图模式是选择窗口截图，但是不太好实现，niri msg没有给出聚焦窗口的坐标宽高信息，所以行为可能不理想，实现脚本如下所示：
+```bash
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SCREENSHOT_DIR="${HOME}/Pictures/Screenshots"
+mkdir -p "$SCREENSHOT_DIR"
+
+FILENAME="screenshot-$(date +%Y%m%d-%H%M%S).png"
+FILEPATH="${SCREENSHOT_DIR}/${FILENAME}"
+
+case "$1" in
+    full)
+        grim "$FILEPATH"
+        ;;
+    area)
+        grim -g "$(slurp)" "$FILEPATH"
+        ;;
+    window)
+        # 使用 slurp -o 选择窗口（交互式）
+        GEOM=$(slurp -o)
+        grim -g "$GEOM" "$FILEPATH"
+        ;;
+    *)
+        echo "Usage: $0 {full|area|window}"
+        exit 1
+        ;;
+esac
+
+wl-copy < "$FILEPATH"
+
+if command -v notify-send >/dev/null; then
+    notify-send "截图已保存" \
+        "📸 ${FILENAME}\n文件已保存至 ${SCREENSHOT_DIR}\n并已复制到剪贴板" \
+        -i "$FILEPATH" \
+        -t 3000
+fi
+
+echo "$FILEPATH"
+```
+win+s -> 全屏截图
+
+ctrl+s -> 自选截图，自己画截图框
+
+alt+s -> 点击窗口截图，但是效果不理想，点击窗口还是截的全屏，但是也可以通过画框选定截图范围，我觉得可以视为上面两者的结合。
+
+---
+
+**Picgo**
+
+我的笔记一般把图片上传到github图床，然后在markdown引用链接，在picgo对应的github仓库给了安装说明：
+```bash
+paru -S picgo-appimage
+```
+然后直接可以通过fuzzel打开，打开之后就是一个方型的小窗口，右键可以快速通过剪切板上传，或者打开picgo全屏进行配置。
+
+---
+
 **蓝牙**
 
+目前不打算用蓝牙了，打算买一个有线耳机，主要是懒得充电，也懒得配置。
+
+---
+
 **壁纸**
+
 使用swww和waypaper，swww是后端，waypaper是换壁纸的前端。
 ```bash
 paru -S swww waypaper
 ```
 要在niri里配置：
-```bash
+```bash
 spawn-at-startup "swww-daemon"
 ```
 
+目前swww好像用不了了，好像是因为项目改名为awww了,`sudo pacman -Syu`后就用不了了，现在也懒得管，反正不影响使用。
+
+---
+
 **steam**
 
+首先要在`/etc/pacman.conf`中启用多位库，也就是将下面两行取消测试：
+```
+[multilib]
+Include = /etc/pacman.d/mirrorlist
+```
 在配置`/etc/pacman.conf`的时候，对于不同的库，不同的源解去注释的时候，也要把上面的[]内的内容解注释掉，否则你的pacman还是找不到。
 
+这里查阅资料后发现，wayland对nvidia驱动支持比较差，而且我的硬件比较老，nvidia的支持比较差。
 
+这里安装i3-wm，一个基于X11的窗口管理器，对nvidia驱动支持比较好。
+
+安装i3-wm不必删掉niri,到时候在SDDM登陆界面可以选择进入哪个窗口管理器，可以自由选择进入niri还是i3,他们一个是基于wayland一个是基于X11，不会相互冲突。
+
+在配置游戏的过程中，我们必须要自己管理显卡使用。
 
 ----
 
@@ -459,5 +588,7 @@ sudo pacman -S sddm
 ```
 
 然后systemctl启动服务就行了，非常方便
+
+在调试SDDM相关的时候，很有可能会遇到图形相关的错误，导致开机时卡在inital ramdisk步骤，解决办法是在grub启动时，按e进入编辑界面，在linux开头的那一行后面加上空格和3，然后按Ctrl+X启动进入tty修复，在调试过程中建议关掉sddm的系统服务，防止调试时需要重启需要反复执行上述步骤。
 
 -----
