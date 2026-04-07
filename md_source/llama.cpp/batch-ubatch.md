@@ -1,8 +1,13 @@
 # llama_batch与llama_ubatch设计
 
+[toc]
+</br>
+
 本文讲讲`llama_batch`和`llama_ubatch`这两个类的设计。
 
 ![](https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202603241847507.png)
+
+## llama_batch
 
 `llama_batch`在`llama.h`文件里定义，非常简单，而且非常轻量，只包含一个int变量表示有多少tokens，还有一些指针：
 ```cpp
@@ -25,6 +30,8 @@ typedef struct llama_batch {
 一个token对应的embed是一个浮点向量，在llama中这个隐藏向量的维度通常是4096，因为每个向量的长度都是一样的，所以直接使用一个一维数组进行存储。在使用中token和embd有一个不会空就可以了，
 
 logits可以视为一个标记数组，用于表示在不同情况下该token是否作为输出。
+
+## llama_ubatch
 
 `llama_ubatch`的结构就更加复杂了，初次看的时候会觉得这个结构体的设计非常奇怪。不明白它说保持`llama_ubatch`轻量是什么意思。
 ```cpp
@@ -86,3 +93,5 @@ struct llama_ubatch {
 `seq_idx`表示各个序列在本ubatch中排第几，在上面的例子中，序列`4`的idx是`1`，序列`8`的idx是3，也可以理解为`seq_id_unq`的逆映射。
 
 注意：所有的ubatch必然满足`n_tokens = n_seqs * n_seq_tokens`
+
+（（需要完善：b_equal属性是什么意思，三种划分ubatch的方法本质上是什么意思））

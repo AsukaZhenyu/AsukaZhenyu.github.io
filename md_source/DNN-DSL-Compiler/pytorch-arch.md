@@ -7,7 +7,9 @@ pytorch通常有两种用法：
 - 替代numpy的张量运算库，充分利用GPU进行张量计算
 - 深度学习研究平台，兼顾灵活性和运行效率
 
-这里不关注pytorch如何使用，例如：数据集如何加载，模型如何声明、训练、保存、推理。
+pytorch包自带了CUDA runtime库（CUDA运行时库）和cuDNN的二进制文件（CUDA深度神经网络库），使用的话只需要安装NVIDIA的驱动，非常方便。但是pytorch包大也是真的大，随随便便就要下载2.5G。
+
+不过这里不关注pytorch如何使用，例如：数据集如何加载，模型如何声明、训练、保存、推理。
 
 本文关注的是：pytorch的执行模式；pytorch如何自带跟踪张量、建立计算图、自带求导；pytorch如何编译优化计算图、IR。
 
@@ -32,7 +34,7 @@ pytorch通常有两种用法：
 
 ### 即时执行模式（Eager Execution）
 
-这是 PyTorch 从早期版本就采用的核心运行方式，也是它得名“动态图框架”的原因。
+这是 PyTorch 从早期版本就采用的核心运行方式，也是它得名“动态图框架”的原因。当然如果详细了解过的话，pytorch并不是最早的“动态图框架”。2015年日本的Preferred Networks（PFN）公司开源了Chainer框架，Chainer最早定义了深度学习的动态图模式，并且使用CuPy加速张量运算。我进入大学后做的第一个深度学习项目就是基于[Chainer](../Musings/Chainer-env.md)框架的。
 
 ### 编译执行模式（torch.compile）
 
