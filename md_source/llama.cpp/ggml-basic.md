@@ -7,7 +7,7 @@
 
 llama.cpp能够支持众多硬件/后端，其核心在于ggml库。
 
-发现一个好东西：[DeepWiki](https://deepwiki.com/ggml-org/ggml)，对于GitHub上开源的仓库，它有AI自动生成的图文并茂的Wiki，并且会随项目更新而更新Wiki内容，可以先看wiki熟悉项目结构，而且有LLM聊天框，可以询问项目的一些细节，不需要登陆，对话你可以通过保存网页后续重复访问。这就非常方便了，不像我之前先git clone下来用Claude Code分析项目文件，虽然效果差不多，但是API贵啊，随便弄弄大几百就没了，有免费的为什么不用。
+发现一个好东西：[DeepWiki](https://deepwiki.com/ggml-org/ggml)，对于GitHub上开源的仓库，它有AI自动生成的图文并茂的Wiki，并且会随项目更新而更新Wiki内容，可以先看wiki熟悉项目结构，而且有LLM聊天框，可以询问项目的一些细节，不需要登陆，对话你可以通过保存对话网页后续重复访问。这就非常方便了，不像我之前先git clone下来用Claude Code分析项目文件，虽然效果差不多，但是API贵啊，随便弄弄大几百就没了，有免费的为什么不用。
 
 这里我们看ggml/src/CMakeLists.txt下的两端代码：
 ```cmake
@@ -41,6 +41,82 @@ target_link_libraries(ggml PUBLIC ggml-base)
 
 （（这里可以看出ggml库的几个组件））
 
+## ggml
+
+本节看ggml开头的相关文件，包括：ggml.h、ggml-impl.h、ggml.c、ggml.cpp、ggml-cpp.h
+
+### ggml.h
+
+这个文件一开头就是一大段注释，简要介绍了一下ggml张量库，内容包括：
+
+- 一组张量操作
+- 自动微分
+- 基础优化算法
+
+用户通过定义**计算图**来定义函数。定义好计算图后，可以计算函数的值 和/或 对输入的梯度。
+
+在定义计算图的时候没有任何实际计算，实际的计算发生在ggml_graph_compute()函数，需要我们自己显式调用。
+
+需要显式指定哪些张量是输入，这点在其他代码会体现，输入输出结点会特殊处理。ggml中的自动微分和优化函数需要知道哪些结点是输入。
+
+计算图一次定义可以多次反复计算。
+
+**自动微分**
+
+数值方法就是求极限，存在截断误差和舍入误差，且对高维输入计算开销很大（需要多次函数求值）。
+
+符号方法就是手动求导的自动化，缺点是表达式会指数膨胀，而且函数必须写出来，这意味着程序中的条件、循环无法被使用
+
+自动微分（AD）：Forward mode（前向模式）与Reverse mode（反向模式）。它既能像数值微分一样直接得到数值结果，又能像符号微分一样保证高精度。
+
+AD的核心是计算图（结点是输入和中间计算结果，边是运算本身）与链式法则，通过计算图精确追踪基本运算的导数，兼顾了效率和精度。
+
+|模式|计算方式|时间复杂度|适用场景|
+|-|-|-|-|
+|前向计算|同时计算函数值与导数（一次前向传播）|1次函数求值*输入维度|输入少，输出多（$R^n \rightarrow R^m,m>>n$）|
+|反向模式|先正向求值，再反向传播梯度|1次函数求值*输入维度|输出少，输入多|
+
+在神经网络中，例如分类器$R^n \rightarrow R^1$，这种标量损失函数，通常使用反向模式传播梯度。在机器学习里通常使用反向计算模式，ggml库也是只有反向计算模式。
+
+### ggml-impl.h
+
+实现的中间头文件，会有一些内部实现的结构体。方便函数实现，而这些实现细节不向库的使用者暴露。包括：哈希表实现、数据格式转化（FP16、FP32）、判断计算图结点能否融合（fuse）等。
+
+**位图与哈希表**
+
+位图的定义非常简单，就是32为无符号整数：
+```cpp
+typedef uint32_t ggml_bitset_t;
+```
+在实际使用时，我们会使用一个位图数组来表示哈希表中是否存在某对象，一个位图可以表示32个对象是否存在。
+```cpp
+#define BITSET_SHR 5 // log2(sizeof(ggml_bitset_t)*8)
+#define BITSET_MASK (sizeof(ggml_bitset_t)*8 - 1)
+
+static size_t ggml_bitset_size(size_t n) {
+    return (n + BITSET_MASK) >> BITSET_SHR;
+}
+
+static inline bool ggml_bitset_get(const ggml_bitset_t * bitset, size_t i) {
+    return !!(bitset[i >> BITSET_SHR] & (1u << (i & BITSET_MASK)));
+}
+```
+第一个计算size的函数表示，需要多少个uint32才能存下n个对象的位，来表示是否存在。
+
+哈希表的结构如下所示：
+```cpp
+struct ggml_hash_set {
+    size_t size;
+    ggml_bitset_t * used;       // whether or not the keys are in use i.e. set
+    struct ggml_tensor ** keys; // actual tensors in the set, keys[i] is only defined if ggml_bitset_get(used, i)
+};
+```
+也是非常简单，专门针对ggml_tensor而建立的哈希表，利用ggml_tensor指针地址计算哈希值，使用线性探测解决哈希冲突，通过外部的函数插入与查找某ggml_tensor的编号，使用keys访问。
+
+$$
+ggml\_tensor地址 \rightarrow base\ hash\ value \rightarrow linear\ probing \rightarrow index
+$$
+
 ## Tensor Operations and Computation Graphs
 
 ### ggml_tensor
@@ -73,15 +149,15 @@ struct ggml_tensor {
 ```
 我在最开始读代码的时候，望文生义觉得`ggml_tensor`就是一个张量，但是最好把它理解为一个“结点”，这个结点存储一些信息和一个指向真正数据存放地的指针。
 
-在llama.cpp代码中涉及到backend（后端），通常指的是硬件后端（CPU、CUDA），这里的buffer指针告诉系统，张量的存储位置（CPU的DRAM？还是GPU的HBM）
+在llama.cpp代码中涉及到backend（后端），通常指的是硬件架构后端（CPU、CUDA），buffer是张量数据实际存储的位置，存在于不同的后端设备（CPU、GPU0、GPU1 etc）之上。buffer是一块连续的内存空间，在实际推理中可能会申请多个buffer来存储张量，这个指针指明本张量存储的buffer是哪个。
+
+data指针指向数据真正存放的地址。一个buffer里面会存储很多张量，通过data指针指向本张量开头的地址，以在buffer中访问到张量数据。buffer内部存储管理的细节请看[#Buffer与内存申请](./ggml-basic.md#buffer-and-memory-alloc)。
 
 ne和nb表示张量各个维度的长度（定义张量的形状）、在各个维度上走一步需要移动多少byte（不同类型的张量，每单个数据占的字节数也不一样，不同张量的形状也不一样），这里有点像[SIMD](../NVIDIA/NVIDIA-GPU-Arch.md)里的`VLEN`和`VSTR`。最近在微信公众号上看到一篇介绍[CuTe](../HPC-Parallel-Distribute-Computing/CUTLASS-CuTe-DSL.md)的Layout代数的文章（微信搜索zartbot layout），内容也有点像，但限于我的数学水平看不懂。
 
 op表示得到当前张量进行的运算是什么，SRC表示由哪些张量运算得到当前张量。也就是说SRC数组指针指向的张量们经过op运算得到当前张量。
 
 当当前张量为某个张量的视图张量时，也就是说当前张量是某个张量的切片时（类似python中cur = src[:,::5]），view_src指向源张量，view_offs表示相对源张量的偏移量。不需要拷贝可以直接用。
-
-data指针指向数据真正存放的地址。
 
 name是当前张量的名字，这个属性横跨了计算图构建（llama-graph.h）、数据填充（llama-context.h）两大部分，这里值得留意，后面还会提到。
 
@@ -133,7 +209,18 @@ struct ggml_cgraph {
 };
 ```
 
-这里的计算图也是非常的轻量，几个int变量记录计算图结点数量信息，其余的都是一些指针，还有一个哈希表记录结点的访问情况。
+cgraph的结构如下图所示：
+
+![](https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202604061428569.png)
+
+和普通的DAG不同的是，图的指向是反的，由子节点指向父节点。计算图中最后计算的张量是root结点，叶子节点是最开始的结点，它的输入是常量，不是梯度图的一部分。
+
+ggml/src/ggml.c:6752 ggml_visit_parents_graph，这里就是建图函数，主要维护每个结点的入度`use_counts`，表示当前节点被多少节点的计算所需要。计算图的数据结构将叶子节点和其他节点分开管理，遍历计算图的时候会把叶子节点放入leafs数组里，其他节点放到nodes数组里。通过这个函数我们就可以总结部分cgraph的属性：
+
+- n_nodes其他非叶子节点的数量，也是nodes数组的长度
+- n_leafs叶子节点的数量，也是leafs数组的长度
+- use_counts表示节点的入度，也表示有多少节点依赖本节点，也表示子节点的数量
+- visited_hash_set在建图中的帮助数据结构，防止重复访问节点，图论基本操作
 
 ## ggml_backend
 
@@ -349,4 +436,297 @@ stream的核心接口是：
 
 ### Buffer and Memory alloc
 
-要理解buffer type和buffer相关的代码，需要结合`ggml-alloc.h/.c`两个文件一起。
+要理解buffer type和buffer相关的代码，需要结合`ggml-alloc.h/.c`两个文件一起看。
+
+buffer是存放tensor数据的实际位置，在`ggml_tensor`结构体中有一个类型为`ggml_backend_buffer`的属性，表示tensor数据实际存放位置。还有一个`void * data`指针指向tensor数据存储的开头位置。
+
+buffer的内存空间就是一个摆满tensor数据的内存池，在部分高性能后端要求数据存储位置对齐（alignment），所以在单个buffer内存管理中，我们看到的是在满足对齐标准的情况下，尽可能紧凑地存tensor数据。
+
+这一点体现在`ggml-alloc.h/.c`中`tallocr`类的设计和函数中体现：
+```cpp
+// Tensor allocator
+struct ggml_tallocr {
+    ggml_backend_buffer_t buffer;
+    void * base;
+    size_t alignment;
+    size_t offset;
+};
+
+GGML_API struct ggml_tallocr ggml_tallocr_new(ggml_backend_buffer_t buffer);
+GGML_API enum ggml_status    ggml_tallocr_alloc(struct ggml_tallocr * talloc, struct ggml_tensor * tensor);
+```
+
+alignment是由后端设备决定的一个固定大小的值，通常是2的n次方（4、8、16、32），硬件在读取对齐存储的数据速度会块一些。base是当前buffer的起始位置，offset是在buffer中存储下一个tensor的起始地址，这个地址是对齐的（被alignment整除的）。
+
+`tallocr`类就是专门在buffer中写入tensor数据的。
+
+理解完上面的内容再看buffer type就非常好理解了，就是在描述buffer的性质，这些性质和上面的写入过程是紧密相关的：
+```cpp
+struct ggml_backend_buffer_type_i {
+    const char *          (*get_name)      (ggml_backend_buffer_type_t buft);
+    // allocate a buffer of this type
+    ggml_backend_buffer_t (*alloc_buffer)  (ggml_backend_buffer_type_t buft, size_t size);
+    // tensor alignment
+    size_t                (*get_alignment) (ggml_backend_buffer_type_t buft);
+    // (optional) max buffer size that can be allocated (defaults to SIZE_MAX)
+    size_t                (*get_max_size)  (ggml_backend_buffer_type_t buft);
+    // (optional) data size needed to allocate the tensor, including padding (defaults to ggml_nbytes)
+    size_t                (*get_alloc_size)(ggml_backend_buffer_type_t buft, const struct ggml_tensor * tensor);
+    // (optional) check if tensor data is in host memory and uses standard ggml tensor layout (defaults to false)
+    bool                  (*is_host)       (ggml_backend_buffer_type_t buft);
+};
+```
+
+设备上的存储空间不是无限的，所以需要规定buffer最多写到哪里，在`tallocr`也有检查当前tensor如果写入是否会溢出。还有一点值得提的是：buffer只提供存储功能，它没记录哪些位置是tensor的起点，所以每次写入时要在`ggml_tensor`里记录数据开始位置。
+
+再看buffer本身提供的函数接口也很好理解了，主要就是对buffer内的tensor进行操作，因为buffer本身不记录tensor存储开始位置与结束位置，所以相关函数你需要自己提供tensor开始位置与tensor数据大小：
+```cpp
+struct ggml_backend_buffer_i {
+    // (optional) free the buffer
+    void         (*free_buffer)  (ggml_backend_buffer_t buffer);
+    // base address of the buffer
+    void *       (*get_base)     (ggml_backend_buffer_t buffer);
+    // (optional) initialize a tensor in the buffer (eg. add tensor extras)
+    enum ggml_status (*init_tensor)(ggml_backend_buffer_t buffer, struct ggml_tensor * tensor);
+    // tensor data access
+    void         (*memset_tensor)(ggml_backend_buffer_t buffer,       struct ggml_tensor * tensor,     uint8_t value, size_t offset, size_t size);
+    void         (*set_tensor)   (ggml_backend_buffer_t buffer,       struct ggml_tensor * tensor, const void * data, size_t offset, size_t size);
+    void         (*get_tensor)   (ggml_backend_buffer_t buffer, const struct ggml_tensor * tensor,       void * data, size_t offset, size_t size);
+    // (optional) tensor copy: dst is in the buffer, src may be in any buffer, including buffers from a different backend (return false if not supported)
+    bool         (*cpy_tensor)   (ggml_backend_buffer_t buffer, const struct ggml_tensor * src, struct ggml_tensor * dst);
+    // clear the entire buffer
+    void         (*clear)        (ggml_backend_buffer_t buffer, uint8_t value);
+    // (optional) reset any internal state due to tensor initialization, such as tensor extras
+    void         (*reset)        (ggml_backend_buffer_t buffer);
+};
+```
+
+**Graph allocator**
+
+在`ggml-alloc.h/.c`中内存管理的核心是graph allocator，在`ggml-alloc.h`里文件就分为两个部分：`Tensor allocator`、`Graph allocator`。光看`ggml-alloc.h`里`Graph allocator`接口的定义非常简单，就是：
+- 图分配器类自己的创建、释放；
+```cpp
+typedef struct ggml_gallocr * ggml_gallocr_t;
+
+GGML_API ggml_gallocr_t ggml_gallocr_new(ggml_backend_buffer_type_t buft);
+GGML_API ggml_gallocr_t ggml_gallocr_new_n(ggml_backend_buffer_type_t * bufts, int n_bufs);
+GGML_API void           ggml_gallocr_free(ggml_gallocr_t galloc);
+```
+这里我们可以看到有两种申请`ggml_gallocr`的方式，一个是单buffer的，一个是多buffer的。
+
+- 根据计算图预分配buffer空间；
+```cpp
+// 单buffer计算图 buffer空间预留
+GGML_API bool ggml_gallocr_reserve(ggml_gallocr_t galloc, struct ggml_cgraph * graph);
+// 将多buffers空间预留结果保存到sizes数组里面去
+GGML_API void ggml_gallocr_reserve_n_size(
+    ggml_gallocr_t galloc,
+    struct ggml_cgraph * graph,
+    const int * node_buffer_ids,
+    const int * leaf_buffer_ids,
+    size_t * sizes);
+// 多buffer计算图 buffers空间预留 
+GGML_API bool ggml_gallocr_reserve_n(
+    ggml_gallocr_t galloc,
+    struct ggml_cgraph * graph,
+    const int * node_buffer_ids,
+    const int * leaf_buffer_ids);
+
+```
+同样的，这里的预留空间函数也是考虑了单buffer与多buffers的情况，在多buffers情况下，函数ggml_gallocr_reserve_n会自动预分配多个buffer的空间，函数ggml_gallocr_reserve_n_size会把在上面函数预分配的结果写到数组sizes里面。
+
+- 根据计算图实际分配空间；
+```cpp
+GGML_API bool ggml_gallocr_alloc_graph(ggml_gallocr_t galloc, struct ggml_cgraph * graph);
+
+GGML_API size_t ggml_gallocr_get_buffer_size(ggml_gallocr_t galloc, int buffer_id);
+
+```
+
+第一个函数是计算图申请空间的核心，同样的也是分为两种情况：
+
+1. 单buffer计算图，如果计算图拓扑发送变化，自动重新分配空间
+2. 多buffers计算图，如果计算图发生变化会运行失败，需要先自行运行ggml_gallocr_reserve_n这个函数，来重新分配空间
+
+总结一下，在graph allocator定义的接口里，根据计算图使用单buffer还是多buffers，采取不同的操作，但是思路都是一样的：
+
+- 单buffer，由于ggml_gallocr_alloc_graph会自动重新申请buffer空间，所以预留空间函数可以不执行。这是因为单buffer的情况比较简单，可以直接根据计算图计算出需要的单块存储空间。
+- 多buffers，需要自行预留buffers的空间，然后再实际申请内存空间。
+
+这里可以看到，核心分为两步：reserve、alloc。我们结合实现文件`ggml-alloc.c`来看这两部到底在干什么：
+
+- reserve函数，实质上就是根据计算图确定各张量的存储地址，确定整体的内存布局。这个函数实质上填充了`ggml_gallocr`类的属性。最复杂的就是这个函数，包含了类似操作系统中的内存管理来预分配各tensor地址，来减少内存碎片，并且进行张量的生命周期分析，达到内存复用的效果。
+
+- alloc函数，这个函数比较简单，根据上述函数确定的内存布局和各张量的存储位置，绑定`ggml_tensor`的buffer块和块内的存储地址，同时在buffer内初始化该张量。
+
+
+在看源码实现的时候，发现上面的reserve和alloc函数都是默认按照多buffer来实现的，单buffer只是特殊情况，通过特定参数调用多buffer情况的函数实现。例如：
+```cpp
+bool ggml_gallocr_reserve(ggml_gallocr_t galloc, struct ggml_cgraph *graph) {
+    return ggml_gallocr_reserve_n(galloc, graph, NULL, NULL);
+}
+```
+
+在深入reserve函数是如何管理内存空间之前，需要了解ggml如何实现：内存空间动态申请， 多buffers的内存管理。下面是`ggml_gallocr`的多层次管理内存的架构图：
+
+![](https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202604051545869.png)
+
+在`ggml_gallocr`的视角下，一个buffer实质上是一个虚拟buffer，由多个`ggml_backend_buffer`组成的，一个拥有连续内存空间地址的虚拟buffer。
+
+一个vbuffer可以分为多个chunks，一个chunk就是一个`ggml_backend_buffer`，在一个chunk下又被分为若干blocks。
+
+如何在一个vbuffer里面写入东西呢？会通过类`ggml_dyn_talloc`来实现，vbuffer里面所有的`ggml_backend_buffer`的buffer type是相同的，对于相同的buffer type，只需要一个`ggml_dyn_talloc`对象，因为它本质上只是一个写入工具：
+
+```cpp
+// check if the same buffer type is used multiple times and reuse the same allocator
+for (int j = 0; j < i; j++) {
+    if (bufts[i] == bufts[j]) {
+        galloc->buf_tallocs[i] = galloc->buf_tallocs[j];
+        break;
+    }
+}
+
+if (galloc->buf_tallocs[i] == NULL) {
+    size_t alignment = ggml_backend_buft_get_alignment(bufts[i]);
+    size_t max_size = ggml_backend_buft_get_max_size(bufts[i]);
+    galloc->buf_tallocs[i] = ggml_dyn_tallocr_new(alignment, max_size);
+}
+```
+
+具体是如何写入的呢，在下面的函数里说明了：
+```cpp
+static struct buffer_address ggml_dyn_tallocr_alloc(struct ggml_dyn_tallocr * alloc, size_t size, const struct ggml_tensor * tensor)
+```
+下面的一段核心代码说明了，它是如何寻找tensor的存储位置的：
+```cpp
+if (block->size >= size && block->size <= best_fit_size) {
+    best_fit_chunk = c;
+    best_fit_block = i;
+    best_fit_size = block->size;
+}
+```
+在一个vbuffer里所有的chunks和里面的blocks里找一段大小大于要求，且大小最小的块来存放该tensor。这非常像OS里的一个内存管理的算法，这个算法非常简单，而且容易产生外部碎片。
+
+（（chunks、blocks申请、管理的代码分析暂且省略，目前已经足够往下理解））
+
+接下来看reserve代码，其实现分为两个部分，先使用哈希表申请空间，然后在根据哈希表里面的内容填充到`ggml_gallocr`里的`node_allocs`属性里。下面是`ggml_gallocr`的属性。
+```cpp
+struct ggml_gallocr {
+    ggml_backend_buffer_type_t * bufts; // [n_buffers]
+    struct vbuffer ** buffers; // [n_buffers]
+    struct ggml_dyn_tallocr ** buf_tallocs; // [n_buffers]
+    int n_buffers;
+
+    struct ggml_hash_set hash_set;
+    struct hash_node * hash_values; // [hash_set.size]
+
+    struct node_alloc * node_allocs; // [n_nodes]
+    int n_nodes;
+
+    struct leaf_alloc * leaf_allocs; // [n_leafs]
+    int n_leafs;
+};
+```
+
+上面四个属性已经解释过了，第5个属性是一个哈希表，详情请看[位图与哈希表](./ggml-basic.md#ggml-implh)，第6个属性是在使用哈希表申请空间时，node的信息。在reserve函数的第1步里，使用哈希表预分配张量地址时，会把节点在计算图中的特征、预分配的地址存放在第6个属性里。
+
+最后两个属性把计算图中叶子节点和其他节点分开处理，这两个属性就是在alloc函数里实际用到的信息。也是reserve函数第二步复制的目的地。
+
+为什么使用哈希表先预分配地址，实际上在使用哈希表预分配的过程中会做一些优化。防止重复申请计算图节点，并且实际执行时可以复用父节点，也就是在计算图上做一些优化。
+
+**liveness分析/内存复用**
+
+ggml_gallocr会对结点张量进行生命周期分析，实现内存重用。但是这句话实在是太抽象了，我在文档里看了很多次，还是不明白它是什么意思。
+
+我们先从父节点的复用来看，计算图内存优化的空间在哪里。什么叫复用父节点？考虑这个计算步骤：$b=ReLU(a)$，计算图如下所示：
+$$
+a \rightarrow b
+$$
+两个计算结点，代表两个张量，中间的箭头表示激活函数这一操作。在正常情况下，需要给这两个结点分别分配一块内存。
+
+但是在ggml计算图优化下，如果满足下面的条件：
+- a不是来自外部的张量（由其他上下文分配，或者用户显式指定的张量，例如模型权重，如果允许修改则会破坏其他数据），
+- a不作为后续输出（如果作为输出，则张量需要被保留），
+- a和b的张量布局相同，
+- a的子结点只有b，而且不作为其他任何张量的视图原张量，
+- a到b的计算过程是支持inplace替换的，
+
+那么b的空间就可以复用a的空间。
+
+复用的结果是a和b指向同一片空间，a计算完了后，b直接在同一片空间写入结果，避免a只被b所利用，但是却一直占着空间，导致内存利用效率低。所谓的“父节点复用”实质上就是对于某些计算的中间结点，只在下一步的计算中使用到，没有必要在后续的计算中继续占用一块存储空间，因为之后不会再用到了。
+
+在计算图**逻辑**上，a、b都存在，对应的两个ggml_tensor也仍然存在，只是它们使用的是同一块内存空间。
+
+现在我们把目光放到整个计算图上，一个时刻在进行计算某一个node，只涉及该node和该node所依赖的nodes，其他的结点是不需要用到的。如果把计算图中的每个结点都单独分配一段空间来存储，在计算的时候会有大量的存储空间处于空闲状态。
+
+在意识到不必同时激活所有张量后，就可以自然地推导出：缓冲区大小可以小于整体计算图的大小，当一部分结点的数据已经传递下去，结点自身的数据不需要再使用时，这些结点再占用存储空间是没有意义的，这些空间可以给其他张量使用。而还有很久才会计算到的结点，现在就放到内存中也是没有意义的。
+
+也就是说当结点不再起作用时，或者说tensor的生命周期终结时，它所占有的空间可以被重新利用。如下图所示：
+
+![](https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202604061936328.png)
+
+那么在预分配的时候，结点node 0、node 1和结点node 4、node 5地址是一样的。这意味着，在reserve函数里需要根据计算图结点的拓扑排序依次处理结点，每处理完一个结点就把其父节点的依赖数减1，减到0后这个父节点对应的地址就可以被后面的结点利用了。
+
+在实际实现中，它先将叶子结点和用户显式指定保护（指定为input）的结点申请好，这部分的空间是不动的，也不会被复用。其余结点就按照上面说的思路进行内存空间的分配。
+
+在具体实现的时候，新定义的一个结构体来表示计算图上的结点，用哈希表建立从ggml_tensor到该数据结构的访问通路，结构体如下所示：
+```cpp
+struct hash_node {
+    int n_children;
+    int n_views;
+    int buffer_id;
+    struct buffer_address addr;
+    bool allocated;
+};
+```
+
+n_children表示有多少结点是本结点的子节点，在计算图中，有多少结点的计算依赖本结点
+n_views表示本结点是多少结点的视图
+
+为什么要新建一个结构体？原因是gallocr不直接修改ggml_tensor，在申请空间的时候，是在模拟计算图计算流程，上面的这些属性是动态变化的。虽然计算图已经统计好了结点间的连接关系，这里把计算图定义和内存分配的两个功能分开，不要混淆在一起。
+
+### Backend scheduler
+
+Backend scheduler是ggml实现异构计算的核心
+
+一个backend（后端），对应一个vbuffer，可能对应多个devices
+
+维护了一个ggml_tensor到backend的哈希表，同时支持跨后端和流水线并行的张量复制：
+```cpp
+// hash map of the nodes in the graph
+struct ggml_hash_set  hash_set;
+int                 * hv_tensor_backend_ids; // [hash_set.size]
+struct ggml_tensor ** hv_tensor_copies;      // [hash_set.size][n_backends][n_copies]
+
+#define hash_id(tensor) ggml_hash_find_or_insert(&sched->hash_set, tensor)
+#define tensor_backend_id(tensor) sched->hv_tensor_backend_ids[hash_id(tensor)]
+#define tensor_id_copy(id, backend_id, copy_id) sched->hv_tensor_copies[(id) * sched->n_backends * sched->n_copies + (backend_id) * sched->n_copies + (copy_id)]
+#define tensor_copy(tensor, backend_id, copy_id) tensor_id_copy(hash_id(tensor), backend_id, copy_id)
+```
+
+n_copies和流水线并行支持有关
+
+记录计算图上各节点都存储在哪个后端上：
+```cpp
+int * node_backend_ids; // [graph_size]
+int * leaf_backend_ids; // [graph_size]
+
+int * prev_node_backend_ids; // [graph_size]
+int * prev_leaf_backend_ids; // [graph_size]
+```
+prev用于存储上次图分配的结果，当当前计算图节点后端分配结果与之前的分配结果不同时，会重新申请计算图。
+
+Backend scheduler的核心是计算图分割：
+```cpp
+// graph splits
+struct ggml_backend_sched_split * splits;
+int n_splits;
+int splits_capacity;
+```
+
+对外接口：
+- `ggml_backend_sched_alloc_graph`，先后调用下面两个函数：分割计算图+分配空间
+- `ggml_backend_sched_split_graph`分割计算图
+- `ggml_backend_sched_alloc_splits`判断节点分配后端是否有变化，如果有变化就通过gallocr重新分配空间。
+
+流水线并行支持

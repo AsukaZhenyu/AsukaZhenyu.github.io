@@ -1,14 +1,120 @@
 # 深度神经网络分布式计算基础
 
-pytorch有[教程](https://docs.pytorch.org/tutorials/distributed.html)介绍如何分布式训练DNN模型。
+[toc]
+</br>
 
-本文关注现代LLM训练、推理的分布式计算策略。数据并行、张量并行、流水线并行、序列并行
+本文关注现代LLM训练、推理的分布式计算策略。
 
 ## 训练
 
-pytorch DDP -> FSDP -> Megatron-LM
+### 数据并行
 
-主流方案：Megatron-LM (TD+PD) + DeepSpeed (ZeRO)
+每张卡上都拥有完整的模型权重，但是喂入不同数据切片。
+
+缺点是单卡必须能容纳全部的模型参数，但是我们可以把卡视为一个抽象的、虚拟的卡，这个“卡”可能是由多个实体卡由模型并行运行着一整个模型的“计算卡”，数据并行可以充分利用多个这样的“计算卡”的算力，来加速模型的训练。
+
+#### All Reduce
+梯度在卡间同步
+
+#### 梯度累积
+模拟大batch size的技巧
+
+#### ZeRO零冗余优化器
+ZeRO是一种针对数据并行中内存冗余问题的优化方法
+
+###  模型并行
+
+#### 张量并行
+切分**层内**计算，单层的MLP/Attention占用的显存太大了，可以把矩阵运算切分到多卡做，计算完后拼接回来
+
+#### 流水线并行
+切分**层间**计算，当模型层数比较深的时候，第一个GPU负责前10层，第二个GPU负责第二个10层。
+
+类似于多周期和流水线CPU的设计，朴素的流水线并行类似于多周期CPU，数据流动到哪里，哪一个GPU就开始计算，其他GPU处于闲置状态。
+
+流水线并行主要通过P2P通信，相比张量并行的All Reduce通信量更小，适合跨节点部署。
+
+**GPipe**
+GPipe将一个batch分为若干Micro-Batch，依次进入流水线，类似于流水线CPU中的多指令并行。
+
+GPipe采用F-then-B的策略，所有的微批次计算完成后，再执行反向传播。
+
+Pros and Cons:这种方法显著提高了GPU利用率，但代价是需要缓存所有微批次在前向传播中产生的激活值（Activations），直至反向传播完成，这会消耗大量显存
+
+**PipeDream/1F1B**
+思路是每完成一个微批次的前向计算后，直接反向传播，反向传播计算完梯度后，该微批次的激活值即可被释放，极大降低了显存峰值。
+
+**Megatron-LM VPP**
+Megatron-LM提出了虚拟流水线并行（VPP），也被称为交错1F1B，核心思想是它让每个物理设备负责多个不连续的模型小片段（即虚拟Stage）
+
+
+### 混合并行
+
+在实际的超大规模的训练过程中，通常会把数据并行（DP）、张量并行（TP）、流水线并行（PP）这三者结合，构成3D-Parallelism，即混合并行。我们也能观察到TP、PP、DP实际上解决的是不同层次的问题：
+
+- 最内层（TP）：解决单层参数过大的问题
+- 中间层（PP）：解决模型层数过大的问题
+- 最外层（DP+ZeRO）：通过增加数据吞吐量来加快训练速度
+
+可以简单总结：
+- 模型并行解决单卡装不下整个模型的问题
+- 数据并行利用多个计算资源结点加速模型训练
+
+### 分布式计算框架
+
+#### pytorch
+pytorch有[教程](https://docs.pytorch.org/tutorials/distributed.html)介绍如何分布式训练DNN模型。
+
+关于pytorch计算架构的介绍可以看[这篇博客](../DNN-DSL-Compiler/pytorch-arch.md)。
+
+##### DDP：DistributedDataParallel
+
+##### FSDP：FullyShardedDataParallel
+
+##### DeepSpeed
+由Microsoft推动，基于pytorch动态图框架实现LLM分布式训练优化算法，DeepSpeed的核心卖点是ZeRO，也就是显存的管理与优化。
+
+##### Megatron-LM
+NVIDIA 推出的高效训练大规模 Transformer 模型的框架。深度优化张量并行 (TP) 和流水线并行 (PP)，是大模型训练的事实标准之一。
+
+Megatron-LM 完全基于 PyTorch 构建，深度结合了 NVIDIA 自家的分布式通信库 NCCL 和计算算子。
+
+Megatron-LM的卖点是模型并行（TP, PP, SP）。它对显卡的性能压榨到了极致。它是很多并行技术的“发源地”，例如：张量并行 (TP) 和序列并行 (SP)，很多细节都是由 NVIDIA 在 Megatron-LM 的论文中首先定义并标准化的。
+
+##### Hugging Face Accelerate
+专注于简化 PyTorch 分布式训练流程的库。允许用户以最少的代码改动，在单机多卡或多机多卡环境下运行，并兼容 DeepSpeed 和 FSDP。
+
+##### pytorch lightning
+对 PyTorch 的高级封装，旨在减少样板代码，使训练逻辑更清晰。内置了 DDP、FSDP 等多种分布式策略，支持通过配置轻松切换。也能作为接口集成 Megatron-LM
+
+#### JAX
+JAX是Google开发的（也有NVIDIA参与），独立于pytorch生态的高性能数值计算库，支持 CPU、GPU 和 TPU。可以理解为在GPU、TPU上运行的numpy。
+
+JAX和核心特征是XLA静态计算图编译优化和GSPMD（Generalizable SPMD）的自动并行，它不像PyTorch架构需要自己手动组织多卡并行策略，代价是在编写计算逻辑的时候需要理解函数式编程、分片逻辑，而且不能使用python原生的条件判断和循环语句（需要用JAX的控制流原语，循环和分支需要在GPU/TPU内部完成）。编写计算逻辑时不如PyTorch直观。
+
+JAX采用静态图编译优化，它能提前知道所有中间变量的大小，从而做出比动态图（PyTorch）更完美的显存分配计划，避免显存碎片的产生。
+
+JAX的设计思路是**纯函数式**的（函数式编程，考虑到Go也支持函数式编程的部分特性，可能是Google对分布式计算系统的观察经验，也有可能是Google有什么特殊XP），这可以使XLA编译器做更激进的优化。
+
+
+### 前沿并行算法
+
+#### 序列并行 (Sequence Parallelism)
+当模型的上下文长度增加时，最大的显存瓶颈不再仅仅是参数，而是**激活值** (Activation)。特别是 Transformer 中的 Self-Attention 计算，其显存占用随序列长度 $L$ 呈平方级 $O(L^2)$ 增长。目前有两者实现方式：
+
+- 非注意力算子按时间拆分：
+在张量并行（TP）的基础上，将序列在非注意力算子（如 LayerNorm 和 Dropout）上沿时间步维度拆分。这样可以分摊这些算子产生的激活值显存。
+- Ring Attention (环状注意力)：
+这是目前处理百万级上下文的核心技术。它通过类似“接力”的方式，在多张显存受限的显卡间循环传递 Key 和 Value 块，结合计算与通信的掩盖，理论上可以支持无限长的序列。
+
+#### 专家并行 (Expert Parallelism, EP)
+专门针对MoE模型设计的，将不同的“专家”分配到不同的 GPU 上。当 Token 流经 MoE 层时，通过全连接通信（All-to-All）将 Token 发送到对应的专家所在卡进行计算，然后再传回。
+
+#### 自动并行（Automated Parallelism）
+自动根据集群的带宽（NVLink vs 以太网）和显存情况，由编译器自动分析模型的计算图，自动寻找最优的切分策略。
+
+实际上在系统领域有很多类似的工作，通过某种搜索算法，针对特定的计算系统环境、计算任务特征，排列组合已有的一些算法，最后达到一个比较好的计算指标。
+
 
 ## 推理
 

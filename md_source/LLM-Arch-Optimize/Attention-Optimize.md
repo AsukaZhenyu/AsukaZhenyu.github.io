@@ -19,13 +19,21 @@ Decode Attention和KV Cache是一对烂兄烂弟，它们以低ARI（计算密�
 
 ### 单层、单头注意力计算
 
-这里是最基础的，单层attention，一个head，一个batch的情况。
+**单层单头自注意力计算流程：**
+((把flashattention的图放到这里来))
+先说明基本的QKV矩阵的Attention计算
+
+需要说明的是KV矩阵的形状必须相同（必须是同一参考上下文对应的键和值），Q的形状则没有要求（可以和KV矩阵一样，也可以是某个token来做询问）
+
+**自回归decode attention的计算流程：**
+
+假设之前已经生成（包括prompt）t个tokens了，上一轮的输出是$x_t$，我们需要将上一轮的输出作为这一轮的输入，作为询问向量，查询所有历史信息的键值对缓存来生成下一步输出。
 
 令$x_t=[x_1,x_2,...,x_d] \in R^{1*d}$，是输入在隐藏层的向量，d为隐藏层维度。
 
 推理过程只需用到当前token的$Q_t=W_q*x_t \in R^{1*d}$，所以无需Q Cache。
 
-有必要说明一下自回归推理过程，prompt输入后，经过chunk，embedding以及位置编码后，$X \in R^{\ t  \ * \ d\_model}$，这个时候就是正常注意力计算，输出一个矩阵$atten\_res \in R^{\ t \ * \ d\_model}$，将prompt的最后一个token对应的注意力结果，作为自回归生成的输入，询问的长度是1，键-值对的长度是历史文本的长度，通过历史文本输出下一个token。
+在生成第t个token时，只存储了前t-1个tokens对应的KV Cache，现在我们要生成第t+1个输出，需要将$x_t$经过KV投影，完善历史KV Cache。
 
 $K_t=W_k*x_t$、$V_t=W_v*x_t \in R^{1*d}$，
 
@@ -45,9 +53,19 @@ $O_t$就是输出向量。$\sqrt{d_k}$防止数值太大，在softmax指数计�
 $$
 Attention Score = softmax(\frac{Q_tK^T}{\sqrt{d_k}}) \in R^{1*t}
 $$
-表示当前token的Query和之前Cache的Key的匹配程度。也视为权重，之前的token在本次输出越重要，该token对应位置的Attention Score就越大。
+Attention Score表示当前token的Query和之前Cache的Key的匹配程度。也视为权重，之前的token在本次输出越重要，该token对应位置的Attention Score就越大。同理，Attention Score非常小时，该token在本次生成时影响也非常小。
 
-Attention Score非常小时，该token在本次生成时影响也非常小。
+**自回归推理过程中Attention的计算流程：**
+
+LLM的自回归推理，分为**prefill阶段**和**decode阶段**两个阶段：
+
+prompt输入后，经过chunk，embedding以及位置编码后，$X \in R^{\ t  \ * \ d\_model}$，这个时候就是正常注意力计算，输出一个矩阵$atten\_res \in R^{\ t \ * \ d\_model}$（Prefill阶段），将prompt的最后一个token对应的注意力结果，作为自回归生成的输入，开始自回归生成（Decode阶段）。
+
+
+prefill阶段，prompt（n个tokens）投影得到完全的QKV矩阵，得到的Attention的结果是n个输出，取最后一个输出作为下一步自回归输出的输入。
+为什么不能Q只投影最后一个token，KV投影全部tokens，直接计算得到一个输出呢？非得计算完所有tokens的输出，然后取最后一个呢？
+原因是Transformer模型通常由多层Attention堆叠而来，每一个注意力层都需要保留前n个tokens对应的KV Cache，如果第一层注意力只输出一个token的结果，下一层最多只能有一个token对应的KV Cache。每一层都需要前n个tokens的KV Cache，所以每一层的输出都必须是n个tokens对应的输出。
+decode阶段，输入是一个向量，对这个向量做Q投影，Q矩阵只对应一个输入的询问，对这个向量做KV投影，并添加到KV Cache矩阵中，一个Q查询和所有历史信息的KV矩阵做Attention计算，输出也是只有一个
 
 ### 单层、多头注意力计算（MHA）
 
@@ -140,7 +158,9 @@ $$
 
 那就是上一轮自回归的输出$x_t \in R^{\ 1\ *\ d\_model}$，K、V矩阵复用之前的计算结果，q_len为1，k_len和v_len为历史生成文本。参考上面的单头注意力部分的描述吧。
 
-### GQA/MQA/Sparse Attention
+### Sparse Attention
+
+优化注意力计算的一个方向是稀疏注意力，例如：GQA、MQA
 
 [https://zhuanlan.zhihu.com/p/1891136980370302219](https://zhuanlan.zhihu.com/p/1891136980370302219) 知乎博客介绍各种Attention
 
@@ -205,6 +225,9 @@ Jacobi 矩阵 $\frac{dA}{dZ}$，其中 $M_{ij} = \frac{dA[i]}{dZ[j]} = A[i] * (\
 [https://modal.com/blog/reverse-engineer-flash-attention-4](https://modal.com/blog/reverse-engineer-flash-attention-4) Flash Attention v4的博客
 
 [https://zhuanlan.zhihu.com/p/11273327848](https://zhuanlan.zhihu.com/p/11273327848) Flash Attention 知乎面经
+
+### Paged Attention
+
 
 ### FlashInfer
 
@@ -285,6 +308,11 @@ $A_j$和$A_i$表示的是未来生成时对应的Attention Score，这是不可�
 在这篇论文中，它也强调和使用了KV Cache压缩方法，它在传输前对KV矩阵进行低位量化、打包，传输后先解包、反量化再参与计算。在它的实验中，在两台A5000上部署LLaMA-7B时发现，低位量化可以把传输损耗从16-30%降低到4-9%，并且反量化后再参与计算对模型表现的影响较弱。
 
 通过上面两个例子，初步论证了，无论是侧端还是云端，一旦涉及数据传输，KV Cache压缩就是非常值得做的优化手段。只要是[异构计算](../HPC-Parallel-Distribute-Computing/index.md)，那必然涉及到数据传输，也就是说大部分情况下，KV Cache压缩都是非常值得考虑的。
+
+#### MLA（多头潜在注意力，Latent）
+在DeepSeek-V2/V3中提出的新的注意力计算方法，通过将KV矩阵进行低秩分解（Low-Rank Decomposition），将高维矩阵压缩到低维的潜在空间中。
+
+虽然MLA听起来像一种新的Attention计算方式，实际上也确实是，但是它的核心是在KV Cache压缩上。
 
 ### KV Cache复用
 
