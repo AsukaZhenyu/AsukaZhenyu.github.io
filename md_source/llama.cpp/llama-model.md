@@ -112,9 +112,9 @@ if (use_rope) {
 ```c
 ggml_build_forward_expand(gf, cur);
 ```
-最后输入最后的结点cur，输入一个空计算图gf（`ggml_cgraph`），从 `cur` 开始递归遍历，根据结点间的连接关系，把计算图中涉及的`ggml_tensor`结点加入 `gf->nodes[]`。（具体可以查看ggml/src/ggml.c:6752 ggml_visit_parents_graph，这里就是建图，主要维护每个结点的入度`use_counts`，这是拓扑排序所必须的，另外它还要维护计算图中的叶子结点，注意计算图中最后计算的张量是root结点，叶子节点是最开始的结点，它的输入是常量，不是梯度图的一部分）
+最后输入最后的结点cur，输入一个空计算图gf（`ggml_cgraph`），从 `cur` 开始递归遍历，根据结点间的连接关系，把计算图中涉及的`ggml_tensor`结点加入 `gf->nodes[]`。（具体可以查看[计算图](./ggml-basic.md#ggml_cgraph)）
 
-执行完`llm_build_xxx`的构造函数后，把`llm_graph_context`类的下面两个属性给填满了，可以理解为一个存的是参与运算的`ggml_tensor`结点们，另一个是计算图本身（llama-graph.h:751~752）：
+执行完`llm_build_xxx`的构造函数后，把`llm_graph_context`类的下面两个属性给填满了，可以理解为一个存的是参与运算的`ggml_tensor`的内存池，另一个是计算图本身（llama-graph.h:751~752）：
 ```cpp
 ggml_context * ctx0 = nullptr;
 ggml_cgraph  * gf   = nullptr;
