@@ -345,7 +345,11 @@ struct ggml_backend_buffer_type {
 
 后端/设备注册分为两个部分实现，刚看的时候可能会觉得困惑，先理清后端与设备之间的关系：
 
-![](https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202604011955227.png)
+![](https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202604091947996.png)
+
+一个backend对应一个device，一个device可以有多个backends，一类设备对应一个reg，所有类型reg对应registry。
+
+reg和registry相关代码，只在设备注册、设备枚举、设备查找、加载设备对应的运行时库时出现，它像一个“目录”。在调度计算时，直接和backend交互，可以看到backend schedule和llama-context都没涉及reg，直接和backend交互。
 
 **Backend (reg)**
 
@@ -367,13 +371,13 @@ struct ggml_backend_reg_i {
 
 **Backend registry**
 
-在`ggml-backend-reg.cpp`里实现的是多个后端的注册，这里就涉及不同后端，即不同硬件架构、编程模型之间协调，看代码会发现有很多`#ifdef GGML_USE_CUDA`这样的宏处理语句。
+在`ggml-backend-reg.cpp`里实现的是多个reg的注册，这里就涉及不同计算平台，即不同硬件架构、编程模型之间协调，看代码会发现有很多`#ifdef GGML_USE_CUDA`这样的宏处理语句。
 
 这里简单分析一下注册表要分两个文件实现的原因，reg实际上定义的是所有后端统一的规范接口形式，registry实际上做的是适配不同种后端的情况，并且需要通过dl动态加载不同后端对应的动态库（例如：CUDA runtime库），前者偏商务，后者偏运动。
 
 核心结构体是：`ggml_backend_registry`，代码大部分是遍历/获取后端/设备，理解了上面后端与设备之间的关系就很好理解了。
 
-总结一下：类`ggml_backend_reg`管理单个后端内的多个设备，类`ggml_backend_registry`管理所有的后端和设备。
+总结一下：类`ggml_backend_reg`管理一类计算平台的多个设备，类`ggml_backend_registry`管理所有的计算平台和设备。
 
 ### Device and Stream
 
@@ -386,9 +390,11 @@ $$
 
 在一个计算设备中，里面包含不同的执行上下文（Context），在一个上下文下又有多个执行流（指令流/Stream），也就是说从硬件到执行会有这么几个层次。
 
-在学习操作系统进程部分时应该了解到，进程的组成部分包括：进程控制块（PCB）、程序段和数据段。在PCB中包含了进程的属性与进程的上下文信息（寄存器值、PC位置、堆栈指针）。也可以按照进程来理解，下面说的一大堆本质上就是：进程申请、进程间同步。
+在学习操作系统进程部分时应该了解到，进程的组成部分包括：进程控制块（PCB）、程序段和数据段。在PCB中包含了进程的属性与进程的上下文信息（寄存器值、PC位置、堆栈指针）。也可以按照进程来理解，下面说的一大堆本质上就是：进程申请、进程间同步。进程是操作系统资源分配的基本单位，程序员编写一个程序要在计算机上运行，也是以进程的形式运行的（进程是程序的一次执行实例）。
 
-这里我想表达的是：一个device会有很多stream，对应到backend设计中呢，就是一个`ggml_backend_device`（设备）对应多个`ggml_backend`（操作流/进程），在看`ggml_backend`结构体属性时有一个属性是：
+这里我想表达的是：一个device会有很多stream，，一个`ggml_backend_device`（设备）对应多个`ggml_backend`（操作流/进程），同样的`ggml_backend`也是ggml后端分配计算资源的基本单位，也是暴露给前端计算图逻辑编写程序员的基础抽象。
+
+在看`ggml_backend`结构体属性时有一个属性是：
 
 ```cpp
 ggml_backend_dev_t device;
@@ -432,7 +438,7 @@ stream的核心接口是：
 
 - 释放（free）该stream
 
-到这里，整个ggml的后端结构已经被我们揭示清楚了，一个推理系统可能有多个后端，一个后端可能有多个设备，每个设备上运行着多个执行流，这些执行流直接执行计算图。而且在编程时我们接触到的可能就是执行流`ggml_backend`相关的接口，因为在前端我们就是通过定义LLM Archs的静态计算图来描述LLM inference计算的。
+到这里，整个ggml的后端结构已经被我们揭示清楚了，一个推理系统可能有多个计算平台，一个计算平台可能有多个设备，每个设备上运行着多个执行流，这些执行流直接执行计算图。而且在编程时我们接触到的就是执行流`ggml_backend`相关的接口，因为在前端我们就是通过定义LLM Archs的静态计算图来描述LLM inference计算的。
 
 ### Buffer and Memory alloc
 
@@ -476,8 +482,16 @@ struct ggml_backend_buffer_type_i {
     bool                  (*is_host)       (ggml_backend_buffer_type_t buft);
 };
 ```
+- alloc_buffer:
+通过buffer type申请一块buffer内存空间使用
+- get_alignment:
+根据设备特性，获得内存地址对齐的基准
+- get_max_size:
+设备上的存储空间不是无限的，所以需要规定buffer最多写到哪里，在`tallocr`也有检查当前tensor如果写入是否会溢出。
+- get_alloc_size:
+判断当前张量写入大概需要多少空间
 
-设备上的存储空间不是无限的，所以需要规定buffer最多写到哪里，在`tallocr`也有检查当前tensor如果写入是否会溢出。还有一点值得提的是：buffer只提供存储功能，它没记录哪些位置是tensor的起点，所以每次写入时要在`ggml_tensor`里记录数据开始位置。
+还有一点值得提的是：buffer只提供存储功能，它没记录哪些位置是tensor的起点，所以每次写入时要在`ggml_tensor`里记录数据开始位置。
 
 再看buffer本身提供的函数接口也很好理解了，主要就是对buffer内的tensor进行操作，因为buffer本身不记录tensor存储开始位置与结束位置，所以相关函数你需要自己提供tensor开始位置与tensor数据大小：
 ```cpp
@@ -501,9 +515,13 @@ struct ggml_backend_buffer_i {
 };
 ```
 
+在实际LLM推理计算过程中，通常不会直接利用tallocr在buffer中写入张量，我们会使用一系列优化方法来规划buffer空间的使用，需要动态的灵活的写入读出策略，tallocr只提供了最简单的写入方法，可能会用于一些自行编写的简单计算图的计算。
+
+下面一节会介绍ggml如何针对计算图执行特征，对buffer内存空间的利用进行优化。
+
 **Graph allocator**
 
-在`ggml-alloc.h/.c`中内存管理的核心是graph allocator，在`ggml-alloc.h`里文件就分为两个部分：`Tensor allocator`、`Graph allocator`。光看`ggml-alloc.h`里`Graph allocator`接口的定义非常简单，就是：
+在`ggml-alloc.h/.c`中内存管理的核心是graph allocator，在`ggml-alloc.h`里文件就分为两个部分：`Tensor allocator`、`Graph allocator`。`ggml-alloc.h`头文件里`Graph allocator`接口的定义非常简单，就是：
 - 图分配器类自己的创建、释放；
 ```cpp
 typedef struct ggml_gallocr * ggml_gallocr_t;
@@ -512,7 +530,7 @@ GGML_API ggml_gallocr_t ggml_gallocr_new(ggml_backend_buffer_type_t buft);
 GGML_API ggml_gallocr_t ggml_gallocr_new_n(ggml_backend_buffer_type_t * bufts, int n_bufs);
 GGML_API void           ggml_gallocr_free(ggml_gallocr_t galloc);
 ```
-这里我们可以看到有两种申请`ggml_gallocr`的方式，一个是单buffer的，一个是多buffer的。
+这里我们可以看到有两种申请`ggml_gallocr`的方式，一个是单buffer的，一个是多buffer的。这里提前剧透一下，这里的buffer数量指的并不是`ggml_backend_buffer`的数量，而是对应的虚拟buffer的数量，一个虚拟buffer对应一个`ggml_backend`，也就是一个上下文执行流，在设备中运行的一个上下文执行流`ggml_backend`可以利用设备中若干`ggml_backend_buffer`组成一个拥有“连续内存地址”的虚拟buffer。
 
 - 根据计算图预分配buffer空间；
 ```cpp
@@ -632,7 +650,9 @@ struct ggml_gallocr {
 
 最后两个属性把计算图中叶子节点和其他节点分开处理，这两个属性就是在alloc函数里实际用到的信息。也是reserve函数第二步复制的目的地。
 
-为什么使用哈希表先预分配地址，实际上在使用哈希表预分配的过程中会做一些优化。防止重复申请计算图节点，并且实际执行时可以复用父节点，也就是在计算图上做一些优化。
+为什么使用哈希表先预分配地址，实际上在使用哈希表预分配的过程中会做一些优化。哈希表本质上是对象到索引的映射，这里使用哈希表是为了建立从`ggml_tensor`到`hash_node`的映射，`hash_node`是一个记录了结点信息的结构体，在分配内存的时候会模拟计算图执行时结点的生命周期，为了不影响`ggml_tensor`自己的数据，所以需要一个新的存储空间来记录各个结点在计算图变化时候的属性。
+
+“模拟计算图执行时结点的生命周期”，意思是在计算图执行过程中一些先计算的结点不再被依赖，不再被需要，则这些节点占用的空间可以被释放，下面会介绍计算图执行过程中的时空局限性，解释执行计算图时优化内存利用的空间。
 
 **liveness分析/内存复用**
 
@@ -689,7 +709,7 @@ n_views表示本结点是多少结点的视图
 
 Backend scheduler是ggml实现异构计算的核心
 
-一个backend（后端），对应一个vbuffer，可能对应多个devices
+一个`ggml_backend`，对应一个vbuffer。
 
 维护了一个ggml_tensor到backend的哈希表，同时支持跨后端和流水线并行的张量复制：
 ```cpp
