@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>llama-adapter代码阅读 - Zhenyu's Blog</title>
+  <link rel="stylesheet" href="../../css_source/main_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false},
+                  {left: "\\[", right: "\\]", display: true}
+              ],
+              throwOnError: false,
+              strict: false
+          });
+      });
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Zhenyu's Blog</h1>
+    <nav>
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../musings.html">Musings</a>
+    </nav>
+  </header>
+
+<h1 id="llama-adapter">llama-adapter代码阅读</h1>
+<p>[toc]<br />
+</br></p>
+<p><code>llama-adapter.h</code>非常简单，只有两个类：<code>llama_adapter_cvec</code><br />
+、<code>llama_adapter_lora</code></p>
+<p>在LLM语境下，Adapter适配器是一种参数高效微调技术（PEFT, Parameter-Efficient Fine-Tuning）</p>
+<p>PEFT是相对全量微调（Full Fine-Tuning）而言的，是在不修改原始预训练模型权重的情况下，通过插入并训练少量额外参数，让模型适应新任务或新领域的方法。</p>
+<p>为什么需要适配器，这是为了解决LLM模型参数大、训练代价大与多种多样且与日俱增的下游任务之间的矛盾。这种可插拔的适配器，训练代价小，使用方便。</p>
+<h2 id="peft-basics">PEFT basics</h2>
+<h2 id="adapter-in-llamacpp">Adapter in llama.cpp</h2>
+<p>关于在llama.cpp中适配器，在Reddit上有一篇<a href="https://www.reddit.com/r/LocalLLaMA/comments/17mrd3y/comment/k7ocu3y/?utm_source=share&amp;utm_medium=web3x&amp;utm_name=web3xcss&amp;utm_term=1&amp;utm_content=share_button">帖子</a>简要介绍了一下。</p>
+<p>Adapter是一个文件，负责指明要把<strong>哪些参数</strong>修改为<strong>哪些值</strong>。在llama.cpp中支持<strong>运行时</strong>动态切换适配器。无需将主模型从内存中卸载，即可随时更换适配器。</p>
+<h3 id="cvec">cvec</h3>
+<p>cvec表示control vector</p>
+<h3 id="lora">lora</h3>
+<p>LoRA表示(Low-Rank Adaptation)</p>
+</body>
+</html>

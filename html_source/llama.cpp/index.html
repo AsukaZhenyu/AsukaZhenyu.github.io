@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notes on Reading the llama.cpp Source Code - Zhenyu's Blog</title>
+  <link rel="stylesheet" href="../../css_source/main_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false},
+                  {left: "\\[", right: "\\]", display: true}
+              ],
+              throwOnError: false,
+              strict: false
+          });
+      });
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Zhenyu's Blog</h1>
+    <nav>
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../musings.html">Musings</a>
+    </nav>
+  </header>
+
+<p>本部分是我阅读llama.cpp源码的笔记</p>
+<hr>
+<h2>Notes on Reading the llama.cpp Source Code</h2>
+
+  <table class="posts-list">
+
+    <tr>
+      <td>
+        <a href="ggml-basic.html" class="title-link">
+          <div class="en-title">GGML Basic</div>
+          <div class="zh-title">GGML基础</div>
+        </a>
+      </td>
+      <td class="date">2026-4-10</td>
+    </tr>
+
+    <tr>
+      <td>
+        <a href="llama-model.html" class="title-link">
+          <div class="en-title">llama-model</div>
+          <div class="zh-title">LLM架构定义</div>
+        </a>
+      </td>
+      <td class="date">2026-4-6</td>
+    </tr>
+
+    <tr>
+      <td>
+        <a href="llama-context.html" class="title-link">
+          <div class="en-title">llama-context</div>
+          <div class="zh-title">推理逻辑的入口</div>
+        </a>
+      </td>
+      <td class="date">2026-4-27</td>
+    </tr>
+
+    <tr>
+      <td>
+        <a href="llama-adapter.html" class="title-link">
+          <div class="en-title">llama-adapter</div>
+          <div class="zh-title">适配器</div>
+        </a>
+      </td>
+      <td class="date">2026-3-29</td>
+    </tr>
+
+    <tr>
+      <td>
+        <a href="batch-ubatch.html" class="title-link">
+          <div class="en-title">batch and ubatch</div>
+          <div class="zh-title">批处理</div>
+        </a>
+      </td>
+      <td class="date">2026-3-30</td>
+    </tr>
+
+    <tr>
+      <td>
+        <a href="llama-memory-kvcache.html" class="title-link">
+          <div class="en-title">llama-kvcache</div>
+          <div class="zh-title">KV Cache相关</div>
+        </a>
+      </td>
+      <td class="date">2026-4-17</td>
+    </tr>
+
+    <tr>
+      <td>
+        <a href="besides-llama.cpp-src.html" class="title-link">
+          <div class="en-title">Outside of the llama.cpp source code</div>
+          <div class="zh-title">在llama.cpp的源码之外</div>
+        </a>
+      </td>
+      <td class="date">2026-3-31</td>
+    </tr>
+
+  </table>
+</body>
+</html>

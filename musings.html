@@ -3,42 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zhenyu's Blog</title>
-  <link rel="stylesheet" href="css_source/main_style.css"> <!-- 引入外部CSS -->
+  <title>Musings - Zhenyu's Blog</title>
+  <link rel="stylesheet" href="./css_source/main_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false},
+                  {left: "\\[", right: "\\]", display: true}
+              ],
+              throwOnError: false,
+              strict: false
+          });
+      });
+  </script>
 </head>
 <body>
-  <!-- 顶部英文区域 -->
   <header>
     <h1>Zhenyu's Blog</h1>
     <nav>
-      <a href="index.html">Home</a>
-      <a href="about.html">About</a>
-      <a href="musings.html">Musings</a>
+      <a href="./index.html">Home</a>
+      <a href="./about.html">About</a>
+      <a href="./musings.html">Musings</a>
     </nav>
   </header>
 
-  <hr> <!-- 分隔线 -->
+<hr>
+<h2>Musings</h2>
 
-  <!-- 英文标题 + 中文说明 -->
-  <h2>Musings</h2>
-
-  <!-- 文章列表（每篇文章：英文标题在上，中文标题在下） -->
   <table class="posts-list">
 
     <tr>
       <td>
-        <a href="html_source/Musings/2025-7-22-Vision-model.html" class="title-link">
-          <div class="en-title">Vision Model</div>
-          <div class="zh-title">视觉模型</div>
-        </a>
-      </td>
-      <td class="date">2025-7-22</td>
-    </tr>
-
-    <tr>
-      <td>
         <a href="html_source/Musings/2025-7-24-Time-model.html" class="title-link">
-          <div class="en-title">Time Series Model</div>
+          <div class="en-title">Time Series Models</div>
           <div class="zh-title">时间序列模型</div>
         </a>
       </td>
@@ -47,25 +53,53 @@
 
     <tr>
       <td>
-        <a href="html_source/Musings/BUAA-CO-P4.html" class="title-link">
-          <div class="en-title">BUAA-CO-P4</div>
-          <div class="zh-title">BUAA-CO-P4课上部分</div>
+        <a href="html_source/Musings/2025-7-22-Vision-model.html" class="title-link">
+          <div class="en-title">Visual Model</div>
+          <div class="zh-title">视觉模型</div>
         </a>
       </td>
-      <td class="date">2025-5-25</td>
+      <td class="date">2025-7-22</td>
+    </tr>
+
+    <tr>
+      <td>
+        <a href="html_source/Musings/2026-1-27-vibe-coding-explore.html" class="title-link">
+          <div class="en-title">An Initial Exploration of Vibe Coding</div>
+          <div class="zh-title">AI辅助编程初探</div>
+        </a>
+      </td>
+      <td class="date">2026-1-27</td>
+    </tr>
+
+    <tr>
+      <td>
+        <a href="html_source/Musings/BUAA-CO-P4.html" class="title-link">
+          <div class="en-title">BUAA CO P4</div>
+          <div class="zh-title">BUAA计组P4</div>
+        </a>
+      </td>
+      <td class="date">2025-5-30</td>
     </tr>
 
     <tr>
       <td>
         <a href="html_source/Musings/Chainer-env.html" class="title-link">
-          <div class="en-title">Chainer Environment</div>
+          <div class="en-title">Chainer Environment Setup</div>
           <div class="zh-title">Chainer环境配置</div>
         </a>
       </td>
-      <td class="date">2025-5-25</td>
+      <td class="date">2026-2-10</td>
     </tr>
 
-
+    <tr>
+      <td>
+        <a href="html_source/Musings/cpp-complier-make-up.html" class="title-link">
+          <div class="en-title">C++ Compiler Cleanup</div>
+          <div class="zh-title">C++编译器清理</div>
+        </a>
+      </td>
+      <td class="date">2026-2-10</td>
+    </tr>
 
   </table>
 </body>

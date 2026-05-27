@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM Architectures and Optimization Methods - Zhenyu's Blog</title>
+  <link rel="stylesheet" href="../../css_source/main_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false},
+                  {left: "\\[", right: "\\]", display: true}
+              ],
+              throwOnError: false,
+              strict: false
+          });
+      });
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Zhenyu's Blog</h1>
+    <nav>
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../musings.html">Musings</a>
+    </nav>
+  </header>
+
+<p>本部分关注现代LLM的算法设计，关注现代LLM系统中算法层面上的设计，以实现更高的计算效率和模型表现效果。</p>
+<hr>
+<h2>LLM Architectures and Optimization Methods</h2>
+
+  <table class="posts-list">
+
+    <tr>
+      <td>
+        <a href="Attention-Optimize.html" class="title-link">
+          <div class="en-title">Attention</div>
+          <div class="zh-title">注意力计算</div>
+        </a>
+      </td>
+      <td class="date">2026-4-8</td>
+    </tr>
+
+    <tr>
+      <td>
+        <a href="LLM-Pooling.html" class="title-link">
+          <div class="en-title">Pooling</div>
+          <div class="zh-title">池化</div>
+        </a>
+      </td>
+      <td class="date">2026-3-23</td>
+    </tr>
+
+    <tr>
+      <td>
+        <a href="LLM-Sampling.html" class="title-link">
+          <div class="en-title">Sampling</div>
+          <div class="zh-title">采样</div>
+        </a>
+      </td>
+      <td class="date">2026-3-23</td>
+    </tr>
+
+    <tr>
+      <td>
+        <a href="MoE-Optimize.html" class="title-link">
+          <div class="en-title">MoE</div>
+          <div class="zh-title">混合稀疏架构</div>
+        </a>
+      </td>
+      <td class="date">2026-3-24</td>
+    </tr>
+
+    <tr>
+      <td>
+        <a href="RoPE-YaRN.html" class="title-link">
+          <div class="en-title">RoPE and YaRN</div>
+          <div class="zh-title">位置编码</div>
+        </a>
+      </td>
+      <td class="date">2026-4-21</td>
+    </tr>
+
+    <tr>
+      <td>
+        <a href="Speculative-Decoding.html" class="title-link">
+          <div class="en-title">Speculative Decoding</div>
+          <div class="zh-title">投机解码</div>
+        </a>
+      </td>
+      <td class="date">2026-3-21</td>
+    </tr>
+
+    <tr>
+      <td>
+        <a href="Tokens-and-Embeddings.html" class="title-link">
+          <div class="en-title">Tokens and Embeddings</div>
+          <div class="zh-title">词元化与词嵌入</div>
+        </a>
+      </td>
+      <td class="date">2026-3-23</td>
+    </tr>
+
+  </table>
+</body>
+</html>

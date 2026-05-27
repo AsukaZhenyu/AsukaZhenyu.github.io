@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>二分查找 - Zhenyu's Blog</title>
+  <link rel="stylesheet" href="../../css_source/main_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false},
+                  {left: "\\[", right: "\\]", display: true}
+              ],
+              throwOnError: false,
+              strict: false
+          });
+      });
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Zhenyu's Blog</h1>
+    <nav>
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../musings.html">Musings</a>
+    </nav>
+  </header>
+
+<h2 id="_1">二分查找</h2>
+<p>当问题具有单调性，而直接构造答案又十分困难的时候，可以考虑二分查找答案。<br />
+单调性指的是：</p>
+<blockquote>
+<p>ans越大，符合条件的概率越大，ans越小，就越不可能符合条件。<br />
+ans满足条件时，ans+1必然满足条件，ans不满足条件时，ans-1必然不满足条件。</p>
+</blockquote>
+<p>二分查找的优势在于：只需验证答案是否满足条件，这一步可以直接贪心。然后再查找出最大最小满足条件的值。将复杂的问题分成两个部分。</p>
+<h4 id="_2">基础知识</h4>
+<ol>
+<li>基本变形思路</li>
+</ol>
+<p><a href="https://leetcode.cn/problems/snapshot-array/">1146. 快照数组</a></p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SnapshotArray</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">cur_snap_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;&gt;&gt;</span><span class="w"> </span><span class="n">history</span><span class="p">;</span><span class="w"> </span><span class="c1">// 每个 index 的历史修改记录</span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="n">SnapshotArray</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">set</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">val</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">history</span><span class="p">[</span><span class="n">index</span><span class="p">].</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">cur_snap_id</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">snap</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">cur_snap_id</span><span class="o">++</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">get</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">index</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">snap_id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">h</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">history</span><span class="p">[</span><span class="n">index</span><span class="p">];</span>
+<span class="w">        </span><span class="c1">// 找快照编号 &lt;= snap_id 的最后一次修改记录</span>
+<span class="w">        </span><span class="c1">// 等价于找快照编号 &gt;= snap_id+1 的第一个修改记录，它的上一个就是答案</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ranges</span><span class="o">::</span><span class="n">lower_bound</span><span class="p">(</span><span class="n">h</span><span class="p">,</span><span class="w"> </span><span class="n">make_pair</span><span class="p">(</span><span class="n">snap_id</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">h</span><span class="p">.</span><span class="n">begin</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">h</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">second</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
+
+<span class="n">作者</span><span class="err">：</span><span class="n">灵茶山艾府</span>
+<span class="n">链接</span><span class="err">：</span><span class="n">https</span><span class="o">:</span><span class="c1">//leetcode.cn/problems/snapshot-array/solutions/2756291/ji-lu-xiu-gai-li-shi-ha-xi-biao-er-fen-c-b1sh/</span>
+<span class="n">来源</span><span class="err">：</span><span class="n">力扣</span><span class="err">（</span><span class="n">LeetCode</span><span class="err">）</span>
+<span class="n">著作权归作者所有</span><span class="err">。</span><span class="n">商业转载请联系作者获得授权</span><span class="err">，</span><span class="n">非商业转载请注明出处</span><span class="err">。</span>
+</code></pre></div>
+
+<p><code>lower_bound()</code>返回第一个大于等于val的位置<br />
+<code>upper_bound()</code>返回第一个大于val的位置</p>
+<p>对于本题，找到序号为snap_id的数 $\rightarrow$找到序号&lt;=snap_id的最后一个$\rightarrow$找到序号&gt;=snap_id+1的前一个序号。</p>
+<p>也可以用<code>*****_bound(begin,end,val,greater&lt;type&gt;())</code>来二分查找降序数组。</p>
+<p><img alt="78b68302e23e8d87eed6d056d231838" src="C:\Users\lzy\AppData\Local\Temp\WeChat Files\78b68302e23e8d87eed6d056d231838.png" /></p>
+<h5 id="_3">红蓝染色法</h5>
+<h5 id="_4">变形</h5>
+<h4 id="_5">解题思路</h4>
+<ol>
+<li>二分查找答案  <a href="https://leetcode.cn/problems/earliest-second-to-mark-indices-i/">3048. 标记所有下标的最早秒数 I</a></li>
+</ol>
+<p>每次二分判断mid是否满足条件，然后根据单调性对区间染色，最后得到答案。</p>
+<ol start="2">
+<li>二分查找第k大/小  <a href="https://leetcode.cn/problems/find-the-k-sum-of-an-array/">2386. 找出数组的第 K 大和</a></li>
+</ol>
+<p>每次二分判断答案之前是否有k个满足条件的数。</p>
+<blockquote>
+<p>问：有没有可能，二分得到的值，并不是 nums的子序列和？比如 nums[i]都是偶数，但二分得到的却是一个奇数。</p>
+<p>答：设二分得到的值为 x，那么 x 一定是 nums的子序列和。使用反证法证明：</p>
+<p>假设 x 不是 nums的子序列和，也就是没有任何子序列的和等于 x，这意味着 s≤x 等价于 s≤x−1我们能从 nums中找到 k 个元素和不超过 x−1的子序列，所以 check(x−1)=true。但二分循环结束时，有 check(x−1)=false ，矛盾，所以原命题成立，x 一定是 nums 的子序列和。</p>
+<p>作者：灵茶山艾府<br />
+链接：https://leetcode.cn/problems/find-the-k-sum-of-an-array/solutions/1764389/zhuan-huan-dui-by-endlesscheng-8yiq/<br />
+来源：力扣（LeetCode）<br />
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</p>
+</blockquote>
+<p>这可能就是二分查找能找第k大/小的原理，每个节点才是判断的转折点，最终二分得到的答案一定不是在节点之间的数。</p>
+<p>构造二分法（优化遍历查找）</p>
+<p><a href="https://leetcode.cn/problems/plates-between-candles/">2055. 蜡烛之间的盘子</a></p>
+<p>自然的思路是先用前缀和计算出l、r之间的盘子个数，然后遍历掐头去尾。问题是效率太低了，可以记录下所有蜡烛的位置，然后二分查找l右边最近的蜡烛，r左边最近的蜡烛即可。</p>
+<p>这里也可以用前/后缀数组，免去二分用空间换时间。</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Solution</span><span class="w"> </span><span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">platesBetweenCandles</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">qs</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">l</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">length</span><span class="p">(),</span><span class="w"> </span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="n">r</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">length</span><span class="p">(),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">        </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">sum</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">length</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">length</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">s</span><span class="p">.</span><span class="n">length</span><span class="p">();</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="o">--</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;|&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;|&#39;</span><span class="p">)</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="p">;</span>
+<span class="w">            </span><span class="n">l</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="p">;</span><span class="w"> </span><span class="n">r</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">q</span><span class="p">;</span>
+<span class="w">            </span><span class="n">sum</span><span class="p">[</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sum</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;*&#39;</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ans</span><span class="p">(</span><span class="n">qs</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">qs</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">qs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">];</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">r</span><span class="p">[</span><span class="n">a</span><span class="p">],</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l</span><span class="p">[</span><span class="n">b</span><span class="p">];</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">c</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">-1</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">d</span><span class="p">)</span><span class="w"> </span><span class="n">ans</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sum</span><span class="p">[</span><span class="n">d</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">sum</span><span class="p">[</span><span class="n">c</span><span class="p">];</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ans</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
+
+<span class="n">作者</span><span class="err">：</span><span class="n">宫水三叶</span>
+<span class="n">链接</span><span class="err">：</span><span class="n">https</span><span class="o">:</span><span class="c1">//leetcode.cn/problems/plates-between-candles/solutions/1319516/gong-shui-san-xie-er-fen-qian-zhui-he-yu-0qt0/</span>
+<span class="n">来源</span><span class="err">：</span><span class="n">力扣</span><span class="err">（</span><span class="n">LeetCode</span><span class="err">）</span>
+<span class="n">著作权归作者所有</span><span class="err">。</span><span class="n">商业转载请联系作者获得授权</span><span class="err">，</span><span class="n">非商业转载请注明出处</span><span class="err">。</span>
+</code></pre></div>
+</body>
+</html>
