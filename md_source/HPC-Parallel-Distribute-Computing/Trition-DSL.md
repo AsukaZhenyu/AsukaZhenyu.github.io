@@ -1,4 +1,4 @@
-# OpenAI Triton DSL
+# Triton DSL语法笔记
 
 微架构设计、编译器、操作系统三者是紧密相连的，Triton不仅是DSL，更是重要的编译技术，对于小白直接去写CUDA代码效果还不如Pytorch编译后端生成的代码。但是这里先不涉及编译理论，聚焦于Triton的使用。
 

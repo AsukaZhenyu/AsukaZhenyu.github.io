@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>打擂台 - Zhenyu's Blog</title>
+  <link rel="stylesheet" href="../../css_source/main_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false},
+                  {left: "\\[", right: "\\]", display: true}
+              ],
+              throwOnError: false,
+              strict: false
+          });
+      });
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Zhenyu's Blog</h1>
+    <nav>
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../musings.html">Musings</a>
+    </nav>
+  </header>
+
+<h2 id="_1">打擂台</h2>
+<p>思考如何得出三个数的最大值</p>
+<div class="codehilite"><pre><span></span><code><span class="n">max</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">max</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">));</span>
+</code></pre></div>
+
+<p>那如何得出一个数组的最大值，显然这是$O(n)$的复杂度能够解决的。</p>
+<div class="codehilite"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="n">max</span><span class="o">=</span><span class="mi">-1</span><span class="p">;</span>
+<span class="k">for</span><span class="p">(</span><span class="n">num</span><span class="o">:</span><span class="n">nums</span><span class="p">)</span><span class="w"> </span><span class="n">max</span><span class="o">=</span><span class="n">max</span><span class="p">(</span><span class="n">max</span><span class="p">,</span><span class="n">num</span><span class="p">);</span>
+</code></pre></div>
+
+<p>那现在来思考这道题：</p>
+<p><a href="https://leetcode.cn/problems/find-champion-i/">2923. 找到冠军 I</a><br />
+在图论关系中，怎么找到最大值？<br />
+最自然的思路：遍历每一个个体，每一个个体在去遍历其他个体，看看它是不是最强的。这是$O(n^2)$的复杂度。但是如果想到上述打擂台的思路，其实可以化成$O(n)$的复杂度。</p>
+<p>上述的“打擂台思路”其实是一种充分利用数据的体现，减少比较的次数，某种程度上和DP的思想有些像？<code>dp[i+1]=max(dp[i],nums[i+1])</code></p>
+<p>只不过这道题比较方法是“新定义”的，或者说是图论的。</p>
+</body>
+</html>

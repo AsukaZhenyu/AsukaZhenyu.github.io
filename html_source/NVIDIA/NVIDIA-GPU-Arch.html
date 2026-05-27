@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NVIDIA GPU架构学习 - Zhenyu's Blog</title>
+  <link rel="stylesheet" href="../../css_source/main_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false},
+                  {left: "\\[", right: "\\]", display: true}
+              ],
+              throwOnError: false,
+              strict: false
+          });
+      });
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Zhenyu's Blog</h1>
+    <nav>
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../musings.html">Musings</a>
+    </nav>
+  </header>
+
+<h1 id="nvidia-gpu">NVIDIA GPU架构学习</h1>
+<p>下面这篇知乎博客介绍了<strong>SIMD</strong>：<br />
+<a href="https://zhuanlan.zhihu.com/p/651044595">https://zhuanlan.zhihu.com/p/651044595</a><br />
+《计算机体系架构：量化研究方法》的内容宏观来看，分为指令级并行、数据级并行、任务级并行。<br />
+指令级并行对程序员是透明的，优化工作是由流水线CPU、乱序超标量CPU和编译器完成的。ILP针对的是一个任务编译后的指令序列。<br />
+后两者则要考虑到任务的并发性，对程序员是可见的，也就是是应用程序员需要设计并行计算方式。</p>
+<p>SIMD是一种计算机体系结构的设计思想，优势是允许程序员以顺序思维获得并行加速比，向量处理器是SIMD思想的一种实现方式。</p>
+<p>向量处理器里有：向量寄存器（$N \ Elements \times M \ bits$）、向量控制寄存器（VLEN、VSTR、VMASK）。VLEN就是向量长度，VSTR就是步长，在矩阵乘法中用到，当要获取矩阵的列向量时，需要对矩阵每隔“列数”取一个元素，VMASK是掩码，VMASK长度和向量长度一样，针对的是单个向量内的元素是否参与运算。<br />
+blog中针对VMASK有几页英语ppt，VMASK是向量版的“谓词寄存器”（predicate register），表示向量中的元素是否参与运算。<br />
+VMASK的实现有两种方式，一是全部运算，根据VMASK写回，二是密度-时间实现（Density-Time Implementation），先扫描掩码，只对需要计算的元素进行运算。</p>
+<p>接下来是重头戏，关于memory bank，对于普通的RAM，在上次查询完成之前，不能进行下一次查询。类似于单周期CPU，一次只能执行一条指令，一次只能读取一个地址的元素。而内存一次访存的时间可能对应处理器的多个周期。</p>
+<p>举个例子，处理器访存一次RAM需要16个周期，处理器流水线充分填充的情况下一个周期可以完成一条指令，对于SISD而言，在拿到数据的16个周期内，就只能等着，而计算只需1个周期。对于SIMD而言，一条指令要操作更多的数据，意味着更多的访存，如果访存还是这样那么浪费的时间更多，处理器利用率就更低了。</p>
+<p>outstanding有“未完成、挂起”的意思，在流水线CPU中会用许多中间寄存器存储不同阶段的中间结果，划分一个指令执行的不同阶段，以实现流水线。这样可以大幅提高CPU执行指令的效率。outstanding指的是处理器可以追踪多条正在执行的指令，内存是不支持这样的操作的。</p>
+<p>将内存分为多个memory bank，将要访问的元素交错放置（interleave）在不同的篮子里。假如有16个bank，一次访问需要16个处理器周期，接下来要访问16个元素分布在不同的bank里，处理器一个周期发送一个访存指令，在16周期收到第0bank发来的数据，第17周期收到第1bank发来的数据……这样就可以达到类似流水线的效果。</p>
+<p>单纯多bank还是会有不好解决的情况，例如16个bank，stride也是16，那就和单bank没有区别了。可以重新设计内存，使其支持outstanding，结合多bank，这样就可以高效并行访存了。另外还有一个优化是vector chaining，访存结果不存在寄存器里，而是直接写入运算器，可以提高效率，非常像CPU中的转发（forward）。</p>
+<p>稍微总结一下：SIMD优势是单条指令操作多条数据，允许顺序思维实现并行加速比，核心是优化内存访问，关于多bank流水线访存的内容我记得在王道计组里有提到，利用流水线、转发等思想优化。</p>
+<hr />
+<p>下面这篇知乎博客是上篇同一个作者写的，延续上篇的SIMD，并开始介绍<strong>GPU架构</strong>：<br />
+<a href="https://zhuanlan.zhihu.com/p/706977082">https://zhuanlan.zhihu.com/p/706977082</a></p>
+<p>GPU编程的软件模型SPMD（Single Program Multiple Data），N个线程执行同样的指令集（相同的程序、kernel、Single Program），不同线程处理不同的数据（Multiple Data）。</p>
+<p>GPU的硬件执行模型SIMT（Single Instruction Multiple Thread），GPU会把执行一样的指令的线程动态地分配为一个wrap，一个wrap里是执行同一个指令的许多不同的线程。</p>
+<p>总结：对于一组元素，有一个可以并行执行的任务。你编写的核函数（kernel）就是针对一个元素的（或者说针对单一线程的），编译后是一条指令序列。不同的元素数据情况不一样，指令分支、跳转情况也不一样。所以GPU会动态地把执行相同指令的线程（不同的元素）分配到一个wrap里，用SIMD的方式执行。</p>
+<p>我的理解是，SPMD是我们的目的，因为我们想要并行执行计算任务，而每个计算任务多半不是单一指令而是复杂的指令序列；我们想用SIMD的思想执行，因为线程间指令序列都是一样的，只是跳转和分支情况不一样，而在大量线程情况下，各个跳转和分支情况都会有一定量的线程数量，SPMD本身就是SIMD的延申，其内核是相似的；于是我们采用SIMT的硬件执行模型来实现。</p>
+<p>进程与线程的调度是操作系统课程的重点之一，进程是非处理器资源（内存、IO、打印机）分配的基本单位，线程是处理机（CPU）调度的基本单位。<br />
+通常来说，不同的进程代表不同的程序，代码也不一样，地址空间也不一样，进程切换的代价相对比较高。线程间是共享地址空间的，线程切换的代价相对较低。线程是进程的子任务，一个进程可以包含多个线程，一个线程只能属于一个进程。</p>
+<p>在计组课程学习流水线中，为了使指令正确执行，我们会插入一些nop（或气泡），等待某中间计算结果出来、写回、转发到寄存器后才继续运行。中间的nop算浪费了一个时钟周期，降低了处理器利用率，我们可以通过延迟槽+编译优化等设计改善这个问题。对于5级流水线，气泡问题可以通过转发+延迟槽+编译优化差不多解决，但是对于更复杂的例如21级流水线，完成一个指令最长可能包括访存要21个周期，对于下一条简单的寄存器计算指令（可能只需要10个周期左右）则要等到数据读回后才能执行，这样流水线空的周期数会更长，处理器的效率会进一步降低。</p>
+<p>在我学OS的时候，只提到了进程调度可以提高计算机资源的利用率，避免CPU空转。在进程角度，进程可能遇到“申请IO”、“访问内存”等临界区，或者进程同步需要等待，这时候就要让出处理机，让别的进程运行。上面提到进程是针对非处理机资源的分配单位，针对处理机资源，我们可不可以通过多线程调度提高CPU的利用率呢？</p>
+<p>线程阻塞可能和进程阻塞一样，缺少一些必要的资源，也有可能是是CPU流水线指令本身的依赖，目前的ILP技术无法保证流水线气泡可以完全杜绝。</p>
+<p>多线程技术包括：细粒度多线程（Fine-grained Multi-Threading,FGMT）、粗粒度多线程（Coarse-grained Multi-Threading,CGMT）。<br />
+FGMT每个时钟周期都切换线程，这要求CPU必须“无代价”切换线程，如果线程数量多余流水线级数，那么则不会发送流水线阻塞，可以一直保持CPU忙碌。</p>
+<p>1个wrap对应32个线程，若干个wrap构成一个CTA（Cooperative Thread Array），一个CTA对应一个SM（Streaming Multiprocessor）。</p>
+<p>我感觉这篇博客后面没有说明白Wrap是如何调度的，GPU到底如何组织Wrap，怎么流水线执行，GPU的部件是哪些都没说。</p>
+<p>总结一下：GPU使用SIMT实现SPDM，使用FGMT，每个周期发射一个wrap。</p>
+<hr />
+<p>下面是知乎的某博主写的CUDA微架构和指令集的内容</p>
+<p><a href="https://zhuanlan.zhihu.com/p/158917926">https://zhuanlan.zhihu.com/p/158917926</a></p>
+<p>CUDA微架构指的是是Streaming Multiprocessor的架构，SASS（Streaming ASSembly，官方没有给出全程）是和具体架构相关的指令级，最底层的指令，NVIDIA没有给出（毕竟“狭义”的计算机体系架构设计就是ISA设计），PTX（Parallel Thread Execution）则是SASS更上一层的虚拟中间代码指令集。</p>
+<p><a href="https://zhuanlan.zhihu.com/p/161624982">https://zhuanlan.zhihu.com/p/161624982</a></p>
+<p>PTX是CUDA和SASS直接的抽象，一般可以向后兼容，不可以兼容更早的构架。新的CUDA可以运行老的PTX代码，但是老的CUDA不能运行新的PTX代码。</p>
+<p>PTX官方有完整的文档和工具链，而SASS官方只提供了简单的反汇编器，而且不显示control code（推测是编译器生成的控制指令）。</p>
+<p><a href="https://zhuanlan.zhihu.com/p/163865260">https://zhuanlan.zhihu.com/p/163865260</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/166180054">https://zhuanlan.zhihu.com/p/166180054</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/186192189">https://zhuanlan.zhihu.com/p/186192189</a></p>
+<hr />
+<p>下面的这篇知乎博客介绍了NVIDIA GPU中的tensorcore<br />
+<a href="https://zhuanlan.zhihu.com/p/1952841769621366777">https://zhuanlan.zhihu.com/p/1952841769621366777</a></p>
+<hr />
+<p>下面的这篇知乎博客介绍了NVIDIA GPU中的TMA<br />
+<a href="https://zhuanlan.zhihu.com/p/1945136522455122713">https://zhuanlan.zhihu.com/p/1945136522455122713</a></p>
+<hr />
+<p>下面这篇知乎博客介绍了一篇逆向NVIDIA GPU微架构的论文<br />
+<a href="https://zhuanlan.zhihu.com/p/1929593678864847592">https://zhuanlan.zhihu.com/p/1929593678864847592</a></p>
+<hr />
+</body>
+</html>

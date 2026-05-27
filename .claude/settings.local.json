@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(md-compile:*)"
+      "Bash(md-compile:*)",
+      "Bash(uv run *)",
+      "Bash(python *)"
     ]
   }
 }

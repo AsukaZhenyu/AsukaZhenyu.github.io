@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GGML基础 - Zhenyu's Blog</title>
+  <link rel="stylesheet" href="../../css_source/main_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false},
+                  {left: "\\[", right: "\\]", display: true}
+              ],
+              throwOnError: false,
+              strict: false
+          });
+      });
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Zhenyu's Blog</h1>
+    <nav>
+      <a href="../../index.html">Home</a>
+      <a href="../../about.html">About</a>
+      <a href="../../musings.html">Musings</a>
+    </nav>
+  </header>
+
+<h1 id="ggml">GGML基础</h1>
+<p>[toc]<br />
+</br></p>
+<h2 id="ggml-structure">ggml structure</h2>
+<p>llama.cpp能够支持众多硬件/后端，其核心在于ggml库。</p>
+<p>发现一个好东西：<a href="https://deepwiki.com/ggml-org/ggml">DeepWiki</a>，对于GitHub上开源的仓库，它有AI自动生成的图文并茂的Wiki，并且会随项目更新而更新Wiki内容，可以先看wiki熟悉项目结构，而且有LLM聊天框，可以询问项目的一些细节，不需要登陆，对话你可以通过保存对话网页后续重复访问。这就非常方便了，不像我之前先git clone下来用Claude Code分析项目文件，虽然效果差不多，但是API贵啊，随便弄弄大几百就没了，有免费的为什么不用。</p>
+<p>这里我们看ggml/src/CMakeLists.txt下的两端代码：</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">add_library</span><span class="p">(</span><span class="s">ggml-base</span>
+<span class="w">            </span><span class="s">../include/ggml.h</span>
+<span class="w">            </span><span class="s">../include/ggml-alloc.h</span>
+<span class="w">            </span><span class="s">../include/ggml-backend.h</span>
+<span class="w">            </span><span class="s">../include/ggml-cpp.h</span>
+<span class="w">            </span><span class="s">../include/ggml-opt.h</span>
+<span class="w">            </span><span class="s">../include/gguf.h</span>
+<span class="w">            </span><span class="s">ggml.c</span>
+<span class="w">            </span><span class="s">ggml.cpp</span>
+<span class="w">            </span><span class="s">ggml-alloc.c</span>
+<span class="w">            </span><span class="s">ggml-backend.cpp</span>
+<span class="w">            </span><span class="s">ggml-opt.cpp</span>
+<span class="w">            </span><span class="s">ggml-threading.cpp</span>
+<span class="w">            </span><span class="s">ggml-threading.h</span>
+<span class="w">            </span><span class="s">ggml-quants.c</span>
+<span class="w">            </span><span class="s">ggml-quants.h</span>
+<span class="w">            </span><span class="s">gguf.cpp</span><span class="p">)</span>
+
+<span class="nb">add_library</span><span class="p">(</span><span class="s">ggml</span>
+<span class="w">            </span><span class="s">ggml-backend-dl.cpp</span>
+<span class="w">            </span><span class="s">ggml-backend-reg.cpp</span><span class="p">)</span>
+<span class="nb">add_library</span><span class="p">(</span><span class="s">ggml::ggml</span><span class="w"> </span><span class="s">ALIAS</span><span class="w"> </span><span class="s">ggml</span><span class="p">)</span>
+
+<span class="nb">target_link_libraries</span><span class="p">(</span><span class="s">ggml</span><span class="w"> </span><span class="s">PUBLIC</span><span class="w"> </span><span class="s">ggml-base</span><span class="p">)</span>
+</code></pre></div>
+
+<p>这里可以看出ggml库的结构，ggml-base包含核心实现，ggml包含后端动态加载和注册机制（详情请查看<a href="./ggml-basic.md#regregistry">#ggml_backend</a>）</p>
+<p>（（这里可以看出ggml库的几个组件））</p>
+<h2 id="ggml_1">ggml</h2>
+<p>本节看ggml开头的相关文件，包括：ggml.h、ggml-impl.h、ggml.c、ggml.cpp、ggml-cpp.h</p>
+<h3 id="ggmlh">ggml.h</h3>
+<p>这个文件一开头就是一大段注释，简要介绍了一下ggml张量库，内容包括：</p>
+<ul>
+<li>一组张量操作</li>
+<li>自动微分</li>
+<li>基础优化算法</li>
+</ul>
+<p>用户通过定义<strong>计算图</strong>来定义函数。定义好计算图后，可以计算函数的值 和/或 对输入的梯度。</p>
+<p>在定义计算图的时候没有任何实际计算，实际的计算发生在ggml_graph_compute()函数，需要我们自己显式调用。</p>
+<p>需要显式指定哪些张量是输入，这点在其他代码会体现，输入输出结点会特殊处理。ggml中的自动微分和优化函数需要知道哪些结点是输入。</p>
+<p>计算图一次定义可以多次反复计算。</p>
+<p><strong>自动微分</strong></p>
+<p>数值方法就是求极限，存在截断误差和舍入误差，且对高维输入计算开销很大（需要多次函数求值）。</p>
+<p>符号方法就是手动求导的自动化，缺点是表达式会指数膨胀，而且函数必须写出来，这意味着程序中的条件、循环无法被使用</p>
+<p>自动微分（AD）：Forward mode（前向模式）与Reverse mode（反向模式）。它既能像数值微分一样直接得到数值结果，又能像符号微分一样保证高精度。</p>
+<p>AD的核心是计算图（结点是输入和中间计算结果，边是运算本身）与链式法则，通过计算图精确追踪基本运算的导数，兼顾了效率和精度。</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>计算方式</th>
+<th>时间复杂度</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>前向计算</td>
+<td>同时计算函数值与导数（一次前向传播）</td>
+<td>1次函数求值*输入维度</td>
+<td>输入少，输出多（$R^n \rightarrow R^m,m>>n$）</td>
+</tr>
+<tr>
+<td>反向模式</td>
+<td>先正向求值，再反向传播梯度</td>
+<td>1次函数求值*输入维度</td>
+<td>输出少，输入多</td>
+</tr>
+</tbody>
+</table>
+<p>在神经网络中，例如分类器$R^n \rightarrow R^1$，这种标量损失函数，通常使用反向模式传播梯度。在机器学习里通常使用反向计算模式，ggml库也是只有反向计算模式。</p>
+<h3 id="ggml-implh">ggml-impl.h</h3>
+<p>实现的中间头文件，会有一些内部实现的结构体。方便函数实现，而这些实现细节不向库的使用者暴露。包括：哈希表实现、数据格式转化（FP16、FP32）、判断计算图结点能否融合（fuse）等。</p>
+<p><strong>位图与哈希表</strong></p>
+<p>位图的定义非常简单，就是32为无符号整数：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">typedef</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">ggml_bitset_t</span><span class="p">;</span>
+</code></pre></div>
+
+<p>在实际使用时，我们会使用一个位图数组来表示哈希表中是否存在某对象，一个位图可以表示32个对象是否存在。</p>
+<div class="codehilite"><pre><span></span><code><span class="cp">#define BITSET_SHR 5 </span><span class="c1">// log2(sizeof(ggml_bitset_t)*8)</span>
+<span class="cp">#define BITSET_MASK (sizeof(ggml_bitset_t)*8 - 1)</span>
+
+<span class="k">static</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="nf">ggml_bitset_size</span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">BITSET_MASK</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">BITSET_SHR</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">static</span><span class="w"> </span><span class="kr">inline</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">ggml_bitset_get</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">ggml_bitset_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">bitset</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">!!</span><span class="p">(</span><span class="n">bitset</span><span class="p">[</span><span class="n">i</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">BITSET_SHR</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">(</span><span class="mi">1u</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">BITSET_MASK</span><span class="p">)));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>第一个计算size的函数表示，需要多少个uint32才能存下n个对象的位，来表示是否存在。</p>
+<p>哈希表的结构如下所示：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_hash_set</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ggml_bitset_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">used</span><span class="p">;</span><span class="w">       </span><span class="c1">// whether or not the keys are in use i.e. set</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_tensor</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">keys</span><span class="p">;</span><span class="w"> </span><span class="c1">// actual tensors in the set, keys[i] is only defined if ggml_bitset_get(used, i)</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>也是非常简单，专门针对ggml_tensor而建立的哈希表，利用ggml_tensor指针地址计算哈希值，使用线性探测解决哈希冲突，通过外部的函数插入与查找某ggml_tensor的编号，使用keys访问。</p>
+<p>$$
+ggml\_tensor地址 \rightarrow base\ hash\ value \rightarrow linear\ probing \rightarrow index
+$$</p>
+<h2 id="tensor-operations-and-computation-graphs">Tensor Operations and Computation Graphs</h2>
+<h3 id="ggml_tensor">ggml_tensor</h3>
+<p>这里说明<code>ggml_tensor</code>的数据结构:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// n-dimensional tensor</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">ggml_tensor</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">enum</span><span class="w"> </span><span class="n">ggml_type</span><span class="w"> </span><span class="n">type</span><span class="p">;</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_backend_buffer</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">buffer</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">ne</span><span class="p">[</span><span class="n">GGML_MAX_DIMS</span><span class="p">];</span><span class="w"> </span><span class="c1">// number of elements</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w">  </span><span class="n">nb</span><span class="p">[</span><span class="n">GGML_MAX_DIMS</span><span class="p">];</span><span class="w"> </span><span class="c1">// stride in bytes:</span>
+<span class="w">                               </span><span class="c1">// nb[0] = ggml_type_size(type)</span>
+<span class="w">                               </span><span class="c1">// nb[1] = nb[0]   * (ne[0] / ggml_blck_size(type)) + padding</span>
+<span class="w">                               </span><span class="c1">// nb[i] = nb[i-1] * ne[i-1]</span>
+<span class="w">    </span><span class="c1">// compute data</span>
+<span class="w">    </span><span class="k">enum</span><span class="w"> </span><span class="n">ggml_op</span><span class="w"> </span><span class="n">op</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// op params - allocated as int32_t for alignment</span>
+<span class="w">    </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">op_params</span><span class="p">[</span><span class="n">GGML_MAX_OP_PARAMS</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int32_t</span><span class="p">)];</span>
+<span class="w">    </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">flags</span><span class="p">;</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_tensor</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">src</span><span class="p">[</span><span class="n">GGML_MAX_SRC</span><span class="p">];</span>
+<span class="w">    </span><span class="c1">// source tensor and offset for views</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_tensor</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">view_src</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w">               </span><span class="n">view_offs</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">name</span><span class="p">[</span><span class="n">GGML_MAX_NAME</span><span class="p">];</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">extra</span><span class="p">;</span><span class="w"> </span><span class="c1">// extra things e.g. for ggml-cuda.cu</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">padding</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>我在最开始读代码的时候，望文生义觉得<code>ggml_tensor</code>就是一个张量，但是最好把它理解为一个“结点”，这个结点存储一些信息和一个指向真正数据存放地的指针。</p>
+<p>在llama.cpp代码中涉及到backend（后端），通常指的是硬件架构后端（CPU、CUDA），buffer是张量数据实际存储的位置，存在于不同的后端设备（CPU、GPU0、GPU1 etc）之上。buffer是一块连续的内存空间，在实际推理中可能会申请多个buffer来存储张量，这个指针指明本张量存储的buffer是哪个。</p>
+<p>data指针指向数据真正存放的地址。一个buffer里面会存储很多张量，通过data指针指向本张量开头的地址，以在buffer中访问到张量数据。buffer内部存储管理的细节请看<a href="./ggml-basic.md#buffer-and-memory-alloc">#Buffer与内存申请</a>。</p>
+<p>ne和nb表示张量各个维度的长度（定义张量的形状）、在各个维度上走一步需要移动多少byte（不同类型的张量，每单个数据占的字节数也不一样，不同张量的形状也不一样），这里有点像<a href="../NVIDIA/NVIDIA-GPU-Arch.md">SIMD</a>里的<code>VLEN</code>和<code>VSTR</code>。最近在微信公众号上看到一篇介绍<a href="../HPC-Parallel-Distribute-Computing/CUTLASS-CuTe-DSL.md">CuTe</a>的Layout代数的文章（微信搜索zartbot layout），内容也有点像，但限于我的数学水平看不懂。</p>
+<p>op表示得到当前张量进行的运算是什么，SRC表示由哪些张量运算得到当前张量。也就是说SRC数组指针指向的张量们经过op运算得到当前张量。</p>
+<p>当当前张量为某个张量的视图张量时，也就是说当前张量是某个张量的切片时（类似python中cur = src[:,::5]），view_src指向源张量，view_offs表示相对源张量的偏移量。不需要拷贝可以直接用。</p>
+<p>name是当前张量的名字，这个属性横跨了计算图构建（llama-graph.h）、数据填充（llama-context.h）两大部分，这里值得留意，后面还会提到。</p>
+<p><code>ggml_tensor</code>实质上就是计算图中的节点，而非张量数据。</p>
+<h3 id="ggml_object-and-ggml_context">ggml_object and ggml_context</h3>
+<p>这里说明两个结构体：<code>ggml_object</code>、<code>ggml_context</code>。</p>
+<div class="codehilite"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_object</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">offs</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">;</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_object</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">next</span><span class="p">;</span>
+<span class="w">    </span><span class="k">enum</span><span class="w"> </span><span class="n">ggml_object_type</span><span class="w"> </span><span class="n">type</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">padding</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span>
+<span class="p">};</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">ggml_context</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">mem_size</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">mem_buffer</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w">   </span><span class="n">mem_buffer_owned</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w">   </span><span class="n">no_alloc</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w">    </span><span class="n">n_objects</span><span class="p">;</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_object</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">objects_begin</span><span class="p">;</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_object</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">objects_end</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>可以通过函数<code>ggml_new_object</code>(/ggml/src/ggml.c line1628)来了解它们的行为：<br />
+ggml_object以链表形式连续存储在ggml_context中，offs表示该ggml_object存储位置在当前ggml_context的偏移量（size，不是第几个object），size为当前object的大小，next指针指向ggml_context中下一个object，在ggml_context里begin和end两个指针分别指向第一个object和最后一个object。</p>
+<h3 id="ggml_cgraph">ggml_cgraph</h3>
+<p>这里说明<code>ggml_cgraph</code>的结构体：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_cgraph</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w">    </span><span class="c1">// maximum number of nodes/leafs/grads/grad_accs</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">n_nodes</span><span class="p">;</span><span class="w"> </span><span class="c1">// number of nodes currently in use</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">n_leafs</span><span class="p">;</span><span class="w"> </span><span class="c1">// number of leafs currently in use</span>
+
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_tensor</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">nodes</span><span class="p">;</span><span class="w">     </span><span class="c1">// tensors with data that can change if the graph is evaluated</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_tensor</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">grads</span><span class="p">;</span><span class="w">     </span><span class="c1">// the outputs of these tensors are the gradients of the nodes</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_tensor</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">grad_accs</span><span class="p">;</span><span class="w"> </span><span class="c1">// accumulators for node gradients</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_tensor</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">leafs</span><span class="p">;</span><span class="w">     </span><span class="c1">// tensors with constant data</span>
+<span class="w">    </span><span class="kt">int32_t</span><span class="w">             </span><span class="o">*</span><span class="w"> </span><span class="n">use_counts</span><span class="p">;</span><span class="c1">// number of uses of each tensor, indexed by hash table slot</span>
+
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_hash_set</span><span class="w"> </span><span class="n">visited_hash_set</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">enum</span><span class="w"> </span><span class="nc">ggml_cgraph_eval_order</span><span class="w"> </span><span class="n">order</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>cgraph的结构如下图所示：</p>
+<p><img alt="" src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202604061428569.png" /></p>
+<p>和普通的DAG不同的是，图的指向是反的，由子节点指向父节点。计算图中最后计算的张量是root结点，叶子节点是最开始的结点，它的输入是常量，不是梯度图的一部分。</p>
+<p>ggml/src/ggml.c:6752 ggml_visit_parents_graph，这里就是建图函数，主要维护每个结点的入度<code>use_counts</code>，表示当前节点被多少节点的计算所需要。计算图的数据结构将叶子节点和其他节点分开管理，遍历计算图的时候会把叶子节点放入leafs数组里，其他节点放到nodes数组里。通过这个函数我们就可以总结部分cgraph的属性：</p>
+<ul>
+<li>n_nodes其他非叶子节点的数量，也是nodes数组的长度</li>
+<li>n_leafs叶子节点的数量，也是leafs数组的长度</li>
+<li>use_counts表示节点的入度，也表示有多少节点依赖本节点，也表示子节点的数量</li>
+<li>visited_hash_set在建图中的帮助数据结构，防止重复访问节点，图论基本操作</li>
+</ul>
+<h2 id="ggml_backend">ggml_backend</h2>
+<p>在ggml/include/ggml-backend.h里声明了ggml暴露给库使用者的接口，我们可以看到有以下几个部分：</p>
+<ul>
+<li><code>Backend buffer type</code>与<code>Backend buffer</code></li>
+<li><code>Backend (stream)</code></li>
+<li><code>Events</code> -&gt; 事件，用于计算同步</li>
+<li><code>Backend device</code></li>
+<li><code>Backend (reg)</code> -&gt; 实现在<code>ggml-backend.cpp</code></li>
+<li><code>Backend registry</code> -&gt; 实现在<code>ggml-backend-reg.cpp</code></li>
+<li><code>Backend scheduler</code> -&gt; 支持多后端协同推理，buffer申请、张量复制、后端间张量拷贝</li>
+<li><code>Utils</code> -&gt; 一些工具函数，将计算图复制到其他后端、比较两个后端的输出、初始化张量、构造CPU后端缓冲区/缓冲区类型（CPU缓存类型对所有后端都兼容）</li>
+</ul>
+<p>在公共接口开头定义了一些类的别名，这些类实质上就是backend设计中核心的对象：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_backend_buffer_type</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ggml_backend_buffer_type_t</span><span class="p">;</span>
+<span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_backend_buffer</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ggml_backend_buffer_t</span><span class="p">;</span>
+<span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_backend_event</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ggml_backend_event_t</span><span class="p">;</span>
+<span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_backend</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ggml_backend_t</span><span class="p">;</span>
+<span class="k">typedef</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ggml_backend_graph_plan_t</span><span class="p">;</span>
+<span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_backend_reg</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ggml_backend_reg_t</span><span class="p">;</span>
+<span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_backend_device</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ggml_backend_dev_t</span><span class="p">;</span>
+</code></pre></div>
+
+<p>在scheduler部分开始前也有类似的声明，这个类和其他类不一样：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_backend_sched</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ggml_backend_sched_t</span><span class="p">;</span><span class="w"> </span><span class="c1">// 定义在ggml-backend.cpp</span>
+</code></pre></div>
+
+<p>这些结构体的定义代码放在ggml/src/ggml-backend-impl.h，这个是中间实现头文件，内容不向库的使用者暴露。除了上述类的定义，中间头文件还包括一些内部使用的函数。</p>
+<p>公共接口剩余的部分就是声明一些函数，这些函数的输入部分是上面定义的类型。</p>
+<p>自此我们已经抓住ggml_backend设计的核心，后端的八大组件和操作的对象都已经说明完成。</p>
+<h3 id="backend">backend文件组织</h3>
+<p><code>ggml-backend.h</code>声明对外接口<br />
+<code>ggml-backend-impl.h</code>中间头文件，定义结构体和内部函数<br />
+<code>ggml-backend-dl.h/.cpp</code>处理Dynamic Loading，动态加载动态库，核心只有两个函数：在操作系统加载动态库，获得对应的句柄；还有一个函数是通过句柄与（函数/变量等）对象的名称，获取其地址。举个例子：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// 获取句柄</span>
+<span class="n">HMODULE</span><span class="w"> </span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LoadLibraryW</span><span class="p">(</span><span class="n">path</span><span class="p">.</span><span class="n">wstring</span><span class="p">().</span><span class="n">c_str</span><span class="p">());</span>
+
+<span class="c1">// 通过句柄与名称访问对象并应用</span>
+<span class="k">typedef</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">my_func_t</span><span class="p">)(</span><span class="kt">int</span><span class="p">);</span>
+<span class="n">my_func_t</span><span class="w"> </span><span class="n">func</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">my_func_t</span><span class="p">)</span><span class="w"> </span><span class="n">GetProcAddress</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;myFunction&quot;</span><span class="p">);</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">func</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span>
+</code></pre></div>
+
+<p><code>ggml-backend-reg.cpp</code>处理多端设备注册，需要上面的dl文件<br />
+<code>ggml-backend.cpp</code>实现文件，一共2271行，其中661~1880行都是在实现调度器scheduler的接口</p>
+<h3 id="_1">函数指针</h3>
+<p>在ggml_backend中广泛使用函数指针，例如在<code>ggml-backend.h:200</code></p>
+<div class="codehilite"><pre><span></span><code><span class="k">typedef</span><span class="w"> </span><span class="n">ggml_backend_buffer_type_t</span><span class="w">   </span><span class="p">(</span><span class="o">*</span><span class="n">ggml_backend_split_buffer_type_t</span><span class="p">)(</span><span class="kt">int</span><span class="w"> </span><span class="n">main_device</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">tensor_split</span><span class="p">);</span>
+</code></pre></div>
+
+<p>遮掉typedef，就是声明函数指针的代码，返回类型是<code>ggml_backend_buffer_type_t</code>，参数列表是<code>(int main_device, const float * tensor_split)</code>，指针名称是<code>ggml_backend_split_buffer_type_t</code>前面的*表示声明的变量是指针。</p>
+<p>加上typedef后，这里变成了定义了一个函数指针类型，<code>ggml_backend_split_buffer_type_t</code>从指针名字变成了函数指针类型名字，可以直接用它声明函数指针变量，或者作为函数参数列表类型。</p>
+<p>在实现对应函数时的写法是：</p>
+<div class="codehilite"><pre><span></span><code><span class="n">ggml_backend_buffer_type_t</span><span class="w"> </span><span class="nf">my_func</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">){</span>
+<span class="w">    </span><span class="cm">/*</span>
+<span class="cm">    具体实现</span>
+<span class="cm">    */</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>然后可以声明函数指针指向这个函数：</p>
+<div class="codehilite"><pre><span></span><code><span class="n">ggml_backend_split_buffer_type_t</span><span class="w"> </span><span class="n">my_func_pointer</span><span class="o">=</span><span class="n">my_func</span><span class="p">;</span><span class="w"> </span><span class="c1">// 或者&amp;my_func，大部分情况会自动退化为函数首地址</span>
+</code></pre></div>
+
+<p>或者作为函数的参数列表类型：</p>
+<div class="codehilite"><pre><span></span><code><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nf">get_something_name</span><span class="p">(</span><span class="n">ggml_backend_split_buffer_type_t</span><span class="w"> </span><span class="n">a</span><span class="p">);</span>
+</code></pre></div>
+
+<p>对于函数指针的使用，在backend中主要类的设计，几乎都采取下面的范式<code>ggml-backend-impl.h:17~35</code>：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_backend_buffer_type_i</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="w">          </span><span class="p">(</span><span class="o">*</span><span class="n">get_name</span><span class="p">)</span><span class="w">      </span><span class="p">(</span><span class="n">ggml_backend_buffer_type_t</span><span class="w"> </span><span class="n">buft</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// allocate a buffer of this type</span>
+<span class="w">    </span><span class="n">ggml_backend_buffer_t</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">alloc_buffer</span><span class="p">)</span><span class="w">  </span><span class="p">(</span><span class="n">ggml_backend_buffer_type_t</span><span class="w"> </span><span class="n">buft</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// tensor alignment</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w">                </span><span class="p">(</span><span class="o">*</span><span class="n">get_alignment</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">ggml_backend_buffer_type_t</span><span class="w"> </span><span class="n">buft</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// (optional) max buffer size that can be allocated (defaults to SIZE_MAX)</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w">                </span><span class="p">(</span><span class="o">*</span><span class="n">get_max_size</span><span class="p">)</span><span class="w">  </span><span class="p">(</span><span class="n">ggml_backend_buffer_type_t</span><span class="w"> </span><span class="n">buft</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// (optional) data size needed to allocate the tensor, including padding (defaults to ggml_nbytes)</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w">                </span><span class="p">(</span><span class="o">*</span><span class="n">get_alloc_size</span><span class="p">)(</span><span class="n">ggml_backend_buffer_type_t</span><span class="w"> </span><span class="n">buft</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_tensor</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">tensor</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// (optional) check if tensor data is in host memory and uses standard ggml tensor layout (defaults to false)</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w">                  </span><span class="p">(</span><span class="o">*</span><span class="n">is_host</span><span class="p">)</span><span class="w">       </span><span class="p">(</span><span class="n">ggml_backend_buffer_type_t</span><span class="w"> </span><span class="n">buft</span><span class="p">);</span>
+<span class="p">};</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">ggml_backend_buffer_type</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_backend_buffer_type_i</span><span class="w">  </span><span class="n">iface</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ggml_backend_dev_t</span><span class="w"> </span><span class="n">device</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">context</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>有一个接口结构体，里面全部是函数指针，通过这个接口类来访问这些接口函数。</p>
+<p>使用函数指针的原因很简单，这些实现函数在不同的后端（CPU、CUDA、Vulkan）上代码不一样，实际调用时根据实际硬件指向具体的函数实现代码调用。</p>
+<p>这里可以总结一个ggml_backend相关类的设计范式：</p>
+<ul>
+<li><code>ggml_backend_xxx_i</code>函数指针接口，函数都需要下面类的指针作为参数</li>
+<li><code>ggml_backend_xxx</code>类本身，内含上述函数指针接口</li>
+<li><code>ggml_backend_xxx_t</code>该类的指针类型，通常作为函数参数</li>
+</ul>
+<h3 id="regregistry">reg/registry</h3>
+<p>后端/设备注册分为两个部分实现，刚看的时候可能会觉得困惑，先理清后端与设备之间的关系：</p>
+<p><img alt="" src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202604091947996.png" /></p>
+<p>一个backend对应一个device，一个device可以有多个backends，一类设备对应一个reg，所有类型reg对应registry。</p>
+<p>reg和registry相关代码，只在设备注册、设备枚举、设备查找、加载设备对应的运行时库时出现，它像一个“目录”。在调度计算时，直接和backend交互，可以看到backend schedule和llama-context都没涉及reg，直接和backend交互。</p>
+<p><strong>Backend (reg)</strong></p>
+<p>在<code>ggml-backend-impl.h</code>里实现的是后端的注册，处理单个后端的注册。内容包括：后端名称、本后端设备数量、获得第i个设备、获得该后端的函数指针（可以添加自定义函数），核心代码如下所示：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_backend_reg_i</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">get_name</span><span class="p">)(</span><span class="n">ggml_backend_reg_t</span><span class="w"> </span><span class="n">reg</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// enumerate available devices</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w">             </span><span class="p">(</span><span class="o">*</span><span class="n">get_device_count</span><span class="p">)(</span><span class="n">ggml_backend_reg_t</span><span class="w"> </span><span class="n">reg</span><span class="p">);</span>
+<span class="w">    </span><span class="n">ggml_backend_dev_t</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">get_device</span><span class="p">)(</span><span class="n">ggml_backend_reg_t</span><span class="w"> </span><span class="n">reg</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">index</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// (optional) get a pointer to a function in the backend</span>
+<span class="w">    </span><span class="c1">// backends can add custom functions that are not part of the standard ggml-backend interface</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">get_proc_address</span><span class="p">)(</span><span class="n">ggml_backend_reg_t</span><span class="w"> </span><span class="n">reg</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">name</span><span class="p">);</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p><strong>Backend registry</strong></p>
+<p>在<code>ggml-backend-reg.cpp</code>里实现的是多个reg的注册，这里就涉及不同计算平台，即不同硬件架构、编程模型之间协调，看代码会发现有很多<code>#ifdef GGML_USE_CUDA</code>这样的宏处理语句。</p>
+<p>这里简单分析一下注册表要分两个文件实现的原因，reg实际上定义的是所有后端统一的规范接口形式，registry实际上做的是适配不同种后端的情况，并且需要通过dl动态加载不同后端对应的动态库（例如：CUDA runtime库），前者偏商务，后者偏运动。</p>
+<p>核心结构体是：<code>ggml_backend_registry</code>，代码大部分是遍历/获取后端/设备，理解了上面后端与设备之间的关系就很好理解了。</p>
+<p>总结一下：类<code>ggml_backend_reg</code>管理一类计算平台的多个设备，类<code>ggml_backend_registry</code>管理所有的计算平台和设备。</p>
+<h3 id="device-and-stream">Device and Stream</h3>
+<p><strong>Device</strong></p>
+<p>这里涉及一个设计模式：<br />
+$$
+Device \rightarrow Context \rightarrow Stream
+$$</p>
+<p>在一个计算设备中，里面包含不同的执行上下文（Context），在一个上下文下又有多个执行流（指令流/Stream），也就是说从硬件到执行会有这么几个层次。</p>
+<p>在学习操作系统进程部分时应该了解到，进程的组成部分包括：进程控制块（PCB）、程序段和数据段。在PCB中包含了进程的属性与进程的上下文信息（寄存器值、PC位置、堆栈指针）。也可以按照进程来理解，下面说的一大堆本质上就是：进程申请、进程间同步。进程是操作系统资源分配的基本单位，程序员编写一个程序要在计算机上运行，也是以进程的形式运行的（进程是程序的一次执行实例）。</p>
+<p>这里我想表达的是：一个device会有很多stream，，一个<code>ggml_backend_device</code>（设备）对应多个<code>ggml_backend</code>（操作流/进程），同样的<code>ggml_backend</code>也是ggml后端分配计算资源的基本单位，也是暴露给前端计算图逻辑编写程序员的基础抽象。</p>
+<p>在看<code>ggml_backend</code>结构体属性时有一个属性是：</p>
+<div class="codehilite"><pre><span></span><code><span class="n">ggml_backend_dev_t</span><span class="w"> </span><span class="n">device</span><span class="p">;</span>
+</code></pre></div>
+
+<p>在<code>ggml_backend_device</code>的方法接口里有一个方法是：</p>
+<div class="codehilite"><pre><span></span><code><span class="n">ggml_backend_t</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">init_backend</span><span class="p">)(</span><span class="n">ggml_backend_dev_t</span><span class="w"> </span><span class="n">dev</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">params</span><span class="p">);</span>
+</code></pre></div>
+
+<p>虽然一个device对应多个stream，而且stream的初始化也依赖device完成，每个stream内部也需要表识自己来自哪个device，但是到此为止了，stream一旦创建，我们就直接管理stream，而不是通过device来管理stream。</p>
+<p>在看device接口设计时也能看到几乎没有什么方法：<br />
+- device设备相关的元数据（Meta Data）<br />
+获取device的名称、描述、内存、类型、推荐的buffer类型、</p>
+<ul>
+<li>
+<p>一个设备里运行着多个操作流，操作流的声明也依赖于设备<br />
+初始化stream、</p>
+</li>
+<li>
+<p>判断函数/操作是否合法，推荐如何申请buffer<br />
+判断支持哪些操作、支持哪些buffer类型，这些是设备相关的，stream里也有这些函数接口，但是不允许使用，我推测是一个设备中的streams这些都是一样的，但是却在stream相关代码中使用，所以最初的时候接口在stream实现，后面迁移到device。还有一部分选项是与主机内存（host memory或者说内存）之间的操作</p>
+</li>
+<li>
+<p>设备事件（Event），用于各操作流之间同步，类似于信号量<br />
+声明事件、释放事件、同步事件</p>
+</li>
+</ul>
+<p><strong>Backend （Stream）</strong><br />
+毕竟不是进程，整个llama.cpp推理引擎的核心逻辑是，前端cpp文件定义好静态计算图后放到后端进行计算。</p>
+<p>stream的核心接口是：</p>
+<ul>
+<li>
+<p>compute computation graph<br />
+计算计算图，还有一个接口是设计compute plan然后执行这个plan，但是现在没有使用</p>
+</li>
+<li>
+<p>tensors operation<br />
+设置tensor、获取tensor、在不同的streams间转移tensor</p>
+</li>
+<li>
+<p>事件与同步<br />
+发起事件、等待事件、等待所有悬挂的操作</p>
+</li>
+<li>
+<p>meta data<br />
+获取该stream的名字</p>
+</li>
+<li>
+<p>释放（free）该stream</p>
+</li>
+</ul>
+<p>到这里，整个ggml的后端结构已经被我们揭示清楚了，一个推理系统可能有多个计算平台，一个计算平台可能有多个设备，每个设备上运行着多个执行流，这些执行流直接执行计算图。而且在编程时我们接触到的就是执行流<code>ggml_backend</code>相关的接口，因为在前端我们就是通过定义LLM Archs的静态计算图来描述LLM inference计算的。</p>
+<h3 id="buffer-and-memory-alloc">Buffer and Memory alloc</h3>
+<p>要理解buffer type和buffer相关的代码，需要结合<code>ggml-alloc.h/.c</code>两个文件一起看。</p>
+<p>buffer是存放tensor数据的实际位置，在<code>ggml_tensor</code>结构体中有一个类型为<code>ggml_backend_buffer</code>的属性，表示tensor数据实际存放位置。还有一个<code>void * data</code>指针指向tensor数据存储的开头位置。</p>
+<p>buffer的内存空间就是一个摆满tensor数据的内存池，在部分高性能后端要求数据存储位置对齐（alignment），所以在单个buffer内存管理中，我们看到的是在满足对齐标准的情况下，尽可能紧凑地存tensor数据。</p>
+<p>这一点体现在<code>ggml-alloc.h/.c</code>中<code>tallocr</code>类的设计和函数中体现：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Tensor allocator</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">ggml_tallocr</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">ggml_backend_buffer_t</span><span class="w"> </span><span class="n">buffer</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">base</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">alignment</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">offset</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="n">GGML_API</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_tallocr</span><span class="w"> </span><span class="n">ggml_tallocr_new</span><span class="p">(</span><span class="n">ggml_backend_buffer_t</span><span class="w"> </span><span class="n">buffer</span><span class="p">);</span>
+<span class="n">GGML_API</span><span class="w"> </span><span class="k">enum</span><span class="w"> </span><span class="nc">ggml_status</span><span class="w">    </span><span class="n">ggml_tallocr_alloc</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_tallocr</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">talloc</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_tensor</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">tensor</span><span class="p">);</span>
+</code></pre></div>
+
+<p>alignment是由后端设备决定的一个固定大小的值，通常是2的n次方（4、8、16、32），硬件在读取对齐存储的数据速度会块一些。base是当前buffer的起始位置，offset是在buffer中存储下一个tensor的起始地址，这个地址是对齐的（被alignment整除的）。</p>
+<p><code>tallocr</code>类就是专门在buffer中写入tensor数据的。</p>
+<p>理解完上面的内容再看buffer type就非常好理解了，就是在描述buffer的性质，这些性质和上面的写入过程是紧密相关的：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_backend_buffer_type_i</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="w">          </span><span class="p">(</span><span class="o">*</span><span class="n">get_name</span><span class="p">)</span><span class="w">      </span><span class="p">(</span><span class="n">ggml_backend_buffer_type_t</span><span class="w"> </span><span class="n">buft</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// allocate a buffer of this type</span>
+<span class="w">    </span><span class="n">ggml_backend_buffer_t</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">alloc_buffer</span><span class="p">)</span><span class="w">  </span><span class="p">(</span><span class="n">ggml_backend_buffer_type_t</span><span class="w"> </span><span class="n">buft</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// tensor alignment</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w">                </span><span class="p">(</span><span class="o">*</span><span class="n">get_alignment</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">ggml_backend_buffer_type_t</span><span class="w"> </span><span class="n">buft</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// (optional) max buffer size that can be allocated (defaults to SIZE_MAX)</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w">                </span><span class="p">(</span><span class="o">*</span><span class="n">get_max_size</span><span class="p">)</span><span class="w">  </span><span class="p">(</span><span class="n">ggml_backend_buffer_type_t</span><span class="w"> </span><span class="n">buft</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// (optional) data size needed to allocate the tensor, including padding (defaults to ggml_nbytes)</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w">                </span><span class="p">(</span><span class="o">*</span><span class="n">get_alloc_size</span><span class="p">)(</span><span class="n">ggml_backend_buffer_type_t</span><span class="w"> </span><span class="n">buft</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_tensor</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">tensor</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// (optional) check if tensor data is in host memory and uses standard ggml tensor layout (defaults to false)</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w">                  </span><span class="p">(</span><span class="o">*</span><span class="n">is_host</span><span class="p">)</span><span class="w">       </span><span class="p">(</span><span class="n">ggml_backend_buffer_type_t</span><span class="w"> </span><span class="n">buft</span><span class="p">);</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<ul>
+<li>alloc_buffer:<br />
+通过buffer type申请一块buffer内存空间使用</li>
+<li>get_alignment:<br />
+根据设备特性，获得内存地址对齐的基准</li>
+<li>get_max_size:<br />
+设备上的存储空间不是无限的，所以需要规定buffer最多写到哪里，在<code>tallocr</code>也有检查当前tensor如果写入是否会溢出。</li>
+<li>get_alloc_size:<br />
+判断当前张量写入大概需要多少空间</li>
+</ul>
+<p>还有一点值得提的是：buffer只提供存储功能，它没记录哪些位置是tensor的起点，所以每次写入时要在<code>ggml_tensor</code>里记录数据开始位置。</p>
+<p>再看buffer本身提供的函数接口也很好理解了，主要就是对buffer内的tensor进行操作，因为buffer本身不记录tensor存储开始位置与结束位置，所以相关函数你需要自己提供tensor开始位置与tensor数据大小：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_backend_buffer_i</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// (optional) free the buffer</span>
+<span class="w">    </span><span class="kt">void</span><span class="w">         </span><span class="p">(</span><span class="o">*</span><span class="n">free_buffer</span><span class="p">)</span><span class="w">  </span><span class="p">(</span><span class="n">ggml_backend_buffer_t</span><span class="w"> </span><span class="n">buffer</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// base address of the buffer</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w">       </span><span class="p">(</span><span class="o">*</span><span class="n">get_base</span><span class="p">)</span><span class="w">     </span><span class="p">(</span><span class="n">ggml_backend_buffer_t</span><span class="w"> </span><span class="n">buffer</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// (optional) initialize a tensor in the buffer (eg. add tensor extras)</span>
+<span class="w">    </span><span class="k">enum</span><span class="w"> </span><span class="nc">ggml_status</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">init_tensor</span><span class="p">)(</span><span class="n">ggml_backend_buffer_t</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_tensor</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">tensor</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// tensor data access</span>
+<span class="w">    </span><span class="kt">void</span><span class="w">         </span><span class="p">(</span><span class="o">*</span><span class="n">memset_tensor</span><span class="p">)(</span><span class="n">ggml_backend_buffer_t</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w">       </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_tensor</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">tensor</span><span class="p">,</span><span class="w">     </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w">         </span><span class="p">(</span><span class="o">*</span><span class="n">set_tensor</span><span class="p">)</span><span class="w">   </span><span class="p">(</span><span class="n">ggml_backend_buffer_t</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w">       </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_tensor</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">tensor</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w">         </span><span class="p">(</span><span class="o">*</span><span class="n">get_tensor</span><span class="p">)</span><span class="w">   </span><span class="p">(</span><span class="n">ggml_backend_buffer_t</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_tensor</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">tensor</span><span class="p">,</span><span class="w">       </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// (optional) tensor copy: dst is in the buffer, src may be in any buffer, including buffers from a different backend (return false if not supported)</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w">         </span><span class="p">(</span><span class="o">*</span><span class="n">cpy_tensor</span><span class="p">)</span><span class="w">   </span><span class="p">(</span><span class="n">ggml_backend_buffer_t</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_tensor</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_tensor</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">dst</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// clear the entire buffer</span>
+<span class="w">    </span><span class="kt">void</span><span class="w">         </span><span class="p">(</span><span class="o">*</span><span class="n">clear</span><span class="p">)</span><span class="w">        </span><span class="p">(</span><span class="n">ggml_backend_buffer_t</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">value</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// (optional) reset any internal state due to tensor initialization, such as tensor extras</span>
+<span class="w">    </span><span class="kt">void</span><span class="w">         </span><span class="p">(</span><span class="o">*</span><span class="n">reset</span><span class="p">)</span><span class="w">        </span><span class="p">(</span><span class="n">ggml_backend_buffer_t</span><span class="w"> </span><span class="n">buffer</span><span class="p">);</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>在实际LLM推理计算过程中，通常不会直接利用tallocr在buffer中写入张量，我们会使用一系列优化方法来规划buffer空间的使用，需要动态的灵活的写入读出策略，tallocr只提供了最简单的写入方法，可能会用于一些自行编写的简单计算图的计算。</p>
+<p>下面一节会介绍ggml如何针对计算图执行特征，对buffer内存空间的利用进行优化。</p>
+<p><strong>Graph allocator</strong></p>
+<p>在<code>ggml-alloc.h/.c</code>中内存管理的核心是graph allocator，在<code>ggml-alloc.h</code>里文件就分为两个部分：<code>Tensor allocator</code>、<code>Graph allocator</code>。<code>ggml-alloc.h</code>头文件里<code>Graph allocator</code>接口的定义非常简单，就是：<br />
+- 图分配器类自己的创建、释放；</p>
+<div class="codehilite"><pre><span></span><code><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_gallocr</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ggml_gallocr_t</span><span class="p">;</span>
+
+<span class="n">GGML_API</span><span class="w"> </span><span class="n">ggml_gallocr_t</span><span class="w"> </span><span class="n">ggml_gallocr_new</span><span class="p">(</span><span class="n">ggml_backend_buffer_type_t</span><span class="w"> </span><span class="n">buft</span><span class="p">);</span>
+<span class="n">GGML_API</span><span class="w"> </span><span class="n">ggml_gallocr_t</span><span class="w"> </span><span class="n">ggml_gallocr_new_n</span><span class="p">(</span><span class="n">ggml_backend_buffer_type_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">bufts</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n_bufs</span><span class="p">);</span>
+<span class="n">GGML_API</span><span class="w"> </span><span class="kt">void</span><span class="w">           </span><span class="n">ggml_gallocr_free</span><span class="p">(</span><span class="n">ggml_gallocr_t</span><span class="w"> </span><span class="n">galloc</span><span class="p">);</span>
+</code></pre></div>
+
+<p>这里我们可以看到有两种申请<code>ggml_gallocr</code>的方式，一个是单buffer的，一个是多buffer的。这里提前剧透一下，这里的buffer数量指的并不是<code>ggml_backend_buffer</code>的数量，而是对应的虚拟buffer的数量，一个虚拟buffer对应一个<code>ggml_backend</code>，也就是一个上下文执行流，在设备中运行的一个上下文执行流<code>ggml_backend</code>可以利用设备中若干<code>ggml_backend_buffer</code>组成一个拥有“连续内存地址”的虚拟buffer。</p>
+<ul>
+<li>根据计算图预分配buffer空间；</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="c1">// 单buffer计算图 buffer空间预留</span>
+<span class="n">GGML_API</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">ggml_gallocr_reserve</span><span class="p">(</span><span class="n">ggml_gallocr_t</span><span class="w"> </span><span class="n">galloc</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_cgraph</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">graph</span><span class="p">);</span>
+<span class="c1">// 将多buffers空间预留结果保存到sizes数组里面去</span>
+<span class="n">GGML_API</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">ggml_gallocr_reserve_n_size</span><span class="p">(</span>
+<span class="w">    </span><span class="n">ggml_gallocr_t</span><span class="w"> </span><span class="n">galloc</span><span class="p">,</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_cgraph</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">node_buffer_ids</span><span class="p">,</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">leaf_buffer_ids</span><span class="p">,</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">sizes</span><span class="p">);</span>
+<span class="c1">// 多buffer计算图 buffers空间预留 </span>
+<span class="n">GGML_API</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">ggml_gallocr_reserve_n</span><span class="p">(</span>
+<span class="w">    </span><span class="n">ggml_gallocr_t</span><span class="w"> </span><span class="n">galloc</span><span class="p">,</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_cgraph</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">node_buffer_ids</span><span class="p">,</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">leaf_buffer_ids</span><span class="p">);</span>
+</code></pre></div>
+
+<p>同样的，这里的预留空间函数也是考虑了单buffer与多buffers的情况，在多buffers情况下，函数ggml_gallocr_reserve_n会自动预分配多个buffer的空间，函数ggml_gallocr_reserve_n_size会把在上面函数预分配的结果写到数组sizes里面。</p>
+<ul>
+<li>根据计算图实际分配空间；</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="n">GGML_API</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">ggml_gallocr_alloc_graph</span><span class="p">(</span><span class="n">ggml_gallocr_t</span><span class="w"> </span><span class="n">galloc</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_cgraph</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">graph</span><span class="p">);</span>
+
+<span class="n">GGML_API</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">ggml_gallocr_get_buffer_size</span><span class="p">(</span><span class="n">ggml_gallocr_t</span><span class="w"> </span><span class="n">galloc</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">buffer_id</span><span class="p">);</span>
+</code></pre></div>
+
+<p>第一个函数是计算图申请空间的核心，同样的也是分为两种情况：</p>
+<ol>
+<li>单buffer计算图，如果计算图拓扑发送变化，自动重新分配空间</li>
+<li>多buffers计算图，如果计算图发生变化会运行失败，需要先自行运行ggml_gallocr_reserve_n这个函数，来重新分配空间</li>
+</ol>
+<p>总结一下，在graph allocator定义的接口里，根据计算图使用单buffer还是多buffers，采取不同的操作，但是思路都是一样的：</p>
+<ul>
+<li>单buffer，由于ggml_gallocr_alloc_graph会自动重新申请buffer空间，所以预留空间函数可以不执行。这是因为单buffer的情况比较简单，可以直接根据计算图计算出需要的单块存储空间。</li>
+<li>多buffers，需要自行预留buffers的空间，然后再实际申请内存空间。</li>
+</ul>
+<p>这里可以看到，核心分为两步：reserve、alloc。我们结合实现文件<code>ggml-alloc.c</code>来看这两部到底在干什么：</p>
+<ul>
+<li>
+<p>reserve函数，实质上就是根据计算图确定各张量的存储地址，确定整体的内存布局。这个函数实质上填充了<code>ggml_gallocr</code>类的属性。最复杂的就是这个函数，包含了类似操作系统中的内存管理来预分配各tensor地址，来减少内存碎片，并且进行张量的生命周期分析，达到内存复用的效果。</p>
+</li>
+<li>
+<p>alloc函数，这个函数比较简单，根据上述函数确定的内存布局和各张量的存储位置，绑定<code>ggml_tensor</code>的buffer块和块内的存储地址，同时在buffer内初始化该张量。</p>
+</li>
+</ul>
+<p>在看源码实现的时候，发现上面的reserve和alloc函数都是默认按照多buffer来实现的，单buffer只是特殊情况，通过特定参数调用多buffer情况的函数实现。例如：</p>
+<div class="codehilite"><pre><span></span><code><span class="kt">bool</span><span class="w"> </span><span class="nf">ggml_gallocr_reserve</span><span class="p">(</span><span class="n">ggml_gallocr_t</span><span class="w"> </span><span class="n">galloc</span><span class="p">,</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_cgraph</span><span class="w"> </span><span class="o">*</span><span class="n">graph</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ggml_gallocr_reserve_n</span><span class="p">(</span><span class="n">galloc</span><span class="p">,</span><span class="w"> </span><span class="n">graph</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>在深入reserve函数是如何管理内存空间之前，需要了解ggml如何实现：内存空间动态申请， 多buffers的内存管理。下面是<code>ggml_gallocr</code>的多层次管理内存的架构图：</p>
+<p><img alt="" src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202604051545869.png" /></p>
+<p>在<code>ggml_gallocr</code>的视角下，一个buffer实质上是一个虚拟buffer，由多个<code>ggml_backend_buffer</code>组成的，一个拥有连续内存空间地址的虚拟buffer。</p>
+<p>一个vbuffer可以分为多个chunks，一个chunk就是一个<code>ggml_backend_buffer</code>，在一个chunk下又被分为若干blocks。</p>
+<p>如何在一个vbuffer里面写入东西呢？会通过类<code>ggml_dyn_talloc</code>来实现，vbuffer里面所有的<code>ggml_backend_buffer</code>的buffer type是相同的，对于相同的buffer type，只需要一个<code>ggml_dyn_talloc</code>对象，因为它本质上只是一个写入工具：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// check if the same buffer type is used multiple times and reuse the same allocator</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">i</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bufts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">bufts</span><span class="p">[</span><span class="n">j</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">galloc</span><span class="o">-&gt;</span><span class="n">buf_tallocs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">galloc</span><span class="o">-&gt;</span><span class="n">buf_tallocs</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+<span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">galloc</span><span class="o">-&gt;</span><span class="n">buf_tallocs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">alignment</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ggml_backend_buft_get_alignment</span><span class="p">(</span><span class="n">bufts</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">max_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ggml_backend_buft_get_max_size</span><span class="p">(</span><span class="n">bufts</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">    </span><span class="n">galloc</span><span class="o">-&gt;</span><span class="n">buf_tallocs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ggml_dyn_tallocr_new</span><span class="p">(</span><span class="n">alignment</span><span class="p">,</span><span class="w"> </span><span class="n">max_size</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>具体是如何写入的呢，在下面的函数里说明了：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">static</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">buffer_address</span><span class="w"> </span><span class="n">ggml_dyn_tallocr_alloc</span><span class="p">(</span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_dyn_tallocr</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">alloc</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_tensor</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">tensor</span><span class="p">)</span>
+</code></pre></div>
+
+<p>下面的一段核心代码说明了，它是如何寻找tensor的存储位置的：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">block</span><span class="o">-&gt;</span><span class="n">size</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">block</span><span class="o">-&gt;</span><span class="n">size</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">best_fit_size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">best_fit_chunk</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">;</span>
+<span class="w">    </span><span class="n">best_fit_block</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="w">    </span><span class="n">best_fit_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">block</span><span class="o">-&gt;</span><span class="n">size</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>在一个vbuffer里所有的chunks和里面的blocks里找一段大小大于要求，且大小最小的块来存放该tensor。这非常像OS里的一个内存管理的算法，这个算法非常简单，而且容易产生外部碎片。</p>
+<p>（（chunks、blocks申请、管理的代码分析暂且省略，目前已经足够往下理解））</p>
+<p>接下来看reserve代码，其实现分为两个部分，先使用哈希表申请空间，然后在根据哈希表里面的内容填充到<code>ggml_gallocr</code>里的<code>node_allocs</code>属性里。下面是<code>ggml_gallocr</code>的属性。</p>
+<div class="codehilite"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_gallocr</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">ggml_backend_buffer_type_t</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">bufts</span><span class="p">;</span><span class="w"> </span><span class="c1">// [n_buffers]</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">vbuffer</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">buffers</span><span class="p">;</span><span class="w"> </span><span class="c1">// [n_buffers]</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_dyn_tallocr</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">buf_tallocs</span><span class="p">;</span><span class="w"> </span><span class="c1">// [n_buffers]</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">n_buffers</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">ggml_hash_set</span><span class="w"> </span><span class="n">hash_set</span><span class="p">;</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">hash_node</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">hash_values</span><span class="p">;</span><span class="w"> </span><span class="c1">// [hash_set.size]</span>
+
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">node_alloc</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">node_allocs</span><span class="p">;</span><span class="w"> </span><span class="c1">// [n_nodes]</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">n_nodes</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">leaf_alloc</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">leaf_allocs</span><span class="p">;</span><span class="w"> </span><span class="c1">// [n_leafs]</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">n_leafs</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>上面四个属性已经解释过了，第5个属性是一个哈希表，详情请看<a href="./ggml-basic.md#ggml-implh">位图与哈希表</a>，第6个属性是在使用哈希表申请空间时，node的信息。在reserve函数的第1步里，使用哈希表预分配张量地址时，会把节点在计算图中的特征、预分配的地址存放在第6个属性里。</p>
+<p>最后两个属性把计算图中叶子节点和其他节点分开处理，这两个属性就是在alloc函数里实际用到的信息。也是reserve函数第二步复制的目的地。</p>
+<p>为什么使用哈希表先预分配地址，实际上在使用哈希表预分配的过程中会做一些优化。哈希表本质上是对象到索引的映射，这里使用哈希表是为了建立从<code>ggml_tensor</code>到<code>hash_node</code>的映射，<code>hash_node</code>是一个记录了结点信息的结构体，在分配内存的时候会模拟计算图执行时结点的生命周期，为了不影响<code>ggml_tensor</code>自己的数据，所以需要一个新的存储空间来记录各个结点在计算图变化时候的属性。</p>
+<p>“模拟计算图执行时结点的生命周期”，意思是在计算图执行过程中一些先计算的结点不再被依赖，不再被需要，则这些节点占用的空间可以被释放，下面会介绍计算图执行过程中的时空局限性，解释执行计算图时优化内存利用的空间。</p>
+<p><strong>liveness分析/内存复用</strong></p>
+<p>ggml_gallocr会对结点张量进行生命周期分析，实现内存重用。但是这句话实在是太抽象了，我在文档里看了很多次，还是不明白它是什么意思。</p>
+<p>我们先从父节点的复用来看，计算图内存优化的空间在哪里。什么叫复用父节点？考虑这个计算步骤：$b=ReLU(a)$，计算图如下所示：<br />
+$$
+a \rightarrow b
+$$<br />
+两个计算结点，代表两个张量，中间的箭头表示激活函数这一操作。在正常情况下，需要给这两个结点分别分配一块内存。</p>
+<p>但是在ggml计算图优化下，如果满足下面的条件：<br />
+- a不是来自外部的张量（由其他上下文分配，或者用户显式指定的张量，例如模型权重，如果允许修改则会破坏其他数据），<br />
+- a不作为后续输出（如果作为输出，则张量需要被保留），<br />
+- a和b的张量布局相同，<br />
+- a的子结点只有b，而且不作为其他任何张量的视图原张量，<br />
+- a到b的计算过程是支持inplace替换的，</p>
+<p>那么b的空间就可以复用a的空间。</p>
+<p>复用的结果是a和b指向同一片空间，a计算完了后，b直接在同一片空间写入结果，避免a只被b所利用，但是却一直占着空间，导致内存利用效率低。所谓的“父节点复用”实质上就是对于某些计算的中间结点，只在下一步的计算中使用到，没有必要在后续的计算中继续占用一块存储空间，因为之后不会再用到了。</p>
+<p>在计算图<strong>逻辑</strong>上，a、b都存在，对应的两个ggml_tensor也仍然存在，只是它们使用的是同一块内存空间。</p>
+<p>现在我们把目光放到整个计算图上，一个时刻在进行计算某一个node，只涉及该node和该node所依赖的nodes，其他的结点是不需要用到的。如果把计算图中的每个结点都单独分配一段空间来存储，在计算的时候会有大量的存储空间处于空闲状态。</p>
+<p>在意识到不必同时激活所有张量后，就可以自然地推导出：缓冲区大小可以小于整体计算图的大小，当一部分结点的数据已经传递下去，结点自身的数据不需要再使用时，这些结点再占用存储空间是没有意义的，这些空间可以给其他张量使用。而还有很久才会计算到的结点，现在就放到内存中也是没有意义的。</p>
+<p>也就是说当结点不再起作用时，或者说tensor的生命周期终结时，它所占有的空间可以被重新利用。如下图所示：</p>
+<p><img alt="" src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202604061936328.png" /></p>
+<p>那么在预分配的时候，结点node 0、node 1和结点node 4、node 5地址是一样的。这意味着，在reserve函数里需要根据计算图结点的拓扑排序依次处理结点，每处理完一个结点就把其父节点的依赖数减1，减到0后这个父节点对应的地址就可以被后面的结点利用了。</p>
+<p>在实际实现中，它先将叶子结点和用户显式指定保护（指定为input）的结点申请好，这部分的空间是不动的，也不会被复用。其余结点就按照上面说的思路进行内存空间的分配。</p>
+<p>在具体实现的时候，新定义的一个结构体来表示计算图上的结点，用哈希表建立从ggml_tensor到该数据结构的访问通路，结构体如下所示：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">hash_node</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">n_children</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">n_views</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">buffer_id</span><span class="p">;</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">buffer_address</span><span class="w"> </span><span class="n">addr</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">allocated</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>n_children表示有多少结点是本结点的子节点，在计算图中，有多少结点的计算依赖本结点<br />
+n_views表示本结点是多少结点的视图</p>
+<p>为什么要新建一个结构体？原因是gallocr不直接修改ggml_tensor，在申请空间的时候，是在模拟计算图计算流程，上面的这些属性是动态变化的。虽然计算图已经统计好了结点间的连接关系，这里把计算图定义和内存分配的两个功能分开，不要混淆在一起。</p>
+<h3 id="backend-scheduler">Backend scheduler</h3>
+<p>Backend scheduler是ggml实现异构计算的核心</p>
+<p>一个<code>ggml_backend</code>，对应一个vbuffer。</p>
+<p>维护了一个ggml_tensor到backend的哈希表，同时支持跨后端和流水线并行的张量复制：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// hash map of the nodes in the graph</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">ggml_hash_set</span><span class="w">  </span><span class="n">hash_set</span><span class="p">;</span>
+<span class="kt">int</span><span class="w">                 </span><span class="o">*</span><span class="w"> </span><span class="n">hv_tensor_backend_ids</span><span class="p">;</span><span class="w"> </span><span class="c1">// [hash_set.size]</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">ggml_tensor</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">hv_tensor_copies</span><span class="p">;</span><span class="w">      </span><span class="c1">// [hash_set.size][n_backends][n_copies]</span>
+
+<span class="cp">#define hash_id(tensor) ggml_hash_find_or_insert(&amp;sched-&gt;hash_set, tensor)</span>
+<span class="cp">#define tensor_backend_id(tensor) sched-&gt;hv_tensor_backend_ids[hash_id(tensor)]</span>
+<span class="cp">#define tensor_id_copy(id, backend_id, copy_id) sched-&gt;hv_tensor_copies[(id) * sched-&gt;n_backends * sched-&gt;n_copies + (backend_id) * sched-&gt;n_copies + (copy_id)]</span>
+<span class="cp">#define tensor_copy(tensor, backend_id, copy_id) tensor_id_copy(hash_id(tensor), backend_id, copy_id)</span>
+</code></pre></div>
+
+<p>n_copies和流水线并行支持有关</p>
+<p>记录计算图上各节点都存储在哪个后端上：</p>
+<div class="codehilite"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">node_backend_ids</span><span class="p">;</span><span class="w"> </span><span class="c1">// [graph_size]</span>
+<span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">leaf_backend_ids</span><span class="p">;</span><span class="w"> </span><span class="c1">// [graph_size]</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">prev_node_backend_ids</span><span class="p">;</span><span class="w"> </span><span class="c1">// [graph_size]</span>
+<span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">prev_leaf_backend_ids</span><span class="p">;</span><span class="w"> </span><span class="c1">// [graph_size]</span>
+</code></pre></div>
+
+<p>prev用于存储上次图分配的结果，当当前计算图节点后端分配结果与之前的分配结果不同时，会重新申请计算图。</p>
+<p>Backend scheduler的核心是计算图分割：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// graph splits</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">ggml_backend_sched_split</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">splits</span><span class="p">;</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">n_splits</span><span class="p">;</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">splits_capacity</span><span class="p">;</span>
+</code></pre></div>
+
+<p>对外接口：<br />
+- <code>ggml_backend_sched_alloc_graph</code>，先后调用下面两个函数：分割计算图+分配空间<br />
+- <code>ggml_backend_sched_split_graph</code>分割计算图<br />
+- <code>ggml_backend_sched_alloc_splits</code>判断节点分配后端是否有变化，如果有变化就通过gallocr重新分配空间。</p>
+<p>流水线并行支持</p>
+</body>
+</html>
