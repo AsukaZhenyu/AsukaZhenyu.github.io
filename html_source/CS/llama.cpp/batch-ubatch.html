@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>llama_batch与llama_ubatch设计 - Zhenyu's Blog</title>
+  <link rel="stylesheet" href="../../../css_source/main_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false},
+                  {left: "\\[", right: "\\]", display: true}
+              ],
+              throwOnError: false,
+              strict: false
+          });
+      });
+  </script>
+</head>
+<body class="has-sidebar">
+  <header>
+    <h1>Zhenyu's Blog</h1>
+    <nav>
+      <a href="../../../index.html">CS</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../musings.html">Musings</a>
+      <a href="../../../math.html">Math</a>
+      <a href="../../../music.html">Music</a>
+      <a href="../../../storytelling.html">Storytelling</a>
+      <a href="../../../PE.html">PE</a>
+    </nav>
+  </header>
+<div class="page-wrapper">
+  <aside class="sidebar">
+<nav class="toc">
+<ul>
+<li><a href="#llama_batch">llama_batch</a></li>
+<li><a href="#llama_ubatch">llama_ubatch</a></li>
+</ul>
+</nav>
+  </aside>
+  <main class="content">
+<h1 id="llama_batchllama_ubatch">llama_batch与llama_ubatch设计</h1>
+<p></br></p>
+<p>本文讲讲<code>llama_batch</code>和<code>llama_ubatch</code>这两个类的设计。</p>
+<p><img alt="" src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202603241847507.png" /></p>
+<h2 id="llama_batch">llama_batch</h2>
+<p><code>llama_batch</code>在<code>llama.h</code>文件里定义，非常简单，而且非常轻量，只包含一个int变量表示有多少tokens，还有一些指针：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">llama_batch</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">n_tokens</span><span class="p">;</span>
+<span class="w">    </span><span class="n">llama_token</span><span class="w">  </span><span class="o">*</span><span class="w">  </span><span class="n">token</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">float</span><span class="w">        </span><span class="o">*</span><span class="w">  </span><span class="n">embd</span><span class="p">;</span>
+<span class="w">    </span><span class="n">llama_pos</span><span class="w">    </span><span class="o">*</span><span class="w">  </span><span class="n">pos</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int32_t</span><span class="w">      </span><span class="o">*</span><span class="w">  </span><span class="n">n_seq_id</span><span class="p">;</span>
+<span class="w">    </span><span class="n">llama_seq_id</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">seq_id</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int8_t</span><span class="w">       </span><span class="o">*</span><span class="w">  </span><span class="n">logits</span><span class="p">;</span><span class="w">   </span><span class="c1">// TODO: rename this to &quot;output&quot;</span>
+<span class="p">}</span><span class="w"> </span><span class="n">llama_batch</span><span class="p">;</span>
+</code></pre></div>
+
+<p><code>llama_batch</code>就是一组tokens，指针指向这组tokens对应的信息。<code>llama_token</code>、<code>llama_pos</code>、<code>llama_seq_id</code>这三个类型都是<code>int32_t</code>的别名。</p>
+<p><img alt="" src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202603241908864.png" /></p>
+<p>什么情况下一个token属于多个序列（seq）呢？在Encode-Decode架构中，一个encode token可能被多个decode共享，在<a href="../AI-Model-Optimize/LLM-Sampling.md">LLM采样</a>中，一种方法叫Beam Search，初始的tokens会被多个beam共享。每个token所属的序列的数量不确定，所以需要一个数组记录序列的数量，另一个数组记录属于哪些序列。刚开始看的话可能会对<code>n_seq_id</code>和<code>seq_id</code>两个变量的含义感到困惑。在大部分情况下，不会有属于多个序列的情况。</p>
+<p>一个token对应的embed是一个浮点向量，在llama中这个隐藏向量的维度通常是4096，因为每个向量的长度都是一样的，所以直接使用一个一维数组进行存储。在使用中token和embd有一个不会空就可以了，</p>
+<p>logits可以视为一个标记数组，用于表示在不同情况下该token是否作为输出。</p>
+<h2 id="llama_ubatch">llama_ubatch</h2>
+<p><code>llama_ubatch</code>的结构就更加复杂了，初次看的时候会觉得这个结构体的设计非常奇怪。不明白它说保持<code>llama_ubatch</code>轻量是什么意思。</p>
+<div class="codehilite"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">llama_ubatch</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">n_tokens</span><span class="p">;</span><span class="w">     </span><span class="c1">// total tokens (n_seq_tokens * n_seqs)</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">n_seq_tokens</span><span class="p">;</span><span class="w"> </span><span class="c1">// tokens per sequence set</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">n_seqs</span><span class="p">;</span><span class="w">       </span><span class="c1">// sequence sets in the ubatch</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">n_seqs_unq</span><span class="p">;</span><span class="w">   </span><span class="c1">// unique sequence ids in the ubatch</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">n_pos</span><span class="p">;</span><span class="w">        </span><span class="c1">// number of position inputs for each token/embedding</span>
+<span class="w">    </span><span class="c1">//                          // size               | idx | val</span>
+<span class="w">    </span><span class="n">llama_token</span><span class="w">  </span><span class="o">*</span><span class="w">  </span><span class="n">token</span><span class="p">;</span><span class="w">      </span><span class="c1">// [n_tokens]         | i   | id, token</span>
+<span class="w">    </span><span class="kt">float</span><span class="w">        </span><span class="o">*</span><span class="w">  </span><span class="n">embd</span><span class="p">;</span><span class="w">       </span><span class="c1">// [n_embd, n_tokens] | i   | embd</span>
+<span class="w">    </span><span class="n">llama_pos</span><span class="w">    </span><span class="o">*</span><span class="w">  </span><span class="n">pos</span><span class="p">;</span><span class="w">        </span><span class="c1">// [n_tokens*n_pos]   | i   | pos</span>
+<span class="w">    </span><span class="kt">int32_t</span><span class="w">      </span><span class="o">*</span><span class="w">  </span><span class="n">n_seq_id</span><span class="p">;</span><span class="w">   </span><span class="c1">// [n_tokens]         | i   | -</span>
+<span class="w">    </span><span class="n">llama_seq_id</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="n">seq_id</span><span class="p">;</span><span class="w">     </span><span class="c1">// [n_tokens]         | s   | s0, s1, seq_id</span>
+<span class="w">    </span><span class="n">llama_seq_id</span><span class="w"> </span><span class="o">*</span><span class="w">  </span><span class="n">seq_id_unq</span><span class="p">;</span><span class="w"> </span><span class="c1">// [n_seqs_unq]       | s   | seq_id</span>
+<span class="w">    </span><span class="kt">int32_t</span><span class="w">      </span><span class="o">*</span><span class="w">  </span><span class="n">seq_idx</span><span class="p">;</span><span class="w">    </span><span class="c1">// [LLAMA_MAX_SEQ]    | -   | seq_idx</span>
+<span class="w">    </span><span class="kt">int8_t</span><span class="w">       </span><span class="o">*</span><span class="w">  </span><span class="n">output</span><span class="p">;</span><span class="w">     </span><span class="c1">// [n_tokens]         | i   | -</span>
+
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">data_t</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">llama_token</span><span class="o">&gt;</span><span class="w">    </span><span class="n">token</span><span class="p">;</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="w">          </span><span class="n">embd</span><span class="p">;</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">llama_pos</span><span class="o">&gt;</span><span class="w">      </span><span class="n">pos</span><span class="p">;</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="o">&gt;</span><span class="w">        </span><span class="n">n_seq_id</span><span class="p">;</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">llama_seq_id</span><span class="w"> </span><span class="o">*&gt;</span><span class="w"> </span><span class="n">seq_id</span><span class="p">;</span><span class="w">      </span><span class="c1">// these point into the seq_id_data below</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">llama_seq_id</span><span class="o">&gt;</span><span class="w">   </span><span class="n">seq_id_unq</span><span class="p">;</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="o">&gt;</span><span class="w">        </span><span class="n">seq_idx</span><span class="p">;</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int8_t</span><span class="o">&gt;</span><span class="w">         </span><span class="n">output</span><span class="p">;</span>
+
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">llama_seq_id</span><span class="o">&gt;</span><span class="w"> </span><span class="n">seq_id_data</span><span class="p">;</span>
+<span class="w">    </span><span class="p">};</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">data_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">data</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>观察结构体<code>llama_ubatch</code>的空间占用，会发现它的属性只是一些固定大小的变量和指针，在内部的<code>data_t</code>结构体，它占用的空间是很大而且不确定的，和token序列的长度相关。</p>
+<p>可以通过观察类<code>llama_batch_allocr</code>的私有方法<code>ubatch_add</code>来查看是如何构造ubatch的。数据对应的空间申请后，再让ubatch的指针指向这些空间。<code>llama_ubatch</code>的轻量性就体现再这里，它本身只是一堆指针而已。这里通过指针别名，减少使用时需要多次解引用。</p>
+<p>换句话说，申请ubatch，不同的tokens数量，和sequence set数量、长度，对应的数据空间大小不一样，而且非常占用空间，ubatch为了保持轻量，只保留指向这些数据存储空间的指针<code>data</code>，但是使用的时候每次需要通过data解引用非常麻烦，所以设置了中间一大段属性来指向<code>data</code>的数据。</p>
+<p>为什么要新建一个<code>data_t</code>结构体？理论上来讲可以对不同的段分开申请内存空间，然后再指向它们，仍然可以保持ubatch只有指针，这里应该是考虑到内存管理，结构体的内存空间是连续的，而且一起被构析。理论上来说要达到ubatch结构体轻量是不需要新建结构体的，但是为了内存管理方便，统一申请、统一构析，防止内存泄漏。</p>
+<p>最上面的一段属性是描述ubatch自身组织的参数（一些int变量）。中间的指针，指向的是ubatch对应的数据，直接对应<code>llama_batch</code>的属性，当然还新加了两个属性：<code>seq_id_unq</code>、<code>seq_idx</code>，这是管理<code>llama_batch</code>到<code>llama_ubatch</code>之间映射的数据。下面的结构体和指针已经在上面解释过了。</p>
+<p>接下来就是看ubatch是如何组织的，和batch的映射关系是怎样的。</p>
+<p><img alt="" src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202603261828169.png" /></p>
+<p><code>n_seqs_unq</code>指的是在该ubatch中tokens所在的序列个数。</p>
+<p>举个例子，假如该ubatch的所有tokens都来源于这些序列：<code>1、4、7、8、9</code>，那么<code>n_seqs_unq</code>的值为5</p>
+<p><code>n_pos</code>表示每个token的位置编码需要几个数。</p>
+<p>中间的数据大部分和batch里的相同，而且基本上都是直接复制过来的，只是多了两个变量：</p>
+<p><code>seq_id_unq</code>这个是一个数组，从小到大记录了tokens出现在哪些序列中，在上面的例子中，<code>seq_id_unq</code>的值是<code>[1,4,7,8,9]</code></p>
+<p><code>seq_idx</code>表示各个序列在本ubatch中排第几，在上面的例子中，序列<code>4</code>的idx是<code>1</code>，序列<code>8</code>的idx是3，也可以理解为<code>seq_id_unq</code>的逆映射。</p>
+<p>注意：所有的ubatch必然满足<code>n_tokens = n_seqs * n_seq_tokens</code></p>
+<p>（（需要完善：b_equal属性是什么意思，三种划分ubatch的方法本质上是什么意思））</p>
+  </main>
+</div>
+  <script>
+    (function() {
+      var headings = document.querySelectorAll(".content h1[id], .content h2[id], .content h3[id]");
+      var links = document.querySelectorAll(".toc a");
+      if (headings.length === 0 || links.length === 0) return;
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) {
+            var id = e.target.getAttribute("id");
+            links.forEach(function(a) {
+              a.classList.toggle("active", a.getAttribute("href") === "#" + id);
+            });
+          }
+        });
+      }, { rootMargin: "-20% 0px -60% 0px" });
+      headings.forEach(function(h) { observer.observe(h); });
+    })();
+  </script>
+</body>
+</html>

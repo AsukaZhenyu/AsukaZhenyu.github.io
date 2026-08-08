@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>金融技术指标 - Zhenyu's Blog</title>
+  <link rel="stylesheet" href="../../../css_source/main_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false},
+                  {left: "\\[", right: "\\]", display: true}
+              ],
+              throwOnError: false,
+              strict: false
+          });
+      });
+  </script>
+</head>
+<body class="has-sidebar">
+  <header>
+    <h1>Zhenyu's Blog</h1>
+    <nav>
+      <a href="../../../index.html">CS</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../musings.html">Musings</a>
+      <a href="../../../math.html">Math</a>
+      <a href="../../../music.html">Music</a>
+      <a href="../../../storytelling.html">Storytelling</a>
+      <a href="../../../PE.html">PE</a>
+    </nav>
+  </header>
+<div class="page-wrapper">
+  <aside class="sidebar">
+<nav class="toc">
+<ul>
+<li><a href="#_2">技术指标</a></li>
+</ul>
+</nav>
+  </aside>
+  <main class="content">
+<h1 id="_1">金融技术指标</h1>
+<p></br></p>
+<p>常见的金融技术指标、绩效指标与风险评估指标的定义与计算方法。</p>
+<h2 id="_2">技术指标</h2>
+<p>技术指标用于评估股票/期权未来走势，</p>
+  </main>
+</div>
+  <script>
+    (function() {
+      var headings = document.querySelectorAll(".content h1[id], .content h2[id], .content h3[id]");
+      var links = document.querySelectorAll(".toc a");
+      if (headings.length === 0 || links.length === 0) return;
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) {
+            var id = e.target.getAttribute("id");
+            links.forEach(function(a) {
+              a.classList.toggle("active", a.getAttribute("href") === "#" + id);
+            });
+          }
+        });
+      }, { rootMargin: "-20% 0px -60% 0px" });
+      headings.forEach(function(h) { observer.observe(h); });
+    })();
+  </script>
+</body>
+</html>

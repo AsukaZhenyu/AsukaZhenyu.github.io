@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>在llama.cpp的src之外 - Zhenyu's Blog</title>
+  <link rel="stylesheet" href="../../../css_source/main_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false},
+                  {left: "\\[", right: "\\]", display: true}
+              ],
+              throwOnError: false,
+              strict: false
+          });
+      });
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Zhenyu's Blog</h1>
+    <nav>
+      <a href="../../../index.html">CS</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../musings.html">Musings</a>
+      <a href="../../../math.html">Math</a>
+      <a href="../../../music.html">Music</a>
+      <a href="../../../storytelling.html">Storytelling</a>
+      <a href="../../../PE.html">PE</a>
+    </nav>
+  </header>
+<main class="content">
+<h1 id="llamacppsrc">在llama.cpp的src之外</h1>
+<p>llama.cpp是我第一个看源码的开源项目，所以有很多东西感觉很新鲜没见过。可能会涉及一些开源项目社区规范、一些工具/技术栈。</p>
+<h2 id="emscripten">Emscripten</h2>
+<p>Emscripten是一个工具链，主要把C/C++代码编译为WebAssembly（WASM/Wasm），可以在网页浏览器里高效运行。</p>
+<p>可以把C++代码转化为JavaScript中调用的模块，在网页上实现原生的性能。</p>
+<p>WebAssembly的动态链接支持还不完善，目前主要依赖静态链接。</p>
+<h2 id="windowsmingw">Windows上的MinGW</h2>
+<p>社区默认静态链接更适合MinGW（Minimalist GNU for Windows），MinGW默认静态链接<code>libstdc++.a</code>和<code>libgcc.a</code>，而且MinGW只动态链接<code>msvcrt.dll</code>，而这个动态库在几乎所有的Windows操作系统都会安装。</p>
+<p>C++运行时库并不是Windows操作系统的组成部分，微软自己的Visual C++运行时（如 msvcp140.dll）需要单独分发和安装，不同版本的VC++运行时互不兼容。MinGW的运行时库libstdc++-6.dll、libgcc_s_seh-1.dll）同样没有预装在Windows中。如果MinGW程序动态链接这些库，那么目标用户就必须手动安装对应的DLL，或者开发者必须将这些DLL与.exe一起打包。这无疑增加了分发成本和用户的使用门槛。</p>
+<p>而且Windows用户很少会同时运行多个MinGW编译的程序，动态链接的共享优势在MinGW场景下几乎不存在。</p>
+<p>但是GNU在Linux上、MSVC在Windows上都是默认支持动态链接的。</p>
+<h2 id="blassyclmusahipvulkancannzendnnkleidiaiopencl">BLAS、SYCL、MUSA、HIP、Vulkan、CANN、ZenDNN、KleidiAI、OpenCL</h2>
+<p>在阅读如何构建llama.cpp时发现，对于不同的后端构建方式完全不一样，在读的过程中发现有很多后端我完全没有概念。</p>
+<p>针对我的情况，需要用NVIDIA GPU加速，所以我应该按照CUDA那一章节去构建llama.cpp，要是看到CPU构建后面的东西看不懂就没往下看那就完蛋了。而且构建也支持多后端，在使用时可以指定使用后端设备，并且在编译过程中可以构建动态库，还有各种编译选项，还是先通读一遍，都了解了解再本地构建吧。</p>
+<p>我希望做CPU-GPU异构计算，这就涉及多后端Dynamic Loading，CPU端和CUDA端都需要了解并使用。</p>
+<p>在llama.cpp中，后端指的是：硬件架构的抽象层</p>
+<p>MUSA针对摩尔线程GPU加速<br />
+HIP针对AMD的GPU加速<br />
+Vulkan在我印象里是图形API，怎么也和设备/后端想关联呢？这里可以使用vulkan管理跨平台GPUs。<br />
+CANN针对华为昇腾NPU<br />
+ZenDNN针对AMD EPYC™ CPUs进行优化<br />
+KleidiAI 是一个专为 AI 工作负载设计的优化微核库，专门针对 Arm CPU 进行了优化。这些微核能够提升性能，并可由 CPU 后端启用使用。</p>
+</main>
+</body>
+</html>

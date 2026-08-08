@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NVIDIA CuTe DSL - Zhenyu's Blog</title>
+  <link rel="stylesheet" href="../../../css_source/main_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false},
+                  {left: "\\[", right: "\\]", display: true}
+              ],
+              throwOnError: false,
+              strict: false
+          });
+      });
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Zhenyu's Blog</h1>
+    <nav>
+      <a href="../../../index.html">CS</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../musings.html">Musings</a>
+      <a href="../../../math.html">Math</a>
+      <a href="../../../music.html">Music</a>
+      <a href="../../../storytelling.html">Storytelling</a>
+      <a href="../../../PE.html">PE</a>
+    </nav>
+  </header>
+<main class="content">
+<h1 id="nvidia-cute-dsl">NVIDIA CuTe DSL</h1>
+<p>NVIDIA的<code>CUTLASS</code>是构建在<code>CUDA</code>之上的一个专业库。<code>CUTLASS</code>是一个头文件库，在写<code>CUDA</code>程序的时候通过<code>#include</code>直接使用。<code>CuTe</code>作为<code>CUTLASS</code>的核心组件，从<code>CUTLASS 3.0</code>开始引入，<code>CuTe</code>是一套用C++实现的、用于灵活描述和操作内存中数据布局（Layout）和张量（Tensor）的抽象工具，是CUTLASS实现复杂优化的基石。</p>
+<p>从<code>CUTLASS 4.0</code>开始，官方提供了一个用Python编写高性能Kernel的接口——<a href="https://docs.nvidia.com/cutlass/latest/media/docs/pythonDSL/overview.html">CuTe DSL</a>，性能略逊于<code>CUTLASS C++</code>，但是易用性、开发效率更高，学习曲线更平缓。<code>CuTe DSL</code>仍然是贴近<code>NVIDIA SIMT GPU</code>的底层编程模型，与 <code>CuTe C++</code> 抽象层完全一致——它暴露了布局（Layouts）、张量（Tensors）、硬件原子操作（Hardware Atoms）等核心概念，并赋予开发者对硬件线程与数据层级结构的完全控制权。</p>
+</main>
+</body>
+</html>

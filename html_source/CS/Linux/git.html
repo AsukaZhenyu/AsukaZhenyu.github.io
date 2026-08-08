@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>git - Zhenyu's Blog</title>
+  <link rel="stylesheet" href="../../../css_source/main_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false},
+                  {left: "\\[", right: "\\]", display: true}
+              ],
+              throwOnError: false,
+              strict: false
+          });
+      });
+  </script>
+</head>
+<body class="has-sidebar">
+  <header>
+    <h1>Zhenyu's Blog</h1>
+    <nav>
+      <a href="../../../index.html">CS</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../musings.html">Musings</a>
+      <a href="../../../math.html">Math</a>
+      <a href="../../../music.html">Music</a>
+      <a href="../../../storytelling.html">Storytelling</a>
+      <a href="../../../PE.html">PE</a>
+    </nav>
+  </header>
+<div class="page-wrapper">
+  <aside class="sidebar">
+<nav class="toc">
+<ul>
+<li><a href="#_1">工作区与暂存区、本地仓库与远程仓库</a></li>
+</ul>
+</nav>
+  </aside>
+  <main class="content">
+<h1 id="git">git</h1>
+<h2 id="_1">工作区与暂存区、本地仓库与远程仓库</h2>
+<p><strong>工作区（Working Directory）</strong>：正在编辑的本地文件。</p>
+<p><strong>暂存区（Staging Area/Index）</strong>：临时存放待提交改动的区域。<br />
+```git bash<br />
+git add .</p>
+<div class="codehilite"><pre><span></span><code>这条命令就是将“在工作区修改的文件”加入到暂存区，准备提交。
+
+**本地仓库（Local Repository）**：Git记录的所有版本数据。
+```git bash
+git commit -m &quot;messages&quot;
+</code></pre></div>
+
+<p>把暂存区的文件改动提交到本地仓库。</p>
+<p><strong>远程仓库（Remote Repository）</strong>：托管在Github服务器上的版本库<br />
+```git bash<br />
+git push origin main</p>
+<div class="codehilite"><pre><span></span><code><span class="n">将你本地仓库的</span><span class="w"> </span><span class="n">main</span><span class="w"> </span><span class="n">分支上的提交</span><span class="err">，</span><span class="n">推送到名为</span><span class="w"> </span><span class="n">origin</span><span class="w"> </span><span class="n">的远程仓库中对应的</span><span class="w"> </span><span class="n">main</span><span class="w"> </span><span class="n">分支上</span><span class="err">。</span>
+
+<span class="err">##</span><span class="w"> </span><span class="n">git</span><span class="w"> </span><span class="n">branchs</span>
+
+<span class="n">内容来自</span><span class="o">[</span><span class="n">Learn Git Branching</span><span class="o">]</span><span class="p">(</span><span class="nl">https</span><span class="p">:</span><span class="o">//</span><span class="n">learngitbranching</span><span class="p">.</span><span class="n">js</span><span class="p">.</span><span class="n">org</span><span class="o">/</span><span class="p">)</span><span class="err">。</span>
+
+<span class="n">git下项目版本管理</span><span class="err">，</span><span class="n">实际上是以不同提交</span><span class="err">（</span><span class="k">commit</span><span class="err">）</span><span class="n">为节点的树</span><span class="err">。</span><span class="n">分支</span><span class="err">（</span><span class="n">branch</span><span class="err">）</span><span class="n">是一个指针</span><span class="err">，</span><span class="n">指向一个节点和这个节点的所有父节点</span><span class="err">。</span>
+
+<span class="err">![]</span><span class="p">(</span><span class="nl">https</span><span class="p">:</span><span class="o">//</span><span class="n">cdn</span><span class="p">.</span><span class="n">jsdelivr</span><span class="p">.</span><span class="n">net</span><span class="o">/</span><span class="n">gh</span><span class="o">/</span><span class="n">AsukaZhenyu</span><span class="o">/</span><span class="n">blog</span><span class="o">-</span><span class="n">img</span><span class="o">-</span><span class="n">store</span><span class="nv">@main</span><span class="o">/</span><span class="n">img</span><span class="o">/</span><span class="mf">202603090936534.</span><span class="n">png</span><span class="p">)</span>
+
+<span class="o">**</span><span class="n">提交</span><span class="err">（</span><span class="k">commit</span><span class="err">）</span><span class="o">**</span><span class="err">：</span><span class="n">记录项目跟踪文件的快照</span><span class="err">（</span><span class="n">snapshot</span><span class="err">），</span><span class="n">提交非常轻量</span><span class="err">，</span><span class="n">在可能的情况下会压缩为一组更改</span><span class="err">。</span>
+
+<span class="o">**</span><span class="n">分支</span><span class="err">（</span><span class="n">branch</span><span class="err">）</span><span class="o">**</span><span class="err">：</span><span class="n">指向提交</span><span class="err">（</span><span class="k">commit</span><span class="err">）</span><span class="n">的指针</span><span class="err">，</span><span class="n">包含此节点和所有父节点的所有工作</span><span class="err">。</span>
+</code></pre></div>
+
+<p>git checkout -b newBranch</p>
+<div class="codehilite"><pre><span></span><code>创建并跳转到新的分支
+
+**融合（Merge）**：将两个分支的工作融合在一起。创建一个新提交，有两个父节点，包含两个父节点以及父节点所有父节点的工作。
+</code></pre></div>
+
+<p>git merge bugFix</p>
+<div class="codehilite"><pre><span></span><code><span class="n">把bugFix分支的工作融合到当前分支下</span><span class="err">。</span>
+
+<span class="err">![]</span><span class="p">(</span><span class="nl">https</span><span class="p">:</span><span class="o">//</span><span class="n">cdn</span><span class="p">.</span><span class="n">jsdelivr</span><span class="p">.</span><span class="n">net</span><span class="o">/</span><span class="n">gh</span><span class="o">/</span><span class="n">AsukaZhenyu</span><span class="o">/</span><span class="n">blog</span><span class="o">-</span><span class="n">img</span><span class="o">-</span><span class="n">store</span><span class="nv">@main</span><span class="o">/</span><span class="n">img</span><span class="o">/</span><span class="mf">202603090953760.</span><span class="n">png</span><span class="p">)</span>
+
+<span class="o">**</span><span class="n">融合的要求</span><span class="o">**</span><span class="err">：</span><span class="n">两个分支必须有共同父节点</span><span class="err">（</span><span class="n">包括一个节点是另一个节点祖先的情况</span><span class="err">），</span><span class="n">在执行融合前工作区与暂存区不能有未提交的修改</span><span class="err">。</span>
+
+<span class="o">**</span><span class="n">融合的分类</span><span class="o">**</span><span class="err">：</span>
+<span class="err">“</span><span class="n">三方合并</span><span class="err">（</span><span class="n">Three</span><span class="o">-</span><span class="n">way</span><span class="w"> </span><span class="k">merge</span><span class="err">）”：</span><span class="n">基于共同祖先</span><span class="err">、</span><span class="n">当前分支最新提交</span><span class="err">、</span><span class="n">合并分支最新提交三者进行合并</span><span class="err">。</span>
+<span class="err">“</span><span class="n">快进合并</span><span class="err">（</span><span class="n">Fast</span><span class="o">-</span><span class="n">forward</span><span class="w"> </span><span class="err">）”：</span><span class="n">若当前分支是合并分支的祖先</span><span class="err">，</span><span class="n">这是只会移动当前分支的指针</span><span class="err">，</span><span class="n">不会创建新节点</span><span class="err">。</span>
+
+<span class="o">**</span><span class="n">变基</span><span class="err">（</span><span class="n">rebase</span><span class="err">）</span><span class="o">**</span><span class="err">：</span><span class="n">将当前分支上的所有本地提交</span><span class="err">“</span><span class="n">复制</span><span class="err">”</span><span class="n">到目标分支的最新提交之后</span><span class="err">，</span><span class="n">重新应用这些修改</span><span class="err">。</span><span class="n">它会改变提交的顺序和哈希值</span><span class="err">，</span><span class="n">使历史变成一条直线</span><span class="err">，</span><span class="n">就像这些修改是在目标分支最新提交之后才发生的一样</span><span class="err">。</span>
+</code></pre></div>
+
+<p>git rebase main<br />
+```<br />
+<img alt="" src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202603091004046.png" /></p>
+<p><strong>HEAD</strong><br />
+- HEAD 是一个引用（reference），存储在 .git/HEAD 文件中。<br />
+- 通常情况下，它指向一个本地分支（如 refs/heads/main），而该分支再指向某个具体的提交。<br />
+- 也可以直接指向一个具体的提交 ID，这种状态称为 “分离头指针（detached HEAD）”。</p>
+<p>HEAD指向当前工作区对应的提交/分支（通过<code>git status</code>或者<code>git log</code>查看），当你进行提交时，HEAD也会随之更新。</p>
+<p><strong>分支树上自由移动</strong><br />
+通过<code>git checkout</code>+分支名、HEAD、相对引用、提交节点ID（哈希值），可以在分枝树上自由移动。checkout命令可以改变HEAD的指向，在其他用法里还可以恢复文件、创建分支。</p>
+<p><strong>相对引用（Relative Refs）</strong><br />
+- HEAD~ 或 HEAD~1：当前提交的父提交<br />
+- HEAD~2：当前提交的祖父提交<br />
+- HEAD^：也是父提交（与 ~ 在普通提交上等价，但在合并提交中 ^ 可指定第几个父提交）<br />
+相对引用的锚点可以是HEAD，也可以是分支，还可以是提交的哈希值。</p>
+  </main>
+</div>
+  <script>
+    (function() {
+      var headings = document.querySelectorAll(".content h1[id], .content h2[id], .content h3[id]");
+      var links = document.querySelectorAll(".toc a");
+      if (headings.length === 0 || links.length === 0) return;
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) {
+            var id = e.target.getAttribute("id");
+            links.forEach(function(a) {
+              a.classList.toggle("active", a.getAttribute("href") === "#" + id);
+            });
+          }
+        });
+      }, { rootMargin: "-20% 0px -60% 0px" });
+      headings.forEach(function(h) { observer.observe(h); });
+    })();
+  </script>
+</body>
+</html>

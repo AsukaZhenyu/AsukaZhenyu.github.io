@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C++ basic - Zhenyu's Blog</title>
+  <link rel="stylesheet" href="../../../css_source/main_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false},
+                  {left: "\\[", right: "\\]", display: true}
+              ],
+              throwOnError: false,
+              strict: false
+          });
+      });
+  </script>
+</head>
+<body class="has-sidebar">
+  <header>
+    <h1>Zhenyu's Blog</h1>
+    <nav>
+      <a href="../../../index.html">CS</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../musings.html">Musings</a>
+      <a href="../../../math.html">Math</a>
+      <a href="../../../music.html">Music</a>
+      <a href="../../../storytelling.html">Storytelling</a>
+      <a href="../../../PE.html">PE</a>
+    </nav>
+  </header>
+<div class="page-wrapper">
+  <aside class="sidebar">
+<nav class="toc">
+<ul>
+<li><a href="#acm">ACM中不常见的语法</a>
+<ul>
+<li><a href="#extern-c">extern “C”</a></li>
+<li><a href="#c">C++中的作用域</a></li>
+<li><a href="#using">using</a></li>
+<li><a href="#c_1">C++中的模板编程</a></li>
+</ul></li>
+<li><a href="#_1">面向对象基础设计模式</a>
+<ul>
+<li><a href="#raii">RAII</a></li>
+<li><a href="#_2">前向声明</a></li>
+</ul></li>
+</ul>
+</nav>
+  </aside>
+  <main class="content">
+<h1 id="c-basic">C++ basic</h1>
+<p><br/><br />
+本文记录C++基础，包括：C++本身的一些特性、在项目实践中常见的写法、设计模式基础。主要是为从ACM到大型C++项目迁移做准备。</p>
+<h2 id="acm">ACM中不常见的语法</h2>
+<h3 id="extern-c">extern “C”</h3>
+<p>在cpp项目代码里面可以看到类似下面的写法：</p>
+<div class="codehilite"><pre><span></span><code><span class="cp">#ifdef  __cplusplus</span>
+<span class="k">extern</span><span class="w"> </span><span class="s">&quot;C&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="cp">#endif</span>
+<span class="cm">/*</span>
+<span class="cm">枚举类</span>
+<span class="cm">结构体</span>
+<span class="cm">*/</span>
+<span class="cp">#ifdef  __cplusplus</span>
+<span class="p">}</span>
+<span class="cp">#endif</span>
+</code></pre></div>
+
+<p><code>__cplusplus</code>宏只有在cpp编译器（或者强制设置为cpp模式）的情况下才会被设定，这一段的意思是，如果使用cpp编译器处理，在这大段声明之外用<code>extern "C"{}</code>包裹，表示这一段代码用c编译器处理，如果使用c编译器就直接处理。</p>
+<p>为什么要用C，因为C风格结构体内存规律，枚举类的本质就是枚举整数，ABI稳定。C++会有额外开销，而且不同C++编译器的处理方式不一样。为了稳定性和方便调用。</p>
+<h3 id="c">C++中的作用域</h3>
+<h3 id="using">using</h3>
+<p>using的语法比typedef更友好，并且能够支持模板别名，是C++11标准后的推荐写法。</p>
+<p>using 类型别名的作用范围与 typedef 完全相同，遵循 C++ 的作用域规则：</p>
+<p>在命名空间内定义：作用于整个命名空间（需通过命名空间访问或 using 声明引入）。</p>
+<p>在类内定义：作用于该类及其派生类（受访问控制影响）。</p>
+<p>在函数内定义：仅作用于该函数块。</p>
+<p>在全局作用域定义：作用于整个文件（从定义点开始）。</p>
+<h3 id="c_1">C++中的模板编程</h3>
+<h2 id="_1">面向对象基础设计模式</h2>
+<h3 id="raii">RAII</h3>
+<p>RAII（Resource Acquisition Is Initialization）是 C++ 的核心设计哲学：<br />
+资源获取即初始化，资源释放即析构。</p>
+<p>对应类的构造和构析函数。</p>
+<h3 id="_2">前向声明</h3>
+<p>前向声明通常和指针/引用配合使用，例如在llama-model.h里第17行：</p>
+<div class="codehilite"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">llama_cparams</span><span class="p">;</span>
+</code></pre></div>
+
+<p>这里的结构体llama_cparams在llama-cparams.h里有完整定义，但是在llama-model.h里没有include这个文件，在这里只是声明有这么一个结构体。<br />
+在llama-model.h里第555行声明结构体llama_model里的成员函数时，llama_cparams作为引用出现在函数参数里：</p>
+<div class="codehilite"><pre><span></span><code><span class="kt">float</span><span class="w"> </span><span class="nf">get_rope_freq_scale</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">llama_cparams</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">cparams</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">il</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+</code></pre></div>
+
+<p>但是在llama-model.cpp里第8192行实现该成员函数时：</p>
+<div class="codehilite"><pre><span></span><code><span class="kt">float</span><span class="w"> </span><span class="nf">llama_model::get_rope_freq_scale</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">llama_cparams</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">cparams</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">il</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">hparams</span><span class="p">.</span><span class="n">is_swa</span><span class="p">(</span><span class="n">il</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">hparams</span><span class="p">.</span><span class="n">rope_freq_scale_train_swa</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">cparams</span><span class="p">.</span><span class="n">rope_freq_scale</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>需要使用结构体llama_cparams的定义/实现代码，所以在llama-model.cpp第5行include了llama-cparams.h文件：</p>
+<div class="codehilite"><pre><span></span><code><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;llama-cparams.h&quot;</span>
+</code></pre></div>
+
+<p>在前向声明中，编译器没有拿到该类/结构体的实现，因此不知道该类/结构体的大小，更不能创建该类型的对象，或者访问任意成员。</p>
+<p>但是引用只是别名，其大小已知（指针的大小也是固定的），所以编译器只需要知道这个类型存在，就能声明指向它的引用或指针。</p>
+<p>前向声明可以减少编译依赖，缩短编译时间。如果两个类互相引用时，也可以用前向声明打破循环依赖。（在Stanford CS144 check0作业代码minnow里byte_stream.hh的接口实现有这个例子）</p>
+<p>对于<code>llama-model.cpp</code>而言，<code>llama-model.h</code>在这里隐藏实现好像有点脱裤子放屁，但是对于其他的<code>.cpp</code>文件要引用<code>llama-model.h</code>却不涉及<code>llama_cparams</code>结构体实现的，则是节省了大量编译资源。减少头文件依赖，确实会让整个项目的编译负担减轻。</p>
+  </main>
+</div>
+  <script>
+    (function() {
+      var headings = document.querySelectorAll(".content h1[id], .content h2[id], .content h3[id]");
+      var links = document.querySelectorAll(".toc a");
+      if (headings.length === 0 || links.length === 0) return;
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) {
+            var id = e.target.getAttribute("id");
+            links.forEach(function(a) {
+              a.classList.toggle("active", a.getAttribute("href") === "#" + id);
+            });
+          }
+        });
+      }, { rootMargin: "-20% 0px -60% 0px" });
+      headings.forEach(function(h) { observer.observe(h); });
+    })();
+  </script>
+</body>
+</html>

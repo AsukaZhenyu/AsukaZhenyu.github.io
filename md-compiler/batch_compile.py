@@ -109,6 +109,14 @@ def parse_title_link(content: str, source_dir: Path) -> dict | None:
         output_path = ROOT / 'index.html'
     elif str(rel) == 'musings.md':
         output_path = ROOT / 'musings.html'
+    elif str(rel) == 'math.md':
+        output_path = ROOT / 'math.html'
+    elif str(rel) == 'music.md':
+        output_path = ROOT / 'music.html'
+    elif str(rel) == 'storytelling.md':
+        output_path = ROOT / 'storytelling.html'
+    elif str(rel) == 'PE.md':
+        output_path = ROOT / 'PE.html'
     else:
         out_rel = rel.parent / (rel.stem + '.html')
         output_path = HTML_SOURCE / out_rel
@@ -139,6 +147,63 @@ def parse_posts_lists(md_text: str, source_dir: Path) -> tuple[str, list[list[di
 
     modified = POSTS_LIST_RE.sub(replace, md_text)
     return modified, all_entries
+
+
+# ---------------------------------------------------------------------------
+# TOC (Table of Contents) extraction
+# ---------------------------------------------------------------------------
+
+HEADING_RE = re.compile(r'<h([123])\s+id="([^"]*)"[^>]*>(.*?)</h[123]>')
+
+
+def extract_toc(body_html: str) -> str:
+    """Extract h1-h3 headings from compiled HTML, build nested TOC tree.
+
+    Skips the first h1 (page title). Returns empty string if not enough headings.
+    """
+    headings = HEADING_RE.findall(body_html)
+    if len(headings) <= 1:
+        return ''
+
+    items = []
+    min_level = 4
+    for i, (level_str, id_, text) in enumerate(headings):
+        level = int(level_str)
+        if i == 0 and level == 1:
+            continue
+        if level < min_level:
+            min_level = level
+        items.append({'level': level, 'id': id_, 'text': text, 'children': []})
+
+    if not items:
+        return ''
+
+    # Build tree: attach each heading as child of nearest preceding shallower heading
+    root = {'level': min_level - 1, 'children': []}
+    stack = [root]
+    for item in items:
+        while stack[-1]['level'] >= item['level']:
+            stack.pop()
+        stack[-1]['children'].append(item)
+        stack.append(item)
+
+    # Render tree → nested <ul>/<li>
+    def render_node(node):
+        html = f'<li><a href="#{node["id"]}">{node["text"]}</a>'
+        if node['children']:
+            html += '\n<ul>\n'
+            for child in node['children']:
+                html += render_node(child) + '\n'
+            html += '</ul>'
+        html += '</li>'
+        return html
+
+    parts = ['<ul>']
+    for child in root['children']:
+        parts.append(render_node(child))
+    parts.append('</ul>')
+
+    return '<nav class="toc">\n' + '\n'.join(parts) + '\n</nav>'
 
 
 # ---------------------------------------------------------------------------
@@ -186,7 +251,8 @@ def depth_prefix(output_path: Path) -> str:
     return rel + '/'
 
 
-def render_shell(body_html: str, output_path: Path, page_css: str) -> str:
+def render_shell(body_html: str, output_path: Path, page_css: str,
+                 toc_html: str = '') -> str:
     prefix = depth_prefix(output_path)
 
     # Resolve CSS path relative to output
@@ -198,7 +264,10 @@ def render_shell(body_html: str, output_path: Path, page_css: str) -> str:
     title_m = re.search(r'<h[12][^>]*>(.*?)</h[12]>', body_html)
     page_title = title_m.group(1) if title_m else "Zhenyu's Blog"
 
-    return (
+    has_sidebar = bool(toc_html)
+
+    # Common <head> section
+    head = (
         '<!DOCTYPE html>\n'
         '<html lang="zh-CN">\n'
         '<head>\n'
@@ -226,21 +295,80 @@ def render_shell(body_html: str, output_path: Path, page_css: str) -> str:
         '          });\n'
         '      });\n'
         '  </script>\n'
-        '</head>\n'
-        '<body>\n'
+    )
+
+    # Common header
+    header = (
         '  <header>\n'
         '    <h1>Zhenyu\'s Blog</h1>\n'
         '    <nav>\n'
-        f'      <a href="{prefix}index.html">Home</a>\n'
+        f'      <a href="{prefix}index.html">CS</a>\n'
         f'      <a href="{prefix}about.html">About</a>\n'
         f'      <a href="{prefix}musings.html">Musings</a>\n'
+        f'      <a href="{prefix}math.html">Math</a>\n'
+        f'      <a href="{prefix}music.html">Music</a>\n'
+        f'      <a href="{prefix}storytelling.html">Storytelling</a>\n'
+        f'      <a href="{prefix}PE.html">PE</a>\n'
         '    </nav>\n'
-        '  </header>\n'
-        '\n'
-        f'{body_html}\n'
-        '</body>\n'
-        '</html>'
+        '  </header>'
     )
+
+    if has_sidebar:
+        # Scroll-spy JavaScript
+        scroll_spy_js = (
+            '  <script>\n'
+            '    (function() {\n'
+            '      var headings = document.querySelectorAll('
+            '".content h1[id], .content h2[id], .content h3[id]");\n'
+            '      var links = document.querySelectorAll(".toc a");\n'
+            '      if (headings.length === 0 || links.length === 0) return;\n'
+            '      var observer = new IntersectionObserver(function(entries) {\n'
+            '        entries.forEach(function(e) {\n'
+            '          if (e.isIntersecting) {\n'
+            '            var id = e.target.getAttribute("id");\n'
+            '            links.forEach(function(a) {\n'
+            '              a.classList.toggle('
+            '"active", a.getAttribute("href") === "#" + id);\n'
+            '            });\n'
+            '          }\n'
+            '        });\n'
+            '      }, { rootMargin: "-20% 0px -60% 0px" });\n'
+            '      headings.forEach(function(h) { observer.observe(h); });\n'
+            '    })();\n'
+            '  </script>\n'
+        )
+
+        return (
+            head
+            + '</head>\n'
+            '<body class="has-sidebar">\n'
+            + header
+            + '\n'
+            '<div class="page-wrapper">\n'
+            '  <aside class="sidebar">\n'
+            f'{toc_html}\n'
+            '  </aside>\n'
+            '  <main class="content">\n'
+            f'{body_html}\n'
+            '  </main>\n'
+            '</div>\n'
+            + scroll_spy_js
+            + '</body>\n'
+            '</html>'
+        )
+    else:
+        return (
+            head
+            + '</head>\n'
+            '<body>\n'
+            + header
+            + '\n'
+            '<main class="content">\n'
+            f'{body_html}\n'
+            '</main>\n'
+            '</body>\n'
+            '</html>'
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -254,14 +382,22 @@ def compile_one(md_path: Path, html_path: Path, page_css: str) -> list[list[dict
     with open(md_path, 'r', encoding='utf-8') as f:
         md_text = f.read()
 
+    # Detect and remove [toc] marker (case-insensitive)
+    has_toc = bool(re.search(r'\[toc\]', md_text, re.IGNORECASE))
+    if has_toc:
+        md_text = re.sub(r'\[toc\]\s*', '', md_text, flags=re.IGNORECASE)
+
     modified, entries_groups = parse_posts_lists(md_text, md_path.parent)
     body_html = compile_markdown_body(modified)
+
+    # Extract TOC from compiled HTML (before posts-list replacement)
+    toc_html = extract_toc(body_html) if has_toc else ''
 
     for i, entries in enumerate(entries_groups):
         table = render_posts_table(entries, html_path.parent)
         body_html = body_html.replace(f'<!--POSTS_LIST_{i}-->', table)
 
-    full_html = render_shell(body_html, html_path, page_css)
+    full_html = render_shell(body_html, html_path, page_css, toc_html)
 
     html_path.parent.mkdir(parents=True, exist_ok=True)
     with open(html_path, 'w', encoding='utf-8') as f:
@@ -275,6 +411,10 @@ def compile_all():
     queue: list[tuple[Path, Path, str]] = [
         (MD_SOURCE / 'index.md', ROOT / 'index.html', DEFAULT_CSS),
         (MD_SOURCE / 'musings.md', ROOT / 'musings.html', DEFAULT_CSS),
+        (MD_SOURCE / 'math.md', ROOT / 'math.html', DEFAULT_CSS),
+        (MD_SOURCE / 'music.md', ROOT / 'music.html', DEFAULT_CSS),
+        (MD_SOURCE / 'storytelling.md', ROOT / 'storytelling.html', DEFAULT_CSS),
+        (MD_SOURCE / 'PE.md', ROOT / 'PE.html', DEFAULT_CSS),
     ]
 
     while queue:

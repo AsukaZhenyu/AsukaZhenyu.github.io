@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>双指针 - Zhenyu's Blog</title>
+  <link rel="stylesheet" href="../../../css_source/main_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false},
+                  {left: "\\[", right: "\\]", display: true}
+              ],
+              throwOnError: false,
+              strict: false
+          });
+      });
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Zhenyu's Blog</h1>
+    <nav>
+      <a href="../../../index.html">CS</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../musings.html">Musings</a>
+      <a href="../../../math.html">Math</a>
+      <a href="../../../music.html">Music</a>
+      <a href="../../../storytelling.html">Storytelling</a>
+      <a href="../../../PE.html">PE</a>
+    </nav>
+  </header>
+<main class="content">
+<h1 id="_1">双指针</h1>
+<p>双指针想要优化问题必须有单调性，或者说能排除掉某些必然不是最优情况的性质。</p>
+<ol>
+<li>接雨水：每次短的向内移动。</li>
+<li>先从左到右遍历得到一个单调序列得到左指针的候补，然后再从右往左遍历右指针候补。<br />
+例：去掉一段<strong>子数组</strong>得到递增序列的方案数<br />
+子数组是连续的，可以用左端点和右端点描述，为了满足递增条件，左端点前需要递增，右端点后也需要递增，这就是需要先确定左右指针候补的原因。<br />
+优化思路和单调栈有些相似：把左指针候补看成单调栈，已经出栈的元素后续一定用不到了。只不过此处入栈和出栈是分开的。</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="n">i</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">n</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">nums</span><span class="p">)</span>
+<span class="k">while</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="o">&lt;</span><span class="n">n</span> <span class="ow">and</span> <span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">&gt;</span><span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span><span class="n">i</span><span class="o">+=</span><span class="mi">1</span>
+<span class="k">if</span> <span class="n">i</span><span class="o">==</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="k">return</span> <span class="n">n</span><span class="o">*</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span>
+<span class="n">ans</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span>
+<span class="n">j</span><span class="o">=</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span>
+<span class="k">while</span> <span class="n">j</span><span class="o">==</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span> <span class="ow">or</span> <span class="n">nums</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">&lt;</span><span class="n">nums</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]:</span>
+    <span class="k">while</span> <span class="n">i</span><span class="o">&gt;=</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;=</span><span class="n">nums</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span><span class="n">i</span><span class="o">-=</span><span class="mi">1</span>
+    <span class="n">ans</span><span class="o">+=</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span>
+    <span class="n">j</span><span class="o">-=</span><span class="mi">1</span>
+</code></pre></div>
+</main>
+</body>
+</html>

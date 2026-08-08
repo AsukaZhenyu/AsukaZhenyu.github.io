@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arch Linux配置 - Zhenyu's Blog</title>
+  <link rel="stylesheet" href="../../../css_source/main_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false},
+                  {left: "\\[", right: "\\]", display: true}
+              ],
+              throwOnError: false,
+              strict: false
+          });
+      });
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Zhenyu's Blog</h1>
+    <nav>
+      <a href="../../../index.html">CS</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../musings.html">Musings</a>
+      <a href="../../../math.html">Math</a>
+      <a href="../../../music.html">Music</a>
+      <a href="../../../storytelling.html">Storytelling</a>
+      <a href="../../../PE.html">PE</a>
+    </nav>
+  </header>
+<main class="content">
+<h1 id="arch-linux">Arch Linux配置</h1>
+<p>Arch Linux安装完后啥也没有，即使弄好了neofetch/fastfetch，直接在TTY上显示也不好看，在穿上丝袜拍张自拍发到X上前，还要进行一些配置。</p>
+<hr />
+<p><strong>About Time</strong></p>
+<p>因为我的电脑电池完全坏了，之前每次拔电后再开机都要重新设置时间，在Arch的安装过程中，在安装盘和电脑上分别运行的下面的两个命令来同步时间：</p>
+<div class="codehilite"><pre><span></span><code>timedatectl<span class="w"> </span>set-ntp<span class="w"> </span><span class="nb">true</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>ln<span class="w"> </span>-sf<span class="w"> </span>/usr/share/zoneinfo/Asia/Shanghai<span class="w"> </span>/etc/localtime
+hwclock<span class="w"> </span>--systohc
+</code></pre></div>
+
+<p>使用date可以查看系统时间，拔掉电一段时间后看看时间会不会错。</p>
+<p>拔掉电后一段时间重新开机，确实date输出的时间是错的。</p>
+<p>输入：</p>
+<div class="codehilite"><pre><span></span><code>timedatectl<span class="w"> </span>status
+</code></pre></div>
+
+<p>看下面的两项：</p>
+<div class="codehilite"><pre><span></span><code>System<span class="w"> </span>clock<span class="w"> </span>synchronized
+NTP<span class="w"> </span>service
+</code></pre></div>
+
+<p>这两项一开始是没有启动的</p>
+<p>再执行一遍开启NTP网络自动校时<br />
+timedatectl set-ntp true<br />
+再date输出的就是正确的时间，再看上面两项现在就是启动了的</p>
+<p>断电重启后时间还是不对，需要再运行一遍timedatectl set-ntp true才能正常显示时间</p>
+<p>现在启动某个服务，并设置开机自启动：</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>systemd-timesyncd
+sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>NetworkManager
+</code></pre></div>
+
+<p>联网就能开机自动配置时间</p>
+<hr />
+<p><strong>systemd</strong></p>
+<p><a href="https://wiki.archlinux.org/title/Systemd">https://wiki.archlinux.org/title/Systemd</a></p>
+<p>systemtcl enable会全局开启服务<br />
+NPT服务<br />
+每次systemctl开启某个服务的时候，都会建立某种连接，并且和etc文件夹下的配置文件相关。</p>
+<p>journaltcl</p>
+<p>systemd-analyze</p>
+<p>hostnamectl、timedatectl、localectl</p>
+<hr />
+<p><strong>pacman</strong></p>
+<p><a href="https://wiki.archlinux.org/title/Pacman">https://wiki.archlinux.org/title/Pacman</a></p>
+<p>系统更新（更新所有的包，除了本地的包）：</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>pacman<span class="w"> </span>—Syu
+</code></pre></div>
+
+<p>这里会安装一些开发的基础的包，包括gcc，我认识的还有词法分析和语法分析工具。</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>pacman<span class="w"> </span>—S<span class="w"> </span>man
+sudo<span class="w"> </span>pacman<span class="w"> </span>-S<span class="w"> </span>base-devel
+</code></pre></div>
+
+<p>pacman只有系统的包，官方的包，如果要使用AUR，就得用AUR工具，例如yay paru，yay用go编写，paru用rust编写，一般认为paru是yay的现代上位替代。</p>
+<div class="codehilite"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://aur.archlinux.org/yay-bin.git
+<span class="nb">cd</span><span class="w"> </span>yay-bin
+makepkg<span class="w"> </span>-si
+</code></pre></div>
+
+<p>查看具体有哪些包，知道名字里有yay，查看这个包具体是什么名字：</p>
+<div class="codehilite"><pre><span></span><code>pacman<span class="w"> </span>-Qs<span class="w"> </span>yay
+</code></pre></div>
+
+<p>卸载：</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>pacman<span class="w"> </span>-Rs<span class="w"> </span>yay-bin<span class="w"> </span>yay-bin-debug
+</code></pre></div>
+
+<p>清理缓存：</p>
+<div class="codehilite"><pre><span></span><code>rm<span class="w"> </span>-rf<span class="w"> </span>~/.cache/yay
+</code></pre></div>
+
+<p>安装paru-bin无法工作，好像是找不到某个库，安装paru用rust编译再试试。<br />
+命令和上面的相似，把-bin去掉就OK了，目前可以正常使用paru</p>
+<p>paru在安装的时候，会进入review模式，他会给你一下下载的信息，你这是需要输入q退出才hi继续安装。</p>
+<hr />
+<p><strong>联网</strong></p>
+<p>（2025.3.10更新）<br />
+如果觉得下面的nmcli用起来太麻烦，可以试试:</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nmtui
+</code></pre></div>
+
+<p>直接在tui下联网，在连接校园网时特别方便，否则可能还要自己根据学校使用的网络协议自己新建con，然后配置证书之类的，非常复杂。</p>
+<p>（原本nmcli的连接笔记）</p>
+<p>多个联网工具systemd-networkd、network manager、iwctl、wpa_suplicant等，只能有一个在运行，否则可能导致冲突。<br />
+使用systemctl来停止和启动服务，现在就保证只有network manager在运行。</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>systemctl<span class="w"> </span>stop<span class="w"> </span>systemd-networkd
+sudo<span class="w"> </span>systemctl<span class="w"> </span>disable<span class="w"> </span>systemd-networkd
+sudo<span class="w"> </span>systemctl<span class="w"> </span>restart<span class="w"> </span>NetworkManager
+</code></pre></div>
+
+<p>通过<code>ip addr</code>来看无线联网设备wlan0有没有ip地址<br />
+通过<code>sudo ip link set wlan0 up</code>启动该无线联网设备</p>
+<p>使用network manager不需要自己去配置DNS、dhcpcd（ip地址与子网掩码）、默认网关Gateway，就可以全部自动配置好，已经连接过了后会自动连接。</p>
+<p><code>nmcli device</code>命令可以查看网络连接情况(network manager command line interface)</p>
+<p>多次重启发现network manager还是不稳定，重启后还需要重新运行：</p>
+<div class="codehilite"><pre><span></span><code>nmcli<span class="w"> </span>device<span class="w"> </span>wifi<span class="w"> </span>connect<span class="w"> </span><span class="s2">&quot;TP-LINK_481A&quot;</span><span class="w"> </span>password<span class="w"> </span><span class="s2">&quot;password&quot;</span>
+</code></pre></div>
+
+<p>来连接互联网，而且连接完后还有可能断开连接，也有可能是网络情况不稳定。后续再配置waybar运行一键重新连接互联网。</p>
+<hr />
+<p><strong>代理</strong>：<br />
+使用mihomo</p>
+<div class="codehilite"><pre><span></span><code>paru<span class="w"> </span>-S<span class="w"> </span>mihomo
+</code></pre></div>
+
+<p>在机场下载yaml文件<br />
+放到：</p>
+<div class="codehilite"><pre><span></span><code>~/.config/mihomo/config.yaml
+/etc/mihomo/config.yaml
+</code></pre></div>
+
+<p>这里使用systemctl启动mihomo服务：</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w">  </span>--now<span class="w"> </span>mihomo
+</code></pre></div>
+
+<p>然后是在~/.bashrc里加上http_proxy和https_proxy的地址，这个在wsl上之前也配置过了</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">http_proxy</span><span class="o">=</span>http://127.0.0.1:7890
+<span class="nb">export</span><span class="w"> </span><span class="nv">https_proxy</span><span class="o">=</span>http://127.0.0.1:7890
+</code></pre></div>
+
+<p>由于连接校园网需要断开代理，所以需要简单轻便的开关mihomo的方法，将下面的内容放入~/.zshrc：</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">alias</span><span class="w"> </span>m-on<span class="o">=</span><span class="s1">&#39;sudo systemctl start mihomo &amp;&amp; echo &quot;Mihomo 已启动&quot;&#39;</span>
+<span class="nb">alias</span><span class="w"> </span>m-off<span class="o">=</span><span class="s1">&#39;sudo systemctl stop mihomo &amp;&amp; echo &quot;Mihomo 已停止&quot;&#39;</span>
+<span class="nb">alias</span><span class="w"> </span>m-st<span class="o">=</span><span class="s1">&#39;systemctl status mihomo&#39;</span>
+<span class="nb">alias</span><span class="w"> </span>m-up<span class="o">=</span><span class="s1">&#39;~/bin/update_mihomo.sh&#39;</span>
+</code></pre></div>
+
+<p>这里因为每次需要从代理网站下载配置文件后要复制到对应的地方也非常麻法，所以写了一个脚本，在Downloads文件夹下根据时间戳找到最新的配置文件然后复制到对应的地方，可以快捷地完成代理配置：</p>
+<div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+
+<span class="nv">src</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/Downloads&quot;</span>
+<span class="nv">dest</span><span class="o">=</span><span class="s2">&quot;/etc/mihomo/config.yaml&quot;</span>
+
+<span class="c1"># 获取所有匹配的文件列表</span>
+<span class="nv">files</span><span class="o">=(</span><span class="s2">&quot;</span><span class="nv">$src</span><span class="s2">&quot;</span>/config-*.yaml<span class="o">)</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">files</span><span class="p">[0]</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;未找到 config-*.yaml 文件&quot;</span>
+<span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="k">fi</span>
+
+<span class="c1"># 找出文件名中时间戳最大的文件</span>
+<span class="nv">latest</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="nv">max_ts</span><span class="o">=</span><span class="m">0</span>
+<span class="k">for</span><span class="w"> </span>f<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">files</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nv">base</span><span class="o">=</span>$(basename "$f<span class="s2">&quot;)</span>
+<span class="s2">    if [[ $base =~ ^config-([0-9]{14})\.yaml$ ]]; then</span>
+<span class="s2">        ts=</span><span class="si">${</span><span class="nv">BASH_REMATCH</span><span class="p">[1]</span><span class="si">}</span>
+<span class="s2">        if (( ts &gt; max_ts )); then</span>
+<span class="s2">            max_ts=</span><span class="nv">$ts</span>
+<span class="s2">            latest=&quot;</span><span class="nv">$f</span><span class="s2">&quot;</span>
+<span class="s2">        fi</span>
+<span class="s2">    fi</span>
+<span class="s2">done</span>
+
+<span class="s2">if [ -z &quot;</span><span class="nv">$latest</span><span class="s2">&quot; ]; then</span>
+<span class="s2">    echo &quot;</span>没有符合<span class="w"> </span>config-YYYYMMDDHHMMSS.yaml<span class="w"> </span>格式的文件<span class="s2">&quot;</span>
+<span class="s2">    exit 1</span>
+<span class="s2">fi</span>
+
+<span class="s2"># 复制到目标位置（覆盖已存在的文件）</span>
+<span class="s2">sudo cp &quot;</span>$latest" "$dest<span class="s2">&quot;</span>
+<span class="s2">echo &quot;</span>已用<span class="w"> </span>$latest 更新 $dest<span class="s2">&quot;</span>
+</code></pre></div>
+
+<hr />
+<p><strong>桌面环境DE</strong></p>
+<p>接下来配置 桌面环境（ Desktop Environment， DE），<br />
+GNOME 和 KDE这些是集成好了的DE， 就什么都有可以开箱即用。</p>
+<p>arch刚安装完，我们面对的是系统第一个虚拟控制台tty1，tty是由linux内核提供的虚拟控制台/虚拟终端，tty是电传打字机Teletypewriter的缩写。真实终端指的是物理显示屏和键盘。这个词非常有年代感，想象很久以前一个电脑有一个房间那么大，你通过一个长长的线连接着的电传打字机与计算机交互。我做为笔电男大，眼前的屏幕和键盘就是一切，挺难体会什么叫tty什么叫终端（Terminal）。大大的计算机连出来一块小小的屏幕，这一小块屏幕就是终端、末端，你可以与之交互。</p>
+<p>shell是运行在TTY或者终端模拟器上的程序，常见的有bash、zsh、fish<br />
+shell运行在TTY之上的命令行，你可以输入类似自然语言的预设命令，就可以调用系统完成某些任务。TTY是Linux最底层的文本输入输出，shell是进程运行在TTY和模拟终端中的命令解释工具。</p>
+<p>当进入图形界面后就不能直接使用TTY了，必须安装终端模拟器在图形界面里使用命令行（当然也可以退出图形界面使用TTY）</p>
+<p>先安装图形工具是对的，据我所知，只有滚挂的时候才会进入TTY修复，在图形界面下再运行模拟终端，由图形合成器提供的终端在字体、背景等观感上更美观。之后有什么工具、插件想要安装使用，还是在图形工具下的模拟终端里安装比较好。在阅读相关文档时也会看到在TTY和模拟终端之间有所不同。</p>
+<p>在我的电脑上，super键指的就是win键。</p>
+<p>我计划使用niri等，自己拼装一个DE。</p>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>功能</th>
+<th>对应Windows</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>niri</td>
+<td>Wayland合成器</td>
+<td>DWM</td>
+<td>窗口管理器</td>
+</tr>
+<tr>
+<td>XDG Desktop Portal</td>
+<td>中间层</td>
+<td>Windows API/权限中心</td>
+<td>转发请求</td>
+</tr>
+<tr>
+<td>Waybar</td>
+<td>任务栏</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Mako</td>
+<td>弹出系统通知</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Fuzzel</td>
+<td>打开应用</td>
+<td>开始/搜索/桌面图标</td>
+<td>搜索应用的快捷方式给出列表，使用图形化的方式点击打开应用，无需打开模拟终端输入命令行启动</td>
+</tr>
+<tr>
+<td>Swaybg</td>
+<td>更换壁纸/设置背景图</td>
+<td>个性化</td>
+<td></td>
+</tr>
+<tr>
+<td>Foot</td>
+<td>模拟控制台</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>为什么需要XDG Desktop Portal这个中间层，这是出于安全考虑，类似于传达室大爷。外界任何请求，叫一个学生，送衣服，送餐都必须经过传达室大爷。防止恶意读取系统信息或访问系统资源，例如进入传销人员或者恐怖分子Allahu Akbar。不能让应用直接访问系统资源，好比不能让外人随意进入校园。</p>
+<p>我不打算安装gnome的中控，也不打算使用其自带的文件管理系统，我计划安装TUI文件管理器Yazi，这玩意的好处是在tty也能用，在修系统的时候非常方便。</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>pacman<span class="w"> </span>-S<span class="w"> </span>niri<span class="w"> </span>xwayland-satellite<span class="w"> </span>kitty<span class="w"> </span>fuzzel<span class="w"> </span>mako<span class="w"> </span>libnotify<span class="w"> </span><span class="se">\</span>
+polkit-gnome<span class="w"> </span>xdg-desktop-portal<span class="w"> </span>xdg-desktop-portal-gtk<span class="w"> </span>xdg-desktop-portal-wlr
+</code></pre></div>
+
+<p>通过niri-session打开niri会话，会生成默认配置文件<br />
+<code>/home/yanagi/.config/niri/config.kdl</code></p>
+<p>在类Unix系统中，路径中的<code>~</code>会自动展开为<code>/home/yourusrname/</code>，你可以用<code>echo ~</code>来查看</p>
+<div class="codehilite"><pre><span></span><code>mkdir<span class="w"> </span>~/.config/xdg-desktop-portal
+nvim<span class="w"> </span>~/.config/xdg-desktop-portal/niri-portals.conf
+</code></pre></div>
+
+<p>写入：</p>
+<div class="codehilite"><pre><span></span><code><span class="o">[</span>preferred<span class="o">]</span>
+<span class="nv">default</span><span class="o">=</span>gtk<span class="p">;</span>wlr<span class="p">;</span>
+<span class="c1"># 指定录屏和截图使用 wlr 后端</span>
+org.freedesktop.impl.portal.ScreenCast<span class="o">=</span>wlr
+org.freedesktop.impl.portal.Screenshot<span class="o">=</span>wlr
+<span class="c1"># 指定文件选择器使用 gtk 后端</span>
+org.freedesktop.impl.portal.FileChooser<span class="o">=</span>gtk
+</code></pre></div>
+
+<p>修改niri的配置</p>
+<div class="codehilite"><pre><span></span><code>nvim<span class="w"> </span>~/.config/niri/config.kdl
+</code></pre></div>
+
+<p>先搜索alacritty，这是niri默认的终端模拟器，把它修改为kitty</p>
+<div class="codehilite"><pre><span></span><code>Mod+T<span class="w"> </span>hotkey-overlay-title<span class="o">=</span><span class="s2">&quot;Open a Terminal:kitty&quot;</span><span class="o">{</span>spawn<span class="w"> </span><span class="s2">&quot;&quot;</span><span class="o">}</span>
+</code></pre></div>
+
+<p>然后修改niri的启动配置，搜索spawn-at-startup</p>
+<div class="codehilite"><pre><span></span><code>spawn-at-startup<span class="w"> </span><span class="s2">&quot;xwayland-satellite&quot;</span><span class="w"> </span><span class="s2">&quot;:&quot;</span>
+spawn-at-startup<span class="w"> </span><span class="s2">&quot;mako&quot;</span>
+spawn-at-startup<span class="w"> </span><span class="s2">&quot;/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1&quot;</span>
+
+//<span class="w"> </span>建议添加：确保<span class="w"> </span>Portal<span class="w"> </span>环境变量在启动时正确加载
+spawn-at-startup<span class="w"> </span><span class="s2">&quot;dbus-update-activation-environment&quot;</span><span class="w"> </span><span class="s2">&quot;--all&quot;</span>
+</code></pre></div>
+
+<p>niri-session打开niri会话<br />
+super+T打开终端，接下来的任务在niri里的终端模拟器内去做，这个时候就可以通过鼠标和滚轮更加方便的去看终端里的信息，使用nvim时也可以用鼠标光标而不是hjkl。</p>
+<p><strong>配置显示器</strong><br />
+nvim ~/.config/niri/config.kdl 继续编辑niri的配置文件<br />
+super T再打开一个终端，输入niri msg outputs，看当前显示屏支持的模式<br />
+mode就写niri msg outputs里推荐的<br />
+我的显示器分辨率是1366x768，scale就选1</p>
+<p><strong>配置消息窗口</strong></p>
+<p><code>notify-send helloworld</code>可以发送一条信息<br />
+mako默认要鼠标点击一下才能关闭通知窗口</p>
+<div class="codehilite"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>~/.config/mako
+nvim<span class="w"> </span>~/.config/mako/config
+</code></pre></div>
+
+<p>输入：</p>
+<div class="codehilite"><pre><span></span><code>default-timeout<span class="o">=</span><span class="m">8000</span>
+border-radius<span class="o">=</span><span class="m">8</span>
+</code></pre></div>
+
+<p><code>makoctl reload</code> 重启mako</p>
+<p><strong>安装字体</strong></p>
+<div class="codehilite"><pre><span></span><code>paru<span class="w"> </span>-S<span class="w"> </span>noto-fonts-cjk<span class="w"> </span>ttf-fira-code<span class="w"> </span>ttf-joypixels
+</code></pre></div>
+
+<ul>
+<li>noto-fonts-cjk: 这是 Google 和 Adobe 联合开发的“思源黑体”，是目前 Linux 上最标准、最全的中文字体。cjk包括了中文日语韩语，都可以显示。</li>
+<li>ttf-fira-code: 推荐给程序员的字体，在 kitty 终端里看代码非常漂亮。</li>
+<li>ttf-joypixels: 让你能看到 Emoji 表情。</li>
+</ul>
+<p><strong>安装浏览器</strong></p>
+<div class="codehilite"><pre><span></span><code>paru<span class="w"> </span>-S<span class="w"> </span>google-chrome
+paru<span class="w"> </span>-S<span class="w"> </span>firefox
+</code></pre></div>
+
+<p>选jack2，jack2 是传统的专业音频服务器，而 pipewire-jack 是新兴的 PipeWire 框架为了兼容 JACK 应用而提供的桥梁。</p>
+<p>目前拿浏览器刷B站没有声音<br />
+我在waybar安装的是pulseaudio<br />
+启用该服务，并安装其他必要的包：<br />
+- <code>pulseaudio-alsa</code>: 让使用 ALSA 的程序（如 Firefox 某些组件）重定向到 PulseAudio。<br />
+- <code>pavucontrol</code>: 必装的图形化控制面板，这是排查声音去向的神器。</p>
+<div class="codehilite"><pre><span></span><code>systemctl<span class="w"> </span>--user<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>--now<span class="w"> </span>pulseaudio
+sudo<span class="w"> </span>pacman<span class="w"> </span>-S<span class="w"> </span>pulseaudio-alsa<span class="w"> </span>pavucontrol
+</code></pre></div>
+
+<p>可以在niri的配置文件下设置window-rule，浏览器有透明度看起来不舒服。</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// 设置全局默认透明度</span>
+<span class="nb">window</span><span class="o">-</span><span class="n">rule</span><span class="p">{</span>
+<span class="w">    </span><span class="n">opacity</span><span class="w"> </span><span class="mf">0.8</span>
+<span class="p">}</span>
+<span class="nb">window</span><span class="o">-</span><span class="n">rule</span><span class="p">{</span>
+<span class="w">    </span><span class="n">match</span><span class="w"> </span><span class="n">app</span><span class="o">-</span><span class="n">id</span><span class="p">=</span><span class="s">&quot;firefox&quot;</span>
+<span class="w">    </span><span class="n">opacity</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="p">}</span>
+<span class="nb">window</span><span class="o">-</span><span class="n">rule</span><span class="p">{</span>
+<span class="w">    </span><span class="n">match</span><span class="w"> </span><span class="n">app</span><span class="o">-</span><span class="n">id</span><span class="p">=</span><span class="s">&quot;google-chrome&quot;</span>
+<span class="w">    </span><span class="n">opacity</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>安装waybar</strong></p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>pacman<span class="w"> </span>-S<span class="w"> </span>waybar
+<span class="c1"># 推荐安装图标字体，否则状态栏会乱码</span>
+sudo<span class="w"> </span>pacman<span class="w"> </span>-S<span class="w"> </span>otf-font-awesome<span class="w"> </span>ttf-jetbrains-mono-nerd
+</code></pre></div>
+
+<p>otf-font-awesome安装后niri的字符不能正常显示改为安装，把上面两个字体的包都卸掉了</p>
+<div class="codehilite"><pre><span></span><code>ttf-firacode-nerd
+</code></pre></div>
+
+<p>配置文件：</p>
+<div class="codehilite"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>~/.config/waybar
+git<span class="w"> </span>clone<span class="w"> </span>一个你喜欢的waybar主题
+cp<span class="w"> </span>-r<span class="w"> </span>xxx<span class="w"> </span>~/.config/waybar
+</code></pre></div>
+
+<p>不需要在niri设置启动时启动waybar，它自己会自动启动，如果设置了你会看到两天控制栏。</p>
+<p>上面提到network manager连接有时不太稳定，可以自定义waybar去执行sh脚本或者命令。</p>
+<p><strong>工作区</strong><br />
+Mod+O Overview<br />
+我把按键改为了：<br />
+Mod+(IKJL)来上下左右</p>
+<hr />
+<p><strong>中文输入法</strong><br />
+添加archlinuxcn的源</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>nvim<span class="w"> </span>/etc/pacman.conf
+</code></pre></div>
+
+<p>在最后加上</p>
+<div class="codehilite"><pre><span></span><code><span class="o">[</span>archlinuxcn<span class="o">]</span>
+<span class="nv">Server</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>https://xxx
+</code></pre></div>
+
+<p>安装archlinuxcn的密钥</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>pacman<span class="w"> </span>-Sy<span class="w"> </span>archlinuxcn-keyring
+</code></pre></div>
+
+<p>安装和配置fcitx5，我在学习日语所以安装了fcitx5-mozc</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 一键安装中文 + 日语 + 词库 + 主题</span>
+paru<span class="w"> </span>-S<span class="w"> </span>fcitx5-im<span class="w"> </span>fcitx5-chinese-addons<span class="w"> </span>fcitx5-mozc<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>fcitx5-pinyin-zhwiki<span class="w"> </span>fcitx5-material-color
+</code></pre></div>
+
+<p>配置环境/etc/environment</p>
+<div class="codehilite"><pre><span></span><code><span class="nv">GTK_IM_MODULE</span><span class="o">=</span>fcitx
+<span class="nv">QT_IM_MODULE</span><span class="o">=</span>fcitx
+<span class="nv">XMODIFIERS</span><span class="o">=</span>@im<span class="o">=</span>fcitx
+<span class="nv">SDL_IM_MODULE</span><span class="o">=</span>fcitx
+<span class="nv">GLFW_IM_MODULE</span><span class="o">=</span>ibus
+</code></pre></div>
+
+<p>在niri配置文件里设置启动时执行</p>
+<div class="codehilite"><pre><span></span><code>spawn-at-startup<span class="w"> </span><span class="s2">&quot;fcitx5&quot;</span><span class="w"> </span><span class="s2">&quot;-d&quot;</span>
+</code></pre></div>
+
+<p>目前就是日语输入法有点问题，之前在win上用日语输入法时也是需要手动变换日语输入法，换到日语输入法后还有两种模式，英文和假名。我希望达到的目的是按Shift在英中日三个模式里切换，目前还没解决。</p>
+<hr />
+<p><strong>剪切板</strong></p>
+<p>没想到Arch Linux连系统剪切板都没有，想要复制的内容在不同软件直接粘贴，需要有一个系统剪切板来存。这里安装的是<code>wl-clipboard</code>。</p>
+<hr />
+<p><strong>截屏与录屏</strong></p>
+<p>这里就弄截屏，之后又需要的时候再弄录屏吧，截屏需要一定的易用性，截完屏后存储在一个固定的地方，然后放到系统剪切板中，并弹出通知提示截屏完成。</p>
+<p>需要两个包作为截屏基础：<code>grim</code>截屏工具、 <code>slurp</code>交互式选择区域。还需要一个包<code>jq</code>用于解析json数据，用于提取json文本中的数据，用于窗口截图。</p>
+<div class="codehilite"><pre><span></span><code>sudo<span class="w"> </span>pacman<span class="w"> </span>-S<span class="w"> </span>grim<span class="w"> </span>slurp<span class="w"> </span>jq
+</code></pre></div>
+
+<p>在<code>~/.config/niri/config.kdl</code>里写入，注意要在大括号bind内：</p>
+<div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="nv">Mod</span><span class="o">+</span><span class="nv">S</span>{<span class="w"> </span>
+<span class="w">      </span><span class="o">//</span><span class="w"> </span><span class="nv">screenshot</span><span class="c1">; </span>
+<span class="w">      </span><span class="o">//</span><span class="w"> </span><span class="nv">spawn</span><span class="w"> </span><span class="s2">&quot;notify-send&quot;</span><span class="w"> </span><span class="s2">&quot;Print works&quot;</span><span class="c1">;</span>
+<span class="w">      </span><span class="o">//</span><span class="w"> </span><span class="nv">spawn</span><span class="w"> </span><span class="s2">&quot;ehco &#39;strat screenshot&#39;&quot;</span>
+<span class="w">      </span><span class="nv">spawn</span><span class="w"> </span><span class="s2">&quot;/home/yanagi/bin/niri-screenshot&quot;</span><span class="w"> </span><span class="s2">&quot;full&quot;</span><span class="c1">;</span>
+<span class="w">    </span>}
+<span class="w">    </span><span class="nv">Ctrl</span><span class="o">+</span><span class="nv">S</span>{<span class="w"> </span>
+<span class="w">      </span><span class="o">//</span><span class="w"> </span><span class="nv">screenshot</span><span class="o">-</span><span class="nv">screen</span><span class="c1">; </span>
+<span class="w">      </span><span class="nv">spawn</span><span class="w"> </span><span class="s2">&quot;/home/yanagi/bin/niri-screenshot&quot;</span><span class="w"> </span><span class="s2">&quot;area&quot;</span><span class="c1">;</span>
+<span class="w">    </span>}
+<span class="w">    </span><span class="nv">Alt</span><span class="o">+</span><span class="nv">S</span>{<span class="w"> </span>
+<span class="w">      </span><span class="o">//</span><span class="w"> </span><span class="nv">screenshot</span><span class="o">-</span><span class="nv">window</span><span class="c1">; </span>
+<span class="w">      </span><span class="nv">spawn</span><span class="w"> </span><span class="s2">&quot;/home/yanagi/bin/niri-screenshot&quot;</span><span class="w"> </span><span class="s2">&quot;window&quot;</span><span class="c1">;</span>
+<span class="w">    </span>}
+</code></pre></div>
+
+<p>注意niri配置文件的spawn的解法，一行命令有多个参数要分开引号来写，最后要加上分号，否则不会执行。</p>
+<p>这里本来想window截图模式是选择窗口截图，但是不太好实现，niri msg没有给出聚焦窗口的坐标宽高信息，所以行为可能不理想，实现脚本如下所示：</p>
+<div class="codehilite"><pre><span></span><code><span class="ch">#!/usr/bin/env bash</span>
+
+<span class="nb">set</span><span class="w"> </span>-euo<span class="w"> </span>pipefail
+
+<span class="nv">SCREENSHOT_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span><span class="s2">/Pictures/Screenshots&quot;</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SCREENSHOT_DIR</span><span class="s2">&quot;</span>
+
+<span class="nv">FILENAME</span><span class="o">=</span><span class="s2">&quot;screenshot-</span><span class="k">$(</span>date<span class="w"> </span>+%Y%m%d-%H%M%S<span class="k">)</span><span class="s2">.png&quot;</span>
+<span class="nv">FILEPATH</span><span class="o">=</span><span class="s2">&quot;${SCREENSHOT_DIR}/${FILENAME}&quot;</span>
+
+<span class="k">case</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span><span class="w"> </span><span class="k">in</span>
+<span class="w">    </span>full<span class="o">)</span>
+<span class="w">        </span>grim<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$FILEPATH</span><span class="s2">&quot;</span>
+<span class="w">        </span><span class="p">;;</span>
+<span class="w">    </span>area<span class="o">)</span>
+<span class="w">        </span>grim<span class="w"> </span>-g<span class="w"> </span><span class="s2">&quot;$(slurp)" "$FILEPATH&quot;</span>
+<span class="w">        </span><span class="p">;;</span>
+<span class="w">    </span>window<span class="o">)</span>
+<span class="w">        </span><span class="c1"># 使用 slurp -o 选择窗口（交互式）</span>
+<span class="w">        </span><span class="nv">GEOM</span><span class="o">=</span><span class="k">$(</span>slurp<span class="w"> </span>-o<span class="k">)</span>
+<span class="w">        </span>grim<span class="w"> </span>-g<span class="w"> </span><span class="s2">&quot;$GEOM" "$FILEPATH&quot;</span>
+<span class="w">        </span><span class="p">;;</span>
+<span class="w">    </span>*<span class="o">)</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Usage: </span><span class="nv">$0</span><span class="s2"> {full|area|window}&quot;</span>
+<span class="w">        </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">        </span><span class="p">;;</span>
+<span class="k">esac</span>
+
+wl-copy<span class="w"> </span>&lt;<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$FILEPATH</span><span class="s2">&quot;</span>
+
+<span class="k">if</span><span class="w"> </span><span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>notify-send<span class="w"> </span>&gt;/dev/null<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>notify-send<span class="w"> </span><span class="s2">&quot;截图已保存&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span><span class="s2">&quot;📸 ${FILENAME}\n文件已保存至 ${SCREENSHOT_DIR}\n并已复制到剪贴板&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>-i<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$FILEPATH</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>-t<span class="w"> </span><span class="m">3000</span>
+<span class="k">fi</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$FILEPATH</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<p>win+s -&gt; 全屏截图</p>
+<p>ctrl+s -&gt; 自选截图，自己画截图框</p>
+<p>alt+s -&gt; 点击窗口截图，但是效果不理想，点击窗口还是截的全屏，但是也可以通过画框选定截图范围，我觉得可以视为上面两者的结合。</p>
+<hr />
+<p><strong>Picgo</strong></p>
+<p>我的笔记一般把图片上传到github图床，然后在markdown引用链接，在picgo对应的github仓库给了安装说明：</p>
+<div class="codehilite"><pre><span></span><code>paru<span class="w"> </span>-S<span class="w"> </span>picgo-appimage
+</code></pre></div>
+
+<p>然后直接可以通过fuzzel打开，打开之后就是一个方型的小窗口，右键可以快速通过剪切板上传，或者打开picgo全屏进行配置。</p>
+<hr />
+<p><strong>蓝牙</strong></p>
+<p>目前不打算用蓝牙了，打算买一个有线耳机，主要是懒得充电，也懒得配置。</p>
+<hr />
+<p><strong>壁纸</strong></p>
+<p>使用swww和waypaper，swww是后端，waypaper是换壁纸的前端。</p>
+<div class="codehilite"><pre><span></span><code>paru<span class="w"> </span>-S<span class="w"> </span>swww<span class="w"> </span>waypaper
+</code></pre></div>
+
+<p>要在niri里配置：<br />
+```bash<br />
+spawn-at-startup &ldquo;swww-daemon&rdquo;</p>
+<div class="codehilite"><pre><span></span><code>目前swww好像用不了了，好像是因为项目改名为awww了,`sudo pacman -Syu`后就用不了了，现在也懒得管，反正不影响使用。
+
+---
+
+**steam**
+
+首先要在`/etc/pacman.conf`中启用多位库，也就是将下面两行取消测试：
+</code></pre></div>
+
+<p>[multilib]<br />
+Include = /etc/pacman.d/mirrorlist</p>
+<div class="codehilite"><pre><span></span><code>在配置`/etc/pacman.conf`的时候，对于不同的库，不同的源解去注释的时候，也要把上面的[]内的内容解注释掉，否则你的pacman还是找不到。
+
+这里查阅资料后发现，wayland对nvidia驱动支持比较差，而且我的硬件比较老，nvidia的支持比较差。
+
+这里安装i3-wm，一个基于X11的窗口管理器，对nvidia驱动支持比较好。
+
+安装i3-wm不必删掉niri,到时候在SDDM登陆界面可以选择进入哪个窗口管理器，可以自由选择进入niri还是i3,他们一个是基于wayland一个是基于X11，不会相互冲突。
+
+在配置游戏的过程中，我们必须要自己管理显卡使用。
+
+----
+
+**关于配置文件**
+
+上面的过程都可以抽象为：安装某个功能的包，配置某个系统文件（让系统知道你要使用这个工具），配置工具自己的配置文件（快捷键绑定，个性化表现形式），配置工具与工具间的配置文件（比如在niri里配置模拟终端，应用搜索应用等，也就是说工具之间可能存在依赖关系）。
+
+在配置配置文件的时候，我们会新建一些文件夹和文件，这时候系统和工具怎么知道它要遵守这些配置文件呢？这些文件夹和文件的命名，是系统和工具自己定义的吗？
+
+----
+
+**xorg、x11、wayland以及集成桌面环境**
+
+在找工具的时候，会针对不同的桌面环境有不同的bug和配置方法。对Qt、GTK应用支持也不一样。
+
+----
+
+**DM Display Manager登陆管理器**
+
+使用的是SDDM
+```bash
+sudo pacman -S sddm
+</code></pre></div>
+
+<p>然后systemctl启动服务就行了，非常方便</p>
+<p>在调试SDDM相关的时候，很有可能会遇到图形相关的错误，导致开机时卡在inital ramdisk步骤，解决办法是在grub启动时，按e进入编辑界面，在linux开头的那一行后面加上空格和3，然后按Ctrl+X启动进入tty修复，在调试过程中建议关掉sddm的系统服务，防止调试时需要重启需要反复执行上述步骤。</p>
+<hr />
+</main>
+</body>
+</html>

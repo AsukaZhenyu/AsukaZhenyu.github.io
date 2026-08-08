@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>zsh配置与使用 - Zhenyu's Blog</title>
+  <link rel="stylesheet" href="../../../css_source/main_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false},
+                  {left: "\\[", right: "\\]", display: true}
+              ],
+              throwOnError: false,
+              strict: false
+          });
+      });
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Zhenyu's Blog</h1>
+    <nav>
+      <a href="../../../index.html">CS</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../musings.html">Musings</a>
+      <a href="../../../math.html">Math</a>
+      <a href="../../../music.html">Music</a>
+      <a href="../../../storytelling.html">Storytelling</a>
+      <a href="../../../PE.html">PE</a>
+    </nav>
+  </header>
+<main class="content">
+<h1 id="zsh">zsh配置与使用</h1>
+<p><br/></p>
+<p>一般我们在TTY或者终端模拟器里使用的命令行（解释器）叫shell程序，对于现代Linux发行版用户一般情况下我们使用的shell程序是bash；现代macOS默认自带的是zsh； Windows不是类Unix操作系统， Windows默认的shell之一是自行开发的PowerShell， 它自带面向对象的许多特征， 功能非常强大； 鸿蒙OS默认不为普通用户提供命令行终端应用，需要自己安装。</p>
+<p>对于Linux用户，很多人都不推荐直接使用bash，因为缺乏一些开箱即用的现代化交互特性，例如：语法高亮、自动建议与拼写纠正等。有人推荐fish，也有人推荐zsh。fish 开箱即用体验优秀，但与bash脚本不兼容；而zsh既兼容bash，又拥有强大的可定制性和插件生态。我是用了一段时间的bash，现在想要迁移到zsh上，本文就是记录迁移的过程。</p>
+<p>使用下面的命令看自己是否安装了zsh：</p>
+<div class="codehilite"><pre><span></span><code>zsh<span class="w"> </span>--version
+</code></pre></div>
+
+<p>使用下面的命令将zsh设置为默认shell：</p>
+<div class="codehilite"><pre><span></span><code>chsh<span class="w"> </span>-s<span class="w"> </span><span class="k">$(</span>which<span class="w"> </span>zsh<span class="k">)</span>
+</code></pre></div>
+
+<p>安装oh-my-zsh:</p>
+<div class="codehilite"><pre><span></span><code>sh<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>curl<span class="w"> </span>-fsSL<span class="w"> </span>https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh<span class="k">)</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<p>安装完了后就可以直接把<code>~/.bashrc</code>里面自定义的设置直接复制到<code>~/.zshrc</code>里。</p>
+<hr />
+<p>复制时出现了问题，明明在nvim配置里启用了系统剪切板，但是用的时候发现没有生效。</p>
+<p>原因是：系统还没安装剪切板，我使用niri窗口管理器，安装了面向Wayland的剪切板<code>wl-clipboard</code>。</p>
+<p>你也可以在nvim里运行命令<code>:checkhealth</code>查找剪切板相关信息，来查看到底是哪里出了问题。</p>
+<hr />
+<p>目前来看，zsh的配置文件里可以配置zsh的主题，以及zsh采用的插件，你可以通过下面的命令查看zsh原生支持哪些插件：</p>
+<div class="codehilite"><pre><span></span><code>omz<span class="w"> </span>plugin<span class="w"> </span>list
+</code></pre></div>
+
+<p>目前我只启用了两个插件：</p>
+<ul>
+<li>
+<p><code>git</code>：命令补全、分支显示</p>
+</li>
+<li>
+<p><code>sudo</code>：按两次ESC键就可以在命令前加上sudo</p>
+</li>
+</ul>
+<p>然后还安装了一个自动补全的插件<a href="https://github.com/zsh-users/zsh-autosuggestions/blob/master/INSTALL.md">zsh-autosuggestions</a>，可以向Fish那样，根据你此前的命令，给出自动补全。</p>
+<p>安装也非常简单，输入下面的命令克隆仓库：</p>
+<div class="codehilite"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/zsh-users/zsh-autosuggestions<span class="w"> </span><span class="si">${</span><span class="nv">ZSH_CUSTOM</span><span class="k">:-</span><span class="p">~/.oh-my-zsh/custom</span><span class="si">}</span>/plugins/zsh-autosuggestions
+</code></pre></div>
+
+<p>它会自动克隆到oh-my-zsh的插件文件夹下，然后在<code>~/.zshrc</code>里面的插件部分加上这个名字就可以了。</p>
+<p>zsh-autosuggestion并不是按Tab进行补全，按→接受全部建议，ctrl+→接受下一个单词。</p>
+</main>
+</body>
+</html>

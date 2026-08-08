@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attention计算 - Zhenyu's Blog</title>
+  <link rel="stylesheet" href="../../../css_source/main_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false},
+                  {left: "\\[", right: "\\]", display: true}
+              ],
+              throwOnError: false,
+              strict: false
+          });
+      });
+  </script>
+</head>
+<body class="has-sidebar">
+  <header>
+    <h1>Zhenyu's Blog</h1>
+    <nav>
+      <a href="../../../index.html">CS</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../musings.html">Musings</a>
+      <a href="../../../math.html">Math</a>
+      <a href="../../../music.html">Music</a>
+      <a href="../../../storytelling.html">Storytelling</a>
+      <a href="../../../PE.html">PE</a>
+    </nav>
+  </header>
+<div class="page-wrapper">
+  <aside class="sidebar">
+<nav class="toc">
+<ul>
+<li><a href="#_1">注意力计算方法</a>
+<ul>
+<li><a href="#_2">单层、单头注意力计算</a></li>
+<li><a href="#mha">单层、多头注意力计算（MHA）</a></li>
+<li><a href="#_3">单层、多批次的多头注意力实际计算流程</a></li>
+<li><a href="#sparse-attention">Sparse Attention</a></li>
+</ul></li>
+<li><a href="#attention_1">Attention的系统优化</a>
+<ul>
+<li><a href="#flash-attention">Flash Attention</a></li>
+<li><a href="#paged-attention">Paged Attention</a></li>
+<li><a href="#flashinfer">FlashInfer</a></li>
+<li><a href="#flashdecoding">FlashDecoding++</a></li>
+<li><a href="#swasliding-window-attention">SWA（sliding window attention滑动窗口注意力）</a></li>
+</ul></li>
+<li><a href="#kv-cache">KV Cache优化</a>
+<ul>
+<li><a href="#kv-cache_1">KV Cache驱逐/融合</a></li>
+<li><a href="#kv-cache_2">KV Cache压缩</a></li>
+<li><a href="#kv-cache_3">KV Cache复用</a></li>
+</ul></li>
+</ul>
+</nav>
+  </aside>
+  <main class="content">
+<h1 id="attention">Attention计算</h1>
+<p>本文梳理<strong>LLM推理</strong>情况下Attention的计算。包括理论上的分析、实际部署时的改进方法（FlashAttention、FlashInfer、FlashDecoding++、SWA等）。包括不同的Attention（MHA、GHA、MLA、Lightning Attention），不同的批处理方案等。</p>
+<p>Decode Attention和KV Cache是一对烂兄烂弟，它们以低ARI（计算密度）和高memory bound（需要的存储容量高，或者你有高内存带宽也可以）而闻名，而且经常在一起被讨论、被处理。鉴于LLM训练过程中没有什么KV Cache，只有推理过程的注意力计算有KV Cache，讨论KV Cache实质上就是在讨论Decode Attention，讨论LLM推理，就必然绕不开Decode Attention中的KV Cache。</p>
+<p>在MLSys&lsquo;25的FlexInfer中，提到基于offload的LLM推理，一个思路是把模型参数、激活值、KV Cache放到CPU内存，GPU需要时通过PCIe传输到GPU，尽管有多种优化方法，但是传输时延仍然是最大的瓶颈。</p>
+<p>另一个思路是把一部分计算放到CPU上，他们注意到目前的CPU有着充足的存储空间，以及专用的GEMM计算硬件（Intel的AMX），可以把一部分计算放到CPU上。FlexInfer和llama.cpp的CPU-GPU异构计算的offload策略都是基于层的，例如在GPU上计算N层，然后把其他的层放到CPU上计算。</p>
+<p>在MLSys&lsquo;25的NEO中，它关注的是在显存受限GPU下低延迟的在线推理。它是将一部分请求的Decode Attention卸载到CPU上进行计算。它注意到只有decode attention的计算需要KV Cache，而且decode attention是低ARI的，把decode attention和KV Cache放到CPU上正好，免去了大量KV Cache换进换出的开销。NEO的offload策略是在层内的，它注意到投影、FFN都是计算密集的，适合放在GPU上进行，decode attention是低ARI且访存密集的，所以放到CPU上做。</p>
+<h2 id="_1">注意力计算方法</h2>
+<h3 id="_2">单层、单头注意力计算</h3>
+<p><strong>单层单头自注意力计算流程：</strong><br />
+((把flashattention的图放到这里来))<br />
+先说明基本的QKV矩阵的Attention计算</p>
+<p>需要说明的是KV矩阵的形状必须相同（必须是同一参考上下文对应的键和值），Q的形状则没有要求（可以和KV矩阵一样，也可以是某个token来做询问）</p>
+<p><strong>自回归decode attention的计算流程：</strong></p>
+<p>假设之前已经生成（包括prompt）t个tokens了，上一轮的输出是$x_t$，我们需要将上一轮的输出作为这一轮的输入，作为询问向量，查询所有历史信息的键值对缓存来生成下一步输出。</p>
+<p>令$x_t=[x_1,x_2,...,x_d] \in R^{1*d}$，是输入在隐藏层的向量，d为隐藏层维度。</p>
+<p>推理过程只需用到当前token的$Q_t=W_q*x_t \in R^{1*d}$，所以无需Q Cache。</p>
+<p>在生成第t个token时，只存储了前t-1个tokens对应的KV Cache，现在我们要生成第t+1个输出，需要将$x_t$经过KV投影，完善历史KV Cache。</p>
+<p>$K_t=W_k*x_t$、$V_t=W_v*x_t \in R^{1*d}$，</p>
+<p>$$
+K = [K_1^T K_2^T ... K_t^T]^T \in R^{t*d} \\
+V = [V_1^T V_2^T ... V_t^T]^T \in R^{t*d}
+$$</p>
+<p>K、V矩阵即是我们保存的KV Cache。</p>
+<p>$$
+O_t = softmax(\frac{Q_tK^T}{\sqrt{d_k}})V
+$$</p>
+<p>$O_t$就是输出向量。$\sqrt{d_k}$防止数值太大，在softmax指数计算里可能溢出。在Flash Attention里，没有除$\sqrt{d_k}$，而是在计算softmax时所有元素都减去最大值，同样可以保证数值稳定。</p>
+<p>$$
+Attention Score = softmax(\frac{Q_tK^T}{\sqrt{d_k}}) \in R^{1*t}
+$$<br />
+Attention Score表示当前token的Query和之前Cache的Key的匹配程度。也视为权重，之前的token在本次输出越重要，该token对应位置的Attention Score就越大。同理，Attention Score非常小时，该token在本次生成时影响也非常小。</p>
+<p><strong>自回归推理过程中Attention的计算流程：</strong></p>
+<p>LLM的自回归推理，分为<strong>prefill阶段</strong>和<strong>decode阶段</strong>两个阶段：</p>
+<p>prompt输入后，经过chunk，embedding以及位置编码后，$X \in R^{\ t  \ * \ d\_model}$，这个时候就是正常注意力计算，输出一个矩阵$atten\_res \in R^{\ t \ * \ d\_model}$（Prefill阶段），将prompt的最后一个token对应的注意力结果，作为自回归生成的输入，开始自回归生成（Decode阶段）。</p>
+<p>prefill阶段，prompt（n个tokens）投影得到完全的QKV矩阵，得到的Attention的结果是n个输出，取最后一个输出作为下一步自回归输出的输入。<br />
+为什么不能Q只投影最后一个token，KV投影全部tokens，直接计算得到一个输出呢？非得计算完所有tokens的输出，然后取最后一个呢？<br />
+原因是Transformer模型通常由多层Attention堆叠而来，每一个注意力层都需要保留前n个tokens对应的KV Cache，如果第一层注意力只输出一个token的结果，下一层最多只能有一个token对应的KV Cache。每一层都需要前n个tokens的KV Cache，所以每一层的输出都必须是n个tokens对应的输出。<br />
+decode阶段，输入是一个向量，对这个向量做Q投影，Q矩阵只对应一个输入的询问，对这个向量做KV投影，并添加到KV Cache矩阵中，一个Q查询和所有历史信息的KV矩阵做Attention计算，输出也是只有一个</p>
+<h3 id="mha">单层、多头注意力计算（MHA）</h3>
+<p>多头注意力的本质是：并行将单头注意力计算多次。</p>
+<p>输入还是$X \in R^{n*d\_model}$</p>
+<p>同一个输入$X$，经过不同头的投影矩阵$WQ_i$、$WK_i$、$WV_i\ \in\R^{d\_model*d\_k}$，其中$i \in [0,h-1]$，$d\_k=d\_model/h$，</p>
+<p>$$
+Q_i = X * WQ_i \in R^{n*d_k}
+$$<br />
+$K_i$、$V_i$也类似得到，每个头分别自己做单头注意力：</p>
+<p>$$
+head_i = Attention(Q_i,K_i,V_i) = softmax(\frac{Q_iK_i^T}{\sqrt{d_k}})V_i
+$$</p>
+<p>然后把所有的头拼接在一起：</p>
+<p>$$
+Concat(head_1,head_2,...,head_h)=[head_1:head_2:...:head_h]
+$$</p>
+<p>然后再经过一次投影变换：</p>
+<p>$$
+MultiHead = Concat(head_1,head_2,...,head_h)W^O
+$$</p>
+<h3 id="_3">单层、多批次的多头注意力实际计算流程</h3>
+<p>在实际计算的时候，会把所有头的投影矩阵拼接，充分并行计算：</p>
+<p>输入：$X \in R^{ \ batch\_size \ * \ seq\_len \ * \ d\_model}$</p>
+<p>投影矩阵：<br />
+$$
+WQ = [WQ_1:WQ_2:...:WQ_h] \in R^{ \ d\_model \ * \ (h \ * \ d\_k)}
+$$</p>
+<p>Q、K、V矩阵：<br />
+$$
+Q = X \ * \ WQ \in R^{ \ batch\_size \ * \ seq\_len \ * \ (h \ * \ d\_k)}
+$$</p>
+<p>把最后一个维度拆开：<br />
+$$
+Q \in R^{ \ batch\_size \ * \ seq\_len \ * \ h \ * \  d\_k }
+$$</p>
+<p>转置，把h个头的维度放到前面去，也就是交换seq_len和h的两个维度：<br />
+$$
+Q \in R^{ \ batch\_size \ * \ h \ * \ seq\_len \ * \ d\_k }
+$$</p>
+<p>然后对后面两个维度正常做注意力计算就可以了，四维张量怎么做矩阵乘法呢？想象一个矩阵，行数是batch_size，列数是h，每个元素都是一个矩阵，每个元素之间是相互独立的，每个元素自己做好注意力计算就好了，四维张量做乘法，就看后面两个维度就可以了。</p>
+<p>$$
+score = Q \ * \ K.T(-2,-1) / \sqrt{some\_const} \in R^{ \ batch\_size \ * \ h \ * \ q\_len \ * \ k\_len }
+$$</p>
+<p>现在q_len和k_len就是seq_len，但是在后面的自回归推理阶段，q_len就是1，k_len和v_len是seq_len，所以先在这里做区分。</p>
+<p>对最后一维做softmax：</p>
+<p>$$
+atten\_weight \in R^{ \ batch\_size \ * \ h \ * \ q\_len \ * \ k\_len }
+$$</p>
+<p>和V做加权求和：</p>
+<p>$$
+head\_output = atten\_weight \ * \ V \in R^{ \ batch\_size \ *\ h \ * \ q\_len \ * \ d\_k }
+$$</p>
+<p>交换维度，然后拼接：<br />
+$$
+head\_output \in R^{ \ batch_size \ * \ q\_len \ * \ h \ * \ d\_k }
+$$<br />
+$$
+head\_output \in R^{ \ batch\_size \ * \ q\_len \ * \ d\_model}
+$$<br />
+最后再投影，投影矩阵$W^O \in R^{ \ d\_model \ * \ d\_model}$：<br />
+$$
+output = head\_output \ * \ W^O \in R^{ \ batch\_size \ * \ q\_len \ * \ d\_model}
+$$</p>
+<p>在推理情况下，加上KV Cache的流程：</p>
+<p>那就是上一轮自回归的输出$x_t \in R^{\ 1\ *\ d\_model}$，K、V矩阵复用之前的计算结果，q_len为1，k_len和v_len为历史生成文本。参考上面的单头注意力部分的描述吧。</p>
+<h3 id="sparse-attention">Sparse Attention</h3>
+<p>优化注意力计算的一个方向是稀疏注意力，例如：GQA、MQA</p>
+<p><a href="https://zhuanlan.zhihu.com/p/1891136980370302219">https://zhuanlan.zhihu.com/p/1891136980370302219</a> 知乎博客介绍各种Attention</p>
+<p><a href="https://zhuanlan.zhihu.com/p/1962162900111172920">https://zhuanlan.zhihu.com/p/1962162900111172920</a> DSA(DeepSeek Sparse Attention)</p>
+<p><a href="https://zhuanlan.zhihu.com/p/1964613996830266218">https://zhuanlan.zhihu.com/p/1964613996830266218</a> HamiltonAttention 似乎和分布式计算相关</p>
+<h2 id="attention_1">Attention的系统优化</h2>
+<p>本部分介绍在实际应用中，对Attention计算采取的系统优化方法。</p>
+<h3 id="flash-attention">Flash Attention</h3>
+<p><strong>主要目标</strong><br />
+避免直接从HBM中读写 Attention 矩阵</p>
+<p><strong>挑战</strong><br />
+1. ⅰ) 在不获取全部输入的情况下计算 softmax<br />
+   $$ y_i = \frac{\exp(x_i)}{\sum_i \exp(x_i)} $$<br />
+2. ⅱ) 在反向传播中，不存储（那）巨大的中间 attention 矩阵<br />
+   $$ \text{Loss} = f(\text{Output}) \quad O = A @ V \quad A = \text{softmax}(\frac{Q K^T}{\sqrt{d_k}}) $$<br />
+   目标是计算 $\frac{dL}{dQ}$、$\frac{dL}{dK}$、$\frac{dL}{dV}$ 以更新 $W_Q$、$W_K$、$W_V$</p>
+<p><strong>矩阵求导法则</strong></p>
+<p>$$ \frac{dL}{dA} = \frac{dL}{dO} @ V^T \quad \frac{dL}{dV} = A^T @ \frac{dL}{dO} $$</p>
+<p>$A$ 为一个向量（行向量），令 $A = \text{softmax}(Z)$。</p>
+<p>Jacobi 矩阵 $\frac{dA}{dZ}$，其中 $M_{ij} = \frac{dA[i]}{dZ[j]} = A[i] * (\delta(i-j) - A[j])$</p>
+<p>然后计算 $\frac{dL}{dZ} \rightarrow \frac{dL}{dQ K^T} \rightarrow \frac{dL}{dQ}$、$\frac{dL}{dK}$</p>
+<p><strong>采用2个技术解决</strong><br />
+- ⅰ) tiling：将输入分为若干 blocks，对 blocks 多次重复处理<br />
+- ⅱ) 存储前向计算时 softmax 的缩放因子，方便在反向传播时快速重计算</p>
+<p><strong>如何理解 Flash Attention 的分块</strong></p>
+<ol>
+<li>一个 Query 对应一个 Output，一块 $Q_i$ 对应一块 $O_i$，各块 $Q_i$ 的计算是互不干扰的。<br />
+   各行 (row) $O_i$ 也是互不干扰的<br />
+   各行$O_i$ 本质上是根据相关性，对 $V_i$ 的加权和</li>
+<li>对于各块 $O_i$ 的计算，需要对 $N$ 个 $V_i \in R^d$ 计算相关值，softmax 后计算加权和<br />
+   FA 将$N$个 $V_i$分组，每个小组大小为 $B_c$，<br />
+   每个小组内计算加权和，然后依次合并<br />
+   $O \leftarrow$ 小组1、小组2、…小组$T_c$</li>
+</ol>
+<p><img alt="" src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202510281825614.jpg" /></p>
+<p><img alt="" src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202510281826197.jpg" /></p>
+<p>总结：核心思想是分块计算，减少HBM访存次数。</p>
+<p>关于“重复计算”的部分，可以这样理解：<br />
+对于一个DNN，在反向传播时，计算梯度要用到中间隐藏层的中间结果，如果全部保存，HBM占用太高了，可以选择几层保存起来。在反向传播时，找到前面最近的保存点，重新前向计算一次，再计算梯度。</p>
+<p><a href="https://zhuanlan.zhihu.com/p/1953761827025584899">https://zhuanlan.zhihu.com/p/1953761827025584899</a> Flash Attention v1、v2的知乎博客</p>
+<p><a href="https://modal.com/blog/reverse-engineer-flash-attention-4">https://modal.com/blog/reverse-engineer-flash-attention-4</a> Flash Attention v4的博客</p>
+<p><a href="https://zhuanlan.zhihu.com/p/11273327848">https://zhuanlan.zhihu.com/p/11273327848</a> Flash Attention 知乎面经</p>
+<h3 id="paged-attention">Paged Attention</h3>
+<h3 id="flashinfer">FlashInfer</h3>
+<p>FlashInfer是MLSys&lsquo;25的工作，它是一个面向LLM推理的Attention计算引擎。它是一个基于代码生成的Attention计算引擎。</p>
+<p>为什么需要这么一个Attention计算引擎呢？</p>
+<p>因为P、D阶段需要的Attention计算范式不同；多请求多轮对话间KV Cache Prefix复用，也增加了新的Attention计算范式。</p>
+<p>因为实际场景下，请求的长度、批次大小一直在变化，需要动态调整Attention计算内核来实现最优性能。</p>
+<p>因为在KV Cache的存储上，例如：PagedAttention分页存储，radix tree存储，根据不同的应用情况KV Cache有着不同的存储范式。</p>
+<p>因为不同的硬件上，需要不同的计算流水线，来保证充分利用硬件能力。</p>
+<p>因为Attention算法的迭代太快了，GQA等，还有定制化的掩码、注意力分数计算范式。</p>
+<p>在不同的场景下，不同的算法下，不同的硬件条件下，需要动态地调整Attention的计算内核，KV Cache访存方式。</p>
+<ul>
+<li>
+<p>FlashInfer提出了一个统一的数据结构来管理KV Cache的存储。</p>
+</li>
+<li>
+<p>使用JIT编译，针对不同情况下Attention生成优化后的内核代码。仍然使用Flash Attention内核代码为框架，再加上一些小的修改。输入Attention变体的说明，然后输出优化后的kernal代码。（借鉴FlexAttention的实现，通过functor自定义Attention计算流程，参与kernal代码生成。至此{Flash,Flex}$\times${Attention,Infer}笛卡尔积的四篇工作都涉及到了）</p>
+</li>
+<li>
+<p>动态调度输入，把workload分布到各SM上，减少SM闲置时间。</p>
+</li>
+</ul>
+<h3 id="flashdecoding">FlashDecoding++</h3>
+<p>这是清华大学和上海交通大学的一篇工作，针对LLM推理做了一些优化工作。主要是对算子做优化：</p>
+<ul>
+<li>
+<p>FlashAttention中通过分块计算softmax，有效减少了HBM访存，但是同步更新softmax造成了流水线气泡。</p>
+</li>
+<li>
+<p>Flat GEMM（decode中的小batch size,prefill中的短输入）算子没有充分利用硬件性能。</p>
+</li>
+<li>
+<p>设计动态数据流，CUDA core和Tensor core在不同batchsize下表现不一样，针对动态的输入大小和特点的硬件（CUDA core、Tensor core）去优化数据流。</p>
+</li>
+</ul>
+<h3 id="swasliding-window-attention">SWA（sliding window attention滑动窗口注意力）</h3>
+<p>在llama.cpp里针对部分模型实现了iswa</p>
+<h2 id="kv-cache">KV Cache优化</h2>
+<p>虽然mamba、RWKV系列不需要KV Cache,但是类RNN模型本身的串行计算效率、遗忘、梯度等问题仍然是限制其发展的缺陷。类RNN模型我觉得在其他领域，例如：控制、科学计算、预测可能会更合适一些，对于语言模型和长上下文推理则不合适。</p>
+<p>虽然linear attention只需要存储固定大小的隐状态矩阵，也不需要存储KV Cache，但是它的表达能力弱，而且将所有历史信息融合，也缺乏动态调整的灵活性。</p>
+<p>对目前的LLM来说，管理大量的历史信息对应的KV Cache，并且利用其进行推理，仍然是保障模型表现所必要的做法。</p>
+<p>在目前的LLM应用端，Agent或者RAG，都需要对本地记忆持久化，有项目例如memU使用多级文件对本地LLM助手的记忆长期化管理。这些都可以配合KV Cache一起使用。</p>
+<h3 id="kv-cache_1">KV Cache驱逐/融合</h3>
+<p>这部分的核心思想是：KV Cache在HBM里占用的空间太多了，能不能去掉一些KV Cache的内容，这样可以少存一点、少算一点。</p>
+<p><strong>Scissorhand</strong>：一个token在之前的生成中很重要，在之后的生成也大概率很重要。 解释：人类在阅读的时候，只需抓住文本的“关键词”，LLM推理时KV Cache也只要存储这些关键的tokens即可。 缺点：直接驱逐一些token，如果这些token在之前不重要，但是在之后突然变得重要，那么就会导致生成效果变差。</p>
+<p><strong>CAM</strong>：Cache Merge不直接舍弃tokens，而是把不重要的tokens和重要的tokens进行“融合” 某次生成时$A_i^t$比较大，$A_j^t$比较小，这表示在本次生成中token i是关键的，token j是不关键的，我想把token j的信息融合到token i中。 </p>
+<p>$$ \hat{V_i} \leftarrow V_i + \frac{A_j}{A_i}V_j $$</p>
+<p>$A_j$和$A_i$表示的是未来生成时对应的Attention Score，这是不可知的，而且未来每次生成的比值也肯定会波动，所以CAM仍然不是无损压缩。CAM的意思是，尽管依次生成tokens时，$A_i$波动较大，但是连续m个tokens的$\bar{A_i}$趋势相对稳定，所以尽管不能准确预测未来的A，但是根据他们观察结果，仍然可以达到较好的效果。 </p>
+<blockquote>
+<p>思考：KV Cache和CPU Cache的区别。 </p>
+<p>CPU Cache基于局部性原理，下一段时间可能被用到的内容放到Cache里以提升表现。多级存储系统的原理就是局部性原理。存储对象在某时刻的下一段时间内，地位是不对称的，适配多层级存储结构。（类似于切比雪夫不等式/排序不等式，访问多的给较小的代价，整体的代价最小） </p>
+<p>KV Cache所有的计算内容都要存储，之后的计算中都一定要用到，只是不同的token对结果的贡献大小不同。KV Cache中存储的每一项都是必定要访存的，而且访存顺序不存在同步性，并发访存的潜质很大。</p>
+</blockquote>
+<h3 id="kv-cache_2">KV Cache压缩</h3>
+<p>在边缘、异构、分布式计算系统上进行LLM推理，一旦涉及到计算数据的传输都会把模型参数、KV Cache、甚至是计算中间激活结果都要先压缩再传输。</p>
+<p>为什么在边缘计算场景需要压缩呢，在MLsys&lsquo;25的一篇论文：MEADOW中，它在Xilinx上针对边缘LLM推理设计了新的计算架构、数据流。</p>
+<p>它提到边缘计算场景通常缺少HBM，在Attention计算过程中需要反复对off-chip memory进行存取，它采用了唯一引索块（Unique Chunks）和位打包对模型参数和KV Cache进行无损压缩打包传输，在OPT-1.3B中K矩阵的压缩率到了3785,V矩阵和参数压缩率也能达到1000出头。</p>
+<p>在MLsys&lsquo;25的另一篇论文ThunderServe中，它观察到现在GPU更新换代太快了，云算力提供厂商通常还保留着许多种类的GPU，这些GPU的计算能力、存储能力、传输带宽都不一样，它也观察到LLM推理过程中，Prefill阶段和Decode阶段对算力、存储、带宽的要求也不一样，那么就可以通过顶层的调度算法，在不同阶段使用不同的GPU群计算，达到节省算力资源和提升推理效率的效果。</p>
+<p>在这篇论文中，它也强调和使用了KV Cache压缩方法，它在传输前对KV矩阵进行低位量化、打包，传输后先解包、反量化再参与计算。在它的实验中，在两台A5000上部署LLaMA-7B时发现，低位量化可以把传输损耗从16-30%降低到4-9%，并且反量化后再参与计算对模型表现的影响较弱。</p>
+<p>通过上面两个例子，初步论证了，无论是侧端还是云端，一旦涉及数据传输，KV Cache压缩就是非常值得做的优化手段。只要是<a href="../HPC-Parallel-Distribute-Computing/index.md">异构计算</a>，那必然涉及到数据传输，也就是说大部分情况下，KV Cache压缩都是非常值得考虑的。</p>
+<h4 id="mlalatent">MLA（多头潜在注意力，Latent）</h4>
+<p>在DeepSeek-V2/V3中提出的新的注意力计算方法，通过将KV矩阵进行低秩分解（Low-Rank Decomposition），将高维矩阵压缩到低维的潜在空间中。</p>
+<p>虽然MLA听起来像一种新的Attention计算方式，实际上也确实是，但是它的核心是在KV Cache压缩上。</p>
+<h3 id="kv-cache_3">KV Cache复用</h3>
+<p>LMCache最早用于企业级KV Cache复用多轮对话和对话间的KV Cache</p>
+<p>MLsys&lsquo;25有一篇论文：Optimizing LLM Queries in relational Data Analytic Workloads，在现代关系型数据库中通常都加入了LLM功能，这篇论文通过对行和行内的字段进行排序，充分复用KV Cache。</p>
+  </main>
+</div>
+  <script>
+    (function() {
+      var headings = document.querySelectorAll(".content h1[id], .content h2[id], .content h3[id]");
+      var links = document.querySelectorAll(".toc a");
+      if (headings.length === 0 || links.length === 0) return;
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) {
+            var id = e.target.getAttribute("id");
+            links.forEach(function(a) {
+              a.classList.toggle("active", a.getAttribute("href") === "#" + id);
+            });
+          }
+        });
+      }, { rootMargin: "-20% 0px -60% 0px" });
+      headings.forEach(function(h) { observer.observe(h); });
+    })();
+  </script>
+</body>
+</html>

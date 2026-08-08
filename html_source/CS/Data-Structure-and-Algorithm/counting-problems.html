@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>计数问题 - Zhenyu's Blog</title>
+  <link rel="stylesheet" href="../../../css_source/main_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false},
+                  {left: "\\[", right: "\\]", display: true}
+              ],
+              throwOnError: false,
+              strict: false
+          });
+      });
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Zhenyu's Blog</h1>
+    <nav>
+      <a href="../../../index.html">CS</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../musings.html">Musings</a>
+      <a href="../../../math.html">Math</a>
+      <a href="../../../music.html">Music</a>
+      <a href="../../../storytelling.html">Storytelling</a>
+      <a href="../../../PE.html">PE</a>
+    </nav>
+  </header>
+<main class="content">
+<h2 id="_1">计数问题</h2>
+<p>计数问题优化复杂度的一个方法是贡献法。</p>
+<blockquote>
+<p>贡献法是一种计数的思想方法<br />
+基本思想是计算每个元素对答案的贡献度</p>
+</blockquote>
+<p>举个例子：<br />
+1. 路径由一段一段的长为一的小段组成，现在要求所有被走过的路径的长度。可以转化为求每一小段路被经过了多少次。<br />
+2. 如果要求所有满足条件的区间里，有多少个质数，可以转换为，所有质数出现的个数。</p>
+<h3 id="xor">xor</h3>
+<p>$\sum_{i=l}^{r}\sum_{j=l}^{r}a_i \oplus a_j$<br />
+可以优化到$O(nlog(N))$，其中$N$为$a_i$的最大值</p>
+<p>问题可以推广到$a_i$和$b_j$的异或和，两个数组可以不同，数组的长度也可以不同。</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Solution</span><span class="p">{</span>
+<span class="w">    </span><span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="c1">// Returns sum of bitwise OR</span>
+<span class="w">    </span><span class="c1">// of all pairs</span>
+<span class="w">    </span><span class="kt">long</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">sumXOR</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">arr</span><span class="p">[],</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">//Complete the function</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">cnt</span><span class="p">[</span><span class="mi">32</span><span class="p">]{};</span>
+<span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">mid</span><span class="o">=</span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">pos</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="w">            </span><span class="k">while</span><span class="p">(</span><span class="n">mid</span><span class="p">){</span>
+<span class="w">                </span><span class="k">if</span><span class="p">(</span><span class="n">mid</span><span class="o">%</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="n">cnt</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span><span class="o">++</span><span class="p">;</span>
+<span class="w">                </span><span class="n">pos</span><span class="o">++</span><span class="p">;</span>
+<span class="w">                </span><span class="n">mid</span><span class="o">/=</span><span class="mi">2</span><span class="p">;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="kt">long</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">ans</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">n</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">mid</span><span class="o">=</span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">            </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">pos</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">pos</span><span class="o">&lt;</span><span class="mi">32</span><span class="p">;</span><span class="n">pos</span><span class="o">++</span><span class="p">){</span>
+<span class="w">                </span><span class="k">if</span><span class="p">((</span><span class="n">mid</span><span class="o">&gt;&gt;</span><span class="n">pos</span><span class="p">)</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">){</span>
+<span class="w">                    </span><span class="n">ans</span><span class="o">+=</span><span class="p">(</span><span class="mf">1l</span><span class="n">l</span><span class="o">&lt;&lt;</span><span class="n">pos</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="n">cnt</span><span class="p">[</span><span class="n">pos</span><span class="p">]);</span>
+<span class="w">                </span><span class="p">}</span><span class="k">else</span><span class="p">{</span>
+<span class="w">                    </span><span class="n">ans</span><span class="o">+=</span><span class="p">(</span><span class="mf">1l</span><span class="n">l</span><span class="o">&lt;&lt;</span><span class="n">pos</span><span class="p">)</span><span class="o">*</span><span class="n">cnt</span><span class="p">[</span><span class="n">pos</span><span class="p">];</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ans</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<p>查询区间$[l,r]$的$\sum_{i=l}^{r}\sum_{j=i}^{r}a_i \oplus b_j$，因为b的计算区间一直在变，在计算过程中需要b任意区间的位数的统计。如果只有一个端点变化，则可以用前缀和维护，考虑对问题进行变换。</p>
+<p>$$
+\sum_{i=l}^{r}\sum_{j=i}^{r}a_i \oplus b_j=
+\sum_{i=l}^{r}\sum_{j=i}^{n}a_i \oplus b_j-\sum_{i=l}^{r}\sum_{j=r+1}^{n}a_i \oplus b_j
+$$</p>
+<p>利用n将b的计算区间变为一端固定的，可以用前缀和来维护。</p>
+</main>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>清理Windows上的C++编译器 - Zhenyu's Blog</title>
+  <title>清理Windows上的环境 - Zhenyu's Blog</title>
   <link rel="stylesheet" href="../../css_source/main_style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
@@ -26,17 +26,36 @@
       });
   </script>
 </head>
-<body>
+<body class="has-sidebar">
   <header>
     <h1>Zhenyu's Blog</h1>
     <nav>
-      <a href="../../index.html">Home</a>
+      <a href="../../index.html">CS</a>
       <a href="../../about.html">About</a>
       <a href="../../musings.html">Musings</a>
+      <a href="../../math.html">Math</a>
+      <a href="../../music.html">Music</a>
+      <a href="../../storytelling.html">Storytelling</a>
+      <a href="../../PE.html">PE</a>
     </nav>
   </header>
-
-<h1 id="windowsc">清理Windows上的C++编译器</h1>
+<div class="page-wrapper">
+  <aside class="sidebar">
+<nav class="toc">
+<ul>
+<li><a href="#_1">环境变量</a></li>
+<li><a href="#_2">回忆我拿这台电脑干了什么</a>
+<ul>
+<li><a href="#python">python</a></li>
+<li><a href="#cpp">cpp</a></li>
+<li><a href="#dockerwslubuntu">docker、WSL、Ubuntu</a></li>
+</ul></li>
+<li><a href="#_3">清理</a></li>
+</ul>
+</nav>
+  </aside>
+  <main class="content">
+<h1 id="windows">清理Windows上的环境</h1>
 <p>我是电脑小白，上大学前没怎么碰过电脑（并非我父母的错，初二的时候就买了一部性能相当不错的电脑给我玩，机器人老师还语重心长地跟我说要好好学，结果因为自己懒，电脑和算法都没好好学）。大一时配置VS code环境还是恳求舍友帮我弄好的。</p>
 <p>上了几年课，做了几个项目后，也能按照网上的教程装模做样地配配环境、跑跑代码，但是不懂原理，下载各式各样的编译器、软件后，现在要做毕设发现C++编译器总是出问题。所以打算整理一下，给电脑做个大保健，也学学OS的实际经验。</p>
 <h2 id="_1">环境变量</h2>
@@ -72,7 +91,7 @@
 <p>微服务（我看了BV1mW4y1q7h9），感觉和oop里类的设计，os里微内核的设计有点像，要高内聚、低耦合。就是相对单一架构而言，把一个大的系统拆分成多个小的模块，每个模块负责一个功能，模块之间通过轻量接口进行通信，模块之间相互独立，模块内部可以自由组合，方便扩展，方便维护。</p>
 <p>微服务意味着多个模块，可能还要依赖数据库（理论上每个微服务配一个数据库）、网关等模块，这些模块各自由docker打包为镜像。多个镜像管理比较复杂，对于小的应用，可以用docker component部署在一台机器上，对于多服务器部署并且管理多个镜像，可以用k8s。</p>
 <h2 id="_3">清理</h2>
-<p>所以虽然标题是cpp编译器清理，但还是尽量把python（conda、uv）、cpp（VS、mingw、MSYS2、CMake）、CUDA这些都弄好。</p>
+<p>主要是cpp编译器清理，并尽量把python（conda、uv）、cpp（VS、mingw、MSYS2、CMake）、CUDA这些都弄好。</p>
 <p>先是卸载了codeblocks，我使用这个安装的mingw，在此之前我尝试了MSYS2，但是当时没有尝试成功，后面新下载了codeblocks，用的它带的mingw编译器。</p>
 <p><img alt="" src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202601152332894.png" /></p>
 <p>打开MSYS2的终端发现了原因，因为在安装MSYS的时候，只安装了bash和pacman，其余的需要后续用pacman安装。MSYS2就不卸载了，后续就在这里玩玩这个类Unix的命令行环境（感觉是个好东西）。我的感觉和装了Arch Liunx的WSL的感觉差不多：</p>
@@ -94,5 +113,25 @@
 <p>我就直接使用Claude Code帮我在xcpc文件夹下新建了.vscode文件夹，然后配置了task，launch和cpp三个文件，我也不了解细节，但是可以用了。</p>
 <hr />
 <p>（快去看CUDA能不能编译）</p>
+  </main>
+</div>
+  <script>
+    (function() {
+      var headings = document.querySelectorAll(".content h1[id], .content h2[id], .content h3[id]");
+      var links = document.querySelectorAll(".toc a");
+      if (headings.length === 0 || links.length === 0) return;
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) {
+            var id = e.target.getAttribute("id");
+            links.forEach(function(a) {
+              a.classList.toggle("active", a.getAttribute("href") === "#" + id);
+            });
+          }
+        });
+      }, { rootMargin: "-20% 0px -60% 0px" });
+      headings.forEach(function(h) { observer.observe(h); });
+    })();
+  </script>
 </body>
 </html>

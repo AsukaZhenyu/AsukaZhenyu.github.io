@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>在退役老电脑上安装ArchLinux - Zhenyu's Blog</title>
+  <link rel="stylesheet" href="../../../css_source/main_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false},
+                  {left: "\\[", right: "\\]", display: true}
+              ],
+              throwOnError: false,
+              strict: false
+          });
+      });
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Zhenyu's Blog</h1>
+    <nav>
+      <a href="../../../index.html">CS</a>
+      <a href="../../../about.html">About</a>
+      <a href="../../../musings.html">Musings</a>
+      <a href="../../../math.html">Math</a>
+      <a href="../../../music.html">Music</a>
+      <a href="../../../storytelling.html">Storytelling</a>
+      <a href="../../../PE.html">PE</a>
+    </nav>
+  </header>
+<main class="content">
+<h1 id="archlinux">在退役老电脑上安装ArchLinux</h1>
+<p><a href="https://wiki.archlinux.org/title/Installation_guide">文档</a>，<a href="https://www.bilibili.com/video/BV11J411a7Tp/">视频</a></p>
+<p>我要在一台2017年11月生产的ThinkPad E470c上安装Arch Linux，这台电脑目前（2026.2.2）在转转上二手的大概是700-800人民币，现在win10也跑不动了，想要安装Arch Linux，顺便熟悉一下操作系统与Linux相关的知识。</p>
+<p>电脑配置：<br />
+cpu：Intel core i5-6200U 2.30GHz<br />
+内存：8G 硬盘：512G<br />
+显卡：Intel(R) HD Graphics 520<br />
+     NVIDIA GeForce 920MX</p>
+<p>现在官网上下载Arch Linux的iso文件，然后使用Rufus制作系统安装盘：</p>
+<p><img alt="" src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202602021257028.png" /></p>
+<ul>
+<li>
+<p>关于持久分区：<br />
+在U盘上运行系统，进行修改例如设置字体、键盘、网络，是否会保存。这个就不弄了，不在U盘上弄。</p>
+</li>
+<li>
+<p>MBR与GPT<br />
+MBR和GPT是两种不同的磁盘分区方案，它们决定了硬盘如何被初始化、分区以及系统如何从硬盘启动。<br />
+MBR主引导记录，推出时间更早，对于硬盘容量、分区数量有限制，且安全性、鲁棒性以及性能较差。</p>
+</li>
+<li>
+<p>BIOS与UEFI<br />
+之前看北航计算机学院面经，有问到计算机开机的过程。BIOS是主板上的固件，上电后先运行BIOS，先进行硬件自检，然后根据设定系统盘顺序，读取MBR加载引导代码，再加载硬盘活动分区的VBR，然后加载操作系统。<br />
+UEFI是BIOS的现代上位替代，上电后初始化硬件，然后加载EFI系统分区（ESP），从ESP中加载引导程序，由引导程序加载操作系统。</p>
+</li>
+</ul>
+<p>对于2010年后生产的笔记本，装的win8以上的笔记本基本上支持GPT/UEFI，所以在制作系统安装盘的时候，选择GPT/UEFI(非CSM)选项</p>
+<p>这里的文件系统指的是U盘，也就是系统安装盘的文件系统，与后续电脑上的文件系统无关，UEFI要求安装盘上的文件格式是FAT32</p>
+<p>搜索高级启动，然后点击重新启动，选择UEFI固件设置，关闭安全启动，保存并重启</p>
+<p>重启时按F12进入BIOS，选择USB HDD：SanDisk Ultra，回车</p>
+<p><img alt="" src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202602041438247.jpg" /></p>
+<p>直接选择第一项Arch Linux install medium，进入安装环境，这是我们是root用户，进入了虚拟终端，使用Zsh</p>
+<p>安装盘已经预安装好了很多工具，包括vim，wpa_suplicant，zsh等，我们在这个安装盘上进行联网、分区，然后运行脚本把镜像安装到电脑硬盘上。</p>
+<p><img alt="" src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202602041440787.jpg" /></p>
+<p>不改变键盘布局，使用默认的</p>
+<p>设置字体：setfont ter-132b 最大的字体</p>
+<p><img alt="" src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202602041444044.jpg" /></p>
+<p>确认启动格式：cat /sys/firmware/efi/fw_platform_size<br />
+输出64，对应64-bit x64 UEFI</p>
+<p>连接互联网，使用ip link查看互联网设备</p>
+<p>打开互联网设备：ip link set wlan0 up</p>
+<p>扫描可以使用的WIFI：iwlist wlan0 scan | grep ESSID</p>
+<p>生成网络配置文件：<br />
+wpa_passphrase TP-LINK_481A password &gt; internet.conf</p>
+<hr />
+<p>视频里的方法：</p>
+<p>连接互联网：<br />
+wpa_supplicant -c internet.conf -i wlan0 &amp;</p>
+<p>动态分配一个IP地址（这是Arch安装盘里自带的工具）：dhcpcd &amp; </p>
+<p>配置失败了</p>
+<p>Gemini推荐使用iwctl，但是也失败了，还是老老实实看Wiki吧</p>
+<p>wiki要求我确认网卡没有被rfkill阻塞，使用：rfkill list命令查看阻塞情况</p>
+<p><img alt="" src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202602041445075.jpg" /></p>
+<p>无线广域网软件硬件都没有被阻塞</p>
+<p>我知道为什么错了，md，WIFI名字写错了</p>
+<p>wpa还是不太稳定，还是先用iwctl先连上<br />
+iwctl<br />
+station wlan0 scan<br />
+station wlan0 get-networks<br />
+station wlan0 connect &ldquo;TP-LINK_481A&rdquo;<br />
+password<br />
+quit</p>
+<p>dhcpcd wlan0<br />
+ping -c 4 baidu.com</p>
+<p><img alt="" src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202602041446027.jpg" /></p>
+<p>这里可以看到联网成功了。</p>
+<hr />
+<p>接下来确认时间是对的，更正系统时间<br />
+timedatectl set-ntp true</p>
+<p>开始分区<br />
+先查看当前电脑有哪些硬盘：fdisk -l<br />
+有一个硬盘：/dev/sda 465.76GiB 目前已经有三个分区<br />
+还有一个：/dev/sdb是目前插在电脑上的安装盘</p>
+<p>fdisk /dev/sda 进入fdisk命令行</p>
+<p>这里要看wiki，视频比较古早了，建议分区大小有所变化<br />
+g 新建分区列表<br />
+n 创建第一个分区 1G 存引导程序<br />
+n 创建第三个分区 虚拟内存分区 SWAP 16G<br />
+n 创建第二个分区 剩余内容<br />
+p 确认<br />
+w 写入</p>
+<p>根据wiki上的建议，efi文件夹大小建议1G，SWAP文件夹至少4G，建议内存1-2倍。<br />
+<img alt="" src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202602041448884.jpg" /></p>
+<p>制作引导系统文件efi格式，格式化分区1<br />
+mkfs.fat -F32 /dev/sda1<br />
+主分区文件系统我选择btrfs，主要是未来防止日后滚挂，想要快照一件恢复功能<br />
+mkfs.btrfs -L ARCH /dev/sda2<br />
+制作swap<br />
+mkswap /dev/sda3<br />
+打开swap<br />
+swapon /dev/sda3</p>
+<p>编辑pacman配置文件<br />
+vim /etc/pacman.conf<br />
+进入/etc/pacman.d/mirrorlist<br />
+把中国源放在最顶上</p>
+<p>接下来把电脑硬盘挂载到当前安装环境下</p>
+<p>mount /dev/sda2 /mnt<br />
+btrfs subvolume create /mnt/@<br />
+btrfs subvolume create /mnt/@home</p>
+<p>umount /mnt</p>
+<p>mount -o compress=zstd,subvol=@ /dev/sda2 /mnt<br />
+mkdir -p /mnt/{home,boot}<br />
+mount -o compress=zstd,subvol=@home /dev/sda2 /mnt/home<br />
+mount /dev/sda1 /mnt/boot</p>
+<p>lsblk查看挂载情况</p>
+<p>开始安装：<br />
+pacstrap -K /mnt base linux liunx-firmware btrfs-progs networkmanager vi sudo</p>
+<p>pacstrap脚本因为找不到/etc/initramfs-linux.conf文件，中断了执行，并提出警告，系统镜像可能不完整。这里我先继续安装，实在不行再重新安装系统吧。（需要先运行下面的生成本地locale文件，然后运行mkinitcpio -P，重新生成内核镜像，就可以运行成功了）</p>
+<p>生成fstab，告诉系统重启后去哪里找btrfs子卷<br />
+genfstab -U /mnt &gt;&gt; /mnt/etc/fstab</p>
+<p>arch-chroot /mnt 进入系统<br />
+设置时间：<br />
+ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime<br />
+同步系统时间：<br />
+hwclock &ndash;systohc</p>
+<p>exit暂时退出<br />
+vim /mnt/etc/locale.gen<br />
+找到en_US，去掉前面的注释<br />
+回到chroot执行locale-gen生成一些本地文件</p>
+<p>重复编辑 /mnt/etc/locale.conf<br />
+LANG=en_US.UTF-8</p>
+<p>/mnt/etc/hostname 写自己的用户名<br />
+lzy</p>
+<p>/mnt/etc/hosts<br />
+加上一行：<br />
+127.0.0.1    lzy.localdomain lzy</p>
+<p>安装系统引导grub：<br />
+pacman -S grub efibootmgr intel-ucode os-prober<br />
+mkdir boot/grub<br />
+grub-mkconfig &gt; /boot/grub/grub.conf<br />
+uname -m<br />
+grub-install &ndash;target=x86_64-efi &ndash;efi-directory=/boot</p>
+<p>pacman -S neovim zsh iwd dhcpcd</p>
+<p>重启拔掉U盘，就可以进入Arch Liunx了</p>
+<p>用户名输入：root<br />
+密码输入你之前设置的密码</p>
+<p>使用networkmanager联网<br />
+systemctl start NetworkManager<br />
+systemctl enable NetworkManager</p>
+<p>nmcli device wifi list<br />
+nmcli device wifi connect &ldquo;TP-LINK_481A&rdquo; password &ldquo;password&rdquo;</p>
+<p>创建用户并加入wheel组<br />
+useradd -m -G wheel yanagi<br />
+passwd yanagi<br />
+EDITOR=vi visudo</p>
+<p>这里会用vi打开visudo，简单的编辑和vim一样。<br />
+去掉注释</p>
+<h1 id="wheel-allallallall">%wheel ALL=(ALL:ALL)ALL</h1>
+<p>exit回到退出界面<br />
+输入用户名和密码登陆就OK了。</p>
+<p><img alt="" src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202602041450736.jpg" /></p>
+</main>
+</body>
+</html>
