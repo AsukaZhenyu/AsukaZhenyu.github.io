@@ -1,4 +1,6 @@
-# 清理Windows上的C++编译器
+# 清理Windows上的环境
+
+[toc]
 
 我是电脑小白，上大学前没怎么碰过电脑（并非我父母的错，初二的时候就买了一部性能相当不错的电脑给我玩，机器人老师还语重心长地跟我说要好好学，结果因为自己懒，电脑和算法都没好好学）。大一时配置VS code环境还是恳求舍友帮我弄好的。
 
@@ -64,7 +66,7 @@ docker在更高层级进行隔离，包括文件系统、系统库、网络、�
 
 ## 清理
 
-所以虽然标题是cpp编译器清理，但还是尽量把python（conda、uv）、cpp（VS、mingw、MSYS2、CMake）、CUDA这些都弄好。
+主要是cpp编译器清理，并尽量把python（conda、uv）、cpp（VS、mingw、MSYS2、CMake）、CUDA这些都弄好。
 
 先是卸载了codeblocks，我使用这个安装的mingw，在此之前我尝试了MSYS2，但是当时没有尝试成功，后面新下载了codeblocks，用的它带的mingw编译器。
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>简单时间序列预测模型 - Zhenyu's Blog</title>
+  <title>2025.7 时间序列模型梳理 - Zhenyu's Blog</title>
   <link rel="stylesheet" href="../../css_source/main_style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
@@ -26,16 +26,31 @@
       });
   </script>
 </head>
-<body>
+<body class="has-sidebar">
   <header>
     <h1>Zhenyu's Blog</h1>
     <nav>
-      <a href="../../index.html">Home</a>
+      <a href="../../index.html">CS</a>
       <a href="../../about.html">About</a>
       <a href="../../musings.html">Musings</a>
+      <a href="../../math.html">Math</a>
+      <a href="../../music.html">Music</a>
+      <a href="../../storytelling.html">Storytelling</a>
+      <a href="../../PE.html">PE</a>
     </nav>
   </header>
-
+<div class="page-wrapper">
+  <aside class="sidebar">
+<nav class="toc">
+<ul>
+<li><a href="#_1">简单时间序列预测模型</a></li>
+<li><a href="#rnn">RNN</a></li>
+<li><a href="#transformer">Transformer</a></li>
+</ul>
+</nav>
+  </aside>
+  <main class="content">
+<h1 id="20257">2025.7 时间序列模型梳理</h1>
 <p>本篇梳理我本科阶段（2022.09-2025.07）参与项目、竞赛中涉及到的时间序列模型，分为以下三个类介绍：简单时间序列预测模型、RNN、transformer。</p>
 <h2 id="_1">简单时间序列预测模型</h2>
 <p>根据我的数学建模参赛经历，时间序列预测是非常常见的数学建模问题，个人感觉数学建模竞赛和Kaggle竞赛在内容、技巧等方面重叠性比较高，当时数学建模比赛时我们比较着急，现在借助Kaggle的学习资源和当时的笔记、论文，重新梳理一下。</p>
@@ -44,10 +59,10 @@
 <ol>
 <li>简单循环网络（Simple Recurrent Network,SRN）</li>
 </ol>
-<div style="text-align: center;">
-  <img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508031341595.png" width="20%">
-</div>
-
+<p>$$
+h_t=f(UH_{t-1}+Wx_t+b)\\
+y_t=Vh_t
+$$</p>
 <p>h为隐藏层状态，f为非线性激活函数，x输入y输出。一个完全连接的循环神经网络有足够数量的sigmoid型隐藏神经元，它可以以任意的准确率去近似任何一个非线性动力系统。RNN在混沌系统求解中也有用处，例如储池计算（Reservoir Compute）随机初始连接若干RNN节点，在混沌系统求解中可以达到很好的效果。</p>
 <p>根据通用近似定理，两层的前馈神经网络可以近似任意有界闭集上的任意连续函数，一个RNN可以视为MLP加上一个延迟器，相当于在MLP上加上了记忆能力，加上了时间维度上的推理能力。一个完全连接的循环神经网络可以近似解决所有<strong>可</strong>计算问题。</p>
 <div style="text-align: center;">
@@ -87,7 +102,7 @@
 <hr />
 <p><strong>项目故事</strong>：<br />
 我是在2022年入学的，大概是在2023年1月的时候联系导师，开始做的这个基于RNN的项目。现在几乎看不到基于RNN的论文了，Chat GPT也是在我本科入学后几个月才发布的，事实上在2020-2022年间很多基于transformer的工作都已经出来了，NLP领域GPT3已经出来2年多了，在2022年transformer也已经进军CV领域，ViT、Swin Transformer、CLIP、DETR、ViLT等等，在视频理解领域也早就淘汰了CNN+LSTM的结构，3D卷积、双流网络、I3D等模型出来了。我个人感觉2022年左右发展得太快了，太多新东西涌现，变化也太快了。当然我并不认为transformer就能在各方面完全取代RNN，学习RNN的结构和思想并没有坏处。RNN相对于transformer的缺点也许在另一个场景下就是它的优点。在2020年IEEE上<a href="https://ieeexplore.ieee.org/document/9282864">https://ieeexplore.ieee.org/document/9282864</a>在机器人领域还是有新的基于RNN的工作的。</p>
-<p>导师的这个RNN项目在此前已经有很多学长在做，在我开始做之前已经有一位做这个课题的学长本科毕业了，最开始带我做的学长带我半年后硕士毕业了，之后又换了一个博士师姐带我做这个项目，接盘这个项目的时候项目结构很乱，各种乱七八糟git下来的项目和模型混在一起放，没有交接文档，学长直接把代码文件给我看，又发了几本深度学习的电子书和论文给我学习，在学完模式识别和概率论后才能勉强看懂。据学姐说，这个项目是导师在东京大学博士后的项目，用的还是Chainer框架，主要参考的论文都是2012、2014年左右的，如果让我站在导师的角度，而且在这个课题已经指导了很多学生，老师自然也不想对每个新来的同学重复指导。</p>
+<p>导师的这个RNN项目在此前已经有很多学长在做，在我开始做之前已经有一位做这个课题的学长本科毕业了，最开始带我做的学长带我半年后硕士毕业了，之后又换了一个博士师姐带我做这个项目，接盘这个项目的时候项目结构很乱，各种乱七八糟git clone下来的项目和模型混在一起放，没有交接文档，学长直接把代码文件给我看，又发了几本深度学习的电子书和论文给我学习，在学完模式识别和概率论后才能勉强看懂。据学姐说，这个项目是导师在东京大学博士后的项目，用的还是Chainer框架，主要参考的论文都是2012、2014年左右的，如果让我站在导师的角度，而且在这个课题已经指导了很多学生，老师自然也不想对每个新来的同学重复指导。</p>
 <p>在看、做这个项目的时候，可以看到自己能力的增长，首先是计算机能力，shell、markdown、conda等工具就是这期间学的；其次是配环境的能力，Chainer框架在国内鲜有人用，只能自己去找文档配环境；与人交流的能力，与师姐交流进度时，设计实验流程安排受试者进行实验都需要准确地表达自己的意思，如果表达和理解有误可能会导致重复工作，最好自己反复组织表达语言，让别人能够更精准地理解我的思想；最后就是深度学习代码能力，最基础的编程与调试，数据处理，修改模型，训练模型，整理实验数据。这个项目算是我深度学习入门项目，在师姐指导下完成了实验设计到结果整理全过程。</p>
 <p>还记得做完的时候师姐说可以给我安排一个二作，还说尽快把论文写出来给我保研的时候用。后来学姐跟我说实验要重做，最后我就把我所有的数据、代码和文档整理好交给师姐后就没有后续了。就我个人的感觉，单就我个人的工作也很难发论文，我在实验室里每天都能看到另一位学长的工作，他的工作时长、工作质量、团队人数、实验过程都远胜于我，专门有另一个导师指导论文写作，那位学长还有其他学长帮忙处理机械问题，医学实验伦理审查，数据处理等，而且听这位学长说他已经高强度工作了大半年了。我做的项目实际上只有我一个人在做，我只每天和师姐交流进展，确定方向，师姐本身负责另外的项目，导师也很少给指导，实验器材，服务器租用都是我自己垫钱在做，各方面都达不到发表论文的标准，我个人感觉导师让我做这个项目主要目的是教育，并没有发论文的打算。另外对于没有接受严格的科研训练的本科生来说，实验设计、数据收集、数据处理、表达有不严谨的地方，这是导师否认我的数据的原因。在做项目时，我大部分时间在“做出来”挣扎，做的时候缺乏宏观上、质量上的把控。</p>
 <p><strong>项目介绍</strong>：</p>
@@ -96,17 +111,15 @@
 <li><strong>步态数据RNN建模</strong></li>
 </ol>
 <p>项目采用S-CTRNN模型，在这里我先介绍Continuous-Time RNN及其改进模型：</p>
-<p><strong>CTRNN</strong>通过常微分方程ODE将每一个神经元的状态描述为时间的连续函数，<code>x_i(t)</code>表示第i个神经元在t时刻下的状态，</p>
-<div style="text-align: center;">
-<img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508031845130.png"/>
-</div>
-
-<p>其中<code>I_i(t)</code>表示外部输入信号，<code>\tau_i</code>是神经元i的“惯性变量”，控制神经元更新的速度。</p>
+<p><strong>CTRNN</strong>通过常微分方程ODE将每一个神经元的状态描述为时间的连续函数，$x_i(t)$表示第i个神经元在t时刻下的状态，</p>
+<p>$$
+\tau_i \frac{dx_i(t)}{dt}=-x_i(t)+\sum_{j=1}^NW_{ij} \sigma(x_j(t))+I_i(t)
+$$</p>
+<p>其中$I_i(t)$表示外部输入信号，$\tau_i$是神经元i的“惯性变量”，控制神经元更新的速度。</p>
 <p>计算机需要离散化才能计算，最终化解的状态转移方程：</p>
-<div style="text-align: center;">
-<img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508031854647.png"/>
-</div>
-
+<p>$$
+x_i(t+\Delta t)=(1-\frac{\Delta t}{\tau_i})x_i(t)+\frac{\Delta t}{\tau_i}(\sum_j W_{ij}\sigma(x_j(t))+I_i(t))
+$$</p>
 <p>CTRNN被应用在进化机器人中，用于解决视觉、协作和最小认知问题。所谓最小认知问题，指的是最基础的“智能反应”例如短期记忆、灵活避障，实现让机器人自主适应未知环境。我在做无人机自主除冰项目的时候，当时学长和我们都基本上确定了要用强化学习去做，老师问能不能用基础的深度学习去做，RL还是太复杂了，当时我觉得不太行深度学习不能做决策问题，现在觉得CTRNN和MPC（model predict control）结合分别处理感知和决策是一个不错的方向。</p>
 <p><strong>SCTRNN</strong>:因为RNN预测模式的确定性，不能学习到数据中隐藏的随机结构，如果RNN学习这种带有噪声的数据，学习过程将因为这些累积误差而变得不稳定。（我认为这说的就是RNN容易对带有噪声的数据过拟合）在[1]中作者提出了改进CTRNN的思路，在预测状态值的同时预测状态值的方差，在训练反向传播过程中，如果预测到状态值的方差越大，由这个预测状态值计算的误差反向传播、模型参数更新时的权重就越小。</p>
 <p>核心思想是把状态值分为两个部分，预测均值和方差，随机性其实就隐藏在方差这里，想象一下如果把我们用手去摸一个物品的过程的传感器数据序列拿去给模型学习，在数据集中不同轨迹的某一时刻某个传感器的值一点是不一样的，但是大致位置是固定的，可以视为训练数据在某一时刻的状态值的随机性。通过SCTRNN结构显式地把这个随机结构表示出来，避免了RNN学到这个随机特征而过拟合。</p>
@@ -116,12 +129,11 @@
 </div>
 
 <p>在训练后模型控制下，改变物品位置，机器人也能精准摸到物体位置。最后我们项目用的就是SCTRNN对人的步态数据建模，尽管是2013年的工作，但感觉在现在看来依然很有价值。</p>
-<p><strong>GACTRNN</strong>：这是2020年的一篇工作，也是在CTRNN上进行改进，CTRNN每个神经元的<code>\tau_i</code>参数都是提前决定好的参数，不同的神经元设计不同的<code>tau_i</code>可以用于不足不同时间尺度下的序列特征，作者的想法是让<code>tau_i</code>变为可自主学习的参数，增加模型捕捉不同时间尺度下序列特征的能力。[2]</p>
-<p>G指的是Gate，用于门控上一时刻对当前<code>tau_i</code>的影响，A指的是Adaptive，它的作用是让<code>tau_i</code>自适应第调整到对应时间尺度下最好的值。GA更新<code>tau_i</code>的计算公式是：</p>
-<div style="text-align: center;">
-<img src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508032030802.png"/>
-</div>
-
+<p><strong>GACTRNN</strong>：这是2020年的一篇工作，也是在CTRNN上进行改进，CTRNN每个神经元的$\tau_i$参数都是提前决定好的参数，不同的神经元设计不同的$\tau_i$可以用于不足不同时间尺度下的序列特征，作者的想法是让$\tau_i$变为可自主学习的参数，增加模型捕捉不同时间尺度下序列特征的能力。[2]</p>
+<p>G指的是Gate，用于门控上一时刻对当前$\tau_i$的影响，A指的是Adaptive，它的作用是让$\tau_i$自适应第调整到对应时间尺度下最好的值。GA更新$\tau_i$的计算公式是：</p>
+<p>$$
+\tau_t=\tau_t^{GA}=1+exp(Hx+Gy_{t-1}+a+\tau_0)
+$$</p>
 <p>这篇文章的卖点就是模型可以学到多尺度时间特征，并且对于复杂的时间序列建模能力比较强。我认为导师当年可能是考虑到人同步时步频会变化，所以找到这篇论文，但是最后为什么没用呢，我觉得一方面是人在行走时步频的变化不大，在我们的实验中步态周期集中在1s-1.5s，直观上看就是单一周期的波动序列，而且模型是对人行走的特定建模，而不是对同步过程建模，训练数据在频率上变化不大，但是人在行走时的波动、随机性影响更大。</p>
 <ol start="2">
 <li><strong>先验依赖程度</strong></li>
@@ -166,10 +178,30 @@
 Subakan C, Ravanelli M, Cornell S, et al. Attention is all you need in speech separation[C]//ICASSP 2021-2021 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP). IEEE, 2021: 21-25.</p>
 <p>模型结构如下所示：<br />
 <img alt="" src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508010056345.png" /></p>
-<p>模型输入混合语言信号<code>(x,R^T)</code>即输入是长度为T的实序列，先要经过一个卷积层编码器和激活函数得到h（在图中没有显示），从x到<code>(h,R^{F*T'})</code>的的过程类似与短时傅里叶变换（STFT），然后进行一个LayerNorm和线性层（为什么是LayerNorm呢，论文并没有说明原因，只是说和Conv-TasNet相同，在Conv-TasNet论文给出的解释是：“归一化方法的选择依赖于因果性要求，对于非因果性要求他们实验发现全局层归一化（global Layer Norm）的效果最好”，所谓“因果性”指的是系统的输出不能依赖未来的的输入数据。在语言信号分离任务中，不涉及语言信号预测，可以充分利用全局的信息。关于归一化层朱老师还说过一个趣事，DeepMind在BYOL说无需显示提供负样本即可进行对比学习，有博客复现后发现不加BatchNorm模型训练容易坍塌，于是博客认为是BatchNorm对全局计算了一个平均样本提供了隐式负样本进行对比学习，后来DeepMind有出了一篇新的工作证明BatchNorm只是帮助模型训练而不是主要原因），然后将语言信号砍（Chopping）为有相互重叠的块（Chunk）此时数据形状为<code>(h',R^{F*C*N_C})</code>，C是块（Chunk）的长度，接着进入Sepformer块，输出信号形状不变，信号出来后经过一个激活函数和一个线性变化，输出信号形状为<code>(h''',R^{(F*N_s)*C*N_C})</code>，N_S是分离后信号数，经过一个overlap add块后（overlap add method重叠相加法在数字信号处理里是高效计算长序列卷积的方法，在论文里没有说理由和原因，而是又引用了一篇论文Dual-path rnn，在Dual-path rnn里也只是简单提了一下，因为之前将语言信号分为了有相互重叠的chunk，所有这里要做重叠相加，可能和DSP里的overlap add关系不大，之前在分块的时候特地说明重叠50%，可能这里就是把重叠部分相加即可。事实上这里并不复杂，论文如果把它写清楚，对读者可能会更友好。）输出信号变为<code>(h''',R^{(F*N_s)*T})</code>，最后经过一个线性层输出分离后的信号。各分离信号还有经过解码器得到最终分离后的信号。</p>
+<p>模型输入混合语言信号$(x,R^T)$即输入是长度为T的实序列，先要经过一个卷积层编码器和激活函数得到h（在图中没有显示），从x到$(h,R^{F*T'})$的的过程类似与短时傅里叶变换（STFT），然后进行一个LayerNorm和线性层（为什么是LayerNorm呢，论文并没有说明原因，只是说和Conv-TasNet相同，在Conv-TasNet论文给出的解释是：“归一化方法的选择依赖于因果性要求，对于非因果性要求他们实验发现全局层归一化（global Layer Norm）的效果最好”，所谓“因果性”指的是系统的输出不能依赖未来的的输入数据。在语言信号分离任务中，不涉及语言信号预测，可以充分利用全局的信息。关于归一化层朱老师还说过一个趣事，DeepMind在BYOL说无需显示提供负样本即可进行对比学习，有博客复现后发现不加BatchNorm模型训练容易坍塌，于是博客认为是BatchNorm对全局计算了一个平均样本提供了隐式负样本进行对比学习，后来DeepMind有出了一篇新的工作证明BatchNorm只是帮助模型训练而不是主要原因），然后将语言信号砍（Chopping）为有相互重叠的块（Chunk）此时数据形状为$(h',R^{F*C*N_C})$，C是块（Chunk）的长度，接着进入Sepformer块，输出信号形状不变，信号出来后经过一个激活函数和一个线性变化，输出信号形状为$(h''',R^{(F*N_s)*C*N_C})$，$N_S$是分离后信号数，经过一个overlap add块后（overlap add method重叠相加法在数字信号处理里是高效计算长序列卷积的方法，在论文里没有说理由和原因，而是又引用了一篇论文Dual-path rnn，在Dual-path rnn里也只是简单提了一下，因为之前将语言信号分为了有相互重叠的chunk，所有这里要做重叠相加，可能和DSP里的overlap add关系不大，之前在分块的时候特地说明重叠50%，可能这里就是把重叠部分相加即可。事实上这里并不复杂，论文如果把它写清楚，对读者可能会更友好。）输出信号变为$(h''',R^{(F*N_s)*T})$，最后经过一个线性层输出分离后的信号。各分离信号还有经过解码器得到最终分离后的信号。</p>
 <p>信号处理流程如下所示：<br />
 <img alt="" src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202508010100785.png" /></p>
 <p>总结一下，语言信号在输入前主要做了两件事，一是先进编码器提取类似STFT的特征，二是tokenize为有重叠的块。然后是进入Sepformer块变换处理，最后经过线性变换，重叠相加等操作得到分离的信号，经过解码器得到最终的分离信号。这里编码器、解码器，有点类似于信号处理先把信号变换到频域再进行处理，最后再变换回时域。这里使用编码器将原语言信号投影到特征空间再处理则比传统DSP频域方法更灵活，在Conv-TasNet里使用的也是编码器解码器结构；从另一个角度来看这步编码器就是transformer里的input embedding层，将输入信号映射到特征空间。</p>
-<p>接下来是Sepformer块的介绍，输入<code>(h',R^{F*C*N_C})</code>，输出的形状不变。Sepformer块里面有三个大结构：intraTransformer、permute、interTransformer。intra和inter的Transformer块结构都一样，核心在转置这一块，转置是将数据的最后两维转置，形状为<code>(F,N_C,C)</code>，intra块对一个chunk的N_C长度的序列进行操作，对短程依赖进行建模，转置后inter块对不同的chunk块进行计算，对长程依赖进行建模。</p>
+<p>接下来是Sepformer块的介绍，输入$(h',R^{F*C*N_C})$，输出的形状不变。Sepformer块里面有三个大结构：intraTransformer、permute、interTransformer。intra和inter的Transformer块结构都一样，核心在转置这一块，转置是将数据的最后两维转置，形状为$(F,N_C,C)$，intra块对一个chunk的$N_C$长度的序列进行操作，对短程依赖进行建模，转置后inter块对不同的chunk块进行计算，对长程依赖进行建模。</p>
+  </main>
+</div>
+  <script>
+    (function() {
+      var headings = document.querySelectorAll(".content h1[id], .content h2[id], .content h3[id]");
+      var links = document.querySelectorAll(".toc a");
+      if (headings.length === 0 || links.length === 0) return;
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) {
+            var id = e.target.getAttribute("id");
+            links.forEach(function(a) {
+              a.classList.toggle("active", a.getAttribute("href") === "#" + id);
+            });
+          }
+        });
+      }, { rootMargin: "-20% 0px -60% 0px" });
+      headings.forEach(function(h) { observer.observe(h); });
+    })();
+  </script>
 </body>
 </html>

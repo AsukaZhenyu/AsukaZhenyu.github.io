@@ -23,7 +23,7 @@ An Initial Exploration of Vibe Coding,AI辅助编程初探
 
 <title-link> 
 css_source/main_style.css
-BUAA CO P4,BUAA计组P4
+BUAA CO P4,北航计组P4
 [2025-5-30](./Musings/BUAA-CO-P4.md)
 </title-link>
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zhenyu's Blog - Zhenyu's Blog</title>
+  <title>Chainer环境配置 - Zhenyu's Blog</title>
   <link rel="stylesheet" href="../../css_source/main_style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
@@ -30,12 +30,17 @@
   <header>
     <h1>Zhenyu's Blog</h1>
     <nav>
-      <a href="../../index.html">Home</a>
+      <a href="../../index.html">CS</a>
       <a href="../../about.html">About</a>
       <a href="../../musings.html">Musings</a>
+      <a href="../../math.html">Math</a>
+      <a href="../../music.html">Music</a>
+      <a href="../../storytelling.html">Storytelling</a>
+      <a href="../../PE.html">PE</a>
     </nav>
   </header>
-
+<main class="content">
+<h1 id="chainer">Chainer环境配置</h1>
 <p>之前在做老师的一个项目，这个项目是老师在东京大学做博后的项目。代码基于Chainer框架，在配环境的时候遇到了一点困难。在CSDN上几乎搜不到解决方法，环境配起来也比较复杂，于是记录一下。</p>
 <p>首先Chainer依赖于CuPy，当时使用的是Chainer v7系列，找到对应CuPy推荐版本为 CuPy v7.8.0<br />
 <img alt="" src="https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202505252058092.png" /></p>
@@ -84,5 +89,6 @@
 可以选择租用4090，镜像就选择miniconda,python 3.8（之后创建环境时python==3.6这两者并不冲突）,cuda 11.3（40系显卡cuda版本要求大于等于11.3）没有问题，cuda是向下兼容的，下载8.0的cudatoolkit是没有问题的。</p>
 <p>最后是一些训练经验：<br />
 一张卡其实可以开多个终端训练代码，观察监控里的GPU占用率，显存占用率，自己新建终端运行代码即可。这样可以省钱。</p>
+</main>
 </body>
 </html>
