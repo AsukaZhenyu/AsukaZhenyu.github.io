@@ -25,21 +25,27 @@
           });
       });
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: "default", themeVariables: {fontSize: "14px"}, flowchart: {htmlLabels: true, padding: 16}});</script>
 </head>
 <body>
   <header>
     <h1>Zhenyu's Blog</h1>
     <nav>
-      <a href="../../../index.html">CS</a>
-      <a href="../../../about.html">About</a>
-      <a href="../../../musings.html">Musings</a>
-      <a href="../../../math.html">Math</a>
-      <a href="../../../music.html">Music</a>
-      <a href="../../../storytelling.html">Storytelling</a>
-      <a href="../../../PE.html">PE</a>
+      <a href="../../../index.html">About</a>
+      <a href="../../../html_source/CS/index.html">CS</a>
+      <a href="../../../html_source/Musings/index.html">Musings</a>
+      <a href="../../../html_source/Math/index.html">Math</a>
+      <a href="../../../html_source/Music/index.html">Music</a>
+      <a href="../../../html_source/Storytelling/index.html">Storytelling</a>
+      <a href="../../../html_source/PE/index.html">PE</a>
     </nav>
   </header>
 <main class="content">
+<div class="breadcrumb-bar">
+  <div class="breadcrumb-path"><a href="../../../index.html">Home</a> <span class="sep">/</span> <a href="../../../html_source/CS/index.html">CS</a> <span class="sep">/</span> <a href="../../../html_source/CS/Linux/index.html">Linux</a> <span class="sep">/</span> <span class="current">zsh config and use</span></div>
+  <a href="../../../html_source/CS/Linux/index.html" class="back-btn" title="返回上一级">← 返回上一级</a>
+</div>
 <h1 id="zsh">zsh配置与使用</h1>
 <p><br/></p>
 <p>一般我们在TTY或者终端模拟器里使用的命令行（解释器）叫shell程序，对于现代Linux发行版用户一般情况下我们使用的shell程序是bash；现代macOS默认自带的是zsh； Windows不是类Unix操作系统， Windows默认的shell之一是自行开发的PowerShell， 它自带面向对象的许多特征， 功能非常强大； 鸿蒙OS默认不为普通用户提供命令行终端应用，需要自己安装。</p>

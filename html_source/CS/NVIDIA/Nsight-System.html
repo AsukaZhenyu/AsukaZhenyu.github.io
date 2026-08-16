@@ -25,28 +25,55 @@
           });
       });
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: "default", themeVariables: {fontSize: "14px"}, flowchart: {htmlLabels: true, padding: 16}});</script>
 </head>
 <body>
   <header>
     <h1>Zhenyu's Blog</h1>
     <nav>
-      <a href="../../../index.html">CS</a>
-      <a href="../../../about.html">About</a>
-      <a href="../../../musings.html">Musings</a>
-      <a href="../../../math.html">Math</a>
-      <a href="../../../music.html">Music</a>
-      <a href="../../../storytelling.html">Storytelling</a>
-      <a href="../../../PE.html">PE</a>
+      <a href="../../../index.html">About</a>
+      <a href="../../../html_source/CS/index.html">CS</a>
+      <a href="../../../html_source/Musings/index.html">Musings</a>
+      <a href="../../../html_source/Math/index.html">Math</a>
+      <a href="../../../html_source/Music/index.html">Music</a>
+      <a href="../../../html_source/Storytelling/index.html">Storytelling</a>
+      <a href="../../../html_source/PE/index.html">PE</a>
     </nav>
   </header>
 <main class="content">
+<div class="breadcrumb-bar">
+  <div class="breadcrumb-path"><a href="../../../index.html">Home</a> <span class="sep">/</span> <a href="../../../html_source/CS/index.html">CS</a> <span class="sep">/</span> <a href="../../../html_source/CS/NVIDIA/index.html">NVIDIA</a> <span class="sep">/</span> <span class="current">Nsight System</span></div>
+  <a href="../../../html_source/CS/NVIDIA/index.html" class="back-btn" title="返回上一级">← 返回上一级</a>
+</div>
 <h1 id="nsight-system">Nsight System工具</h1>
-<p>NVIDIA Nsight是一组工具包，下面举几个例子：<br />
-|名称|用途|安装方式|<br />
-|-|-|-|<br />
-|Nsight System|系统级性能分析，提供CPU和GPU活动的时间线视图，识别宏观性能瓶颈|从 NVIDIA 官网下载独立安装包|<br />
-|Nsight Compute|CUDA Kernel 性能分析，提供详细的SM（流多处理器）效率、内存吞吐量等微观指标|随 CUDA Toolkit 一起安装|<br />
-|Nsight Graphics|图形应用程序调试与分析，支持Direct3D、Vulkan等图形API|从 NVIDIA 官网下载独立安装包|</p>
+<p>NVIDIA Nsight是一组工具包，下面举几个例子：</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>用途</th>
+<th>安装方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nsight System</td>
+<td>系统级性能分析，提供CPU和GPU活动的时间线视图，识别宏观性能瓶颈</td>
+<td>从 NVIDIA 官网下载独立安装包</td>
+</tr>
+<tr>
+<td>Nsight Compute</td>
+<td>CUDA Kernel 性能分析，提供详细的SM（流多处理器）效率、内存吞吐量等微观指标</td>
+<td>随 CUDA Toolkit 一起安装</td>
+</tr>
+<tr>
+<td>Nsight Graphics</td>
+<td>图形应用程序调试与分析，支持Direct3D、Vulkan等图形API</td>
+<td>从 NVIDIA 官网下载独立安装包</td>
+</tr>
+</tbody>
+</table>
 <p>我的主力机型是win11操作系统，而Nsight System在WSL上似乎有已知bug，配置起来非常复杂，我也曾有幸在Arch Linux上安装过NVIDIA驱动，非常折磨。本文记录在win11上，配合VS2022（MSVC）来使用CUDA Toolkit编译、调试CUDA代码并测试性能。</p>
 <p><strong>NVIDIA相关技术栈</strong>：</p>
 <p>NVIDIA驱动，直接在GPU硬件之上，没有驱动就用不了GPU</p>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="一份可以听、可以点、可以练习的基础乐理学习博客，覆盖音高、节奏、音程、音阶、和弦与基础和声。">
+  <meta name="theme-color" content="#f4efe5">
+  <title>基础乐理学习手册｜Zhenyu's Blog</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">跳到正文</a>
+
+  <header class="site-header">
+    <nav class="topbar" aria-label="站点导航">
+      <a class="brand" href="../../../music.html">
+        <span class="brand-mark" aria-hidden="true">♭</span>
+        <span>Zhenyu's Blog <b>/ Music</b></span>
+      </a>
+      <div class="topbar-actions">
+        <span class="sound-state" id="sound-state" aria-live="polite">点击音符即可启用声音</span>
+        <a class="back-link" href="../../../music.html">返回音乐主页</a>
+      </div>
+    </nav>
+
+    <div class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">BASIC MUSIC THEORY · 交互学习手册</p>
+        <h1>让乐理从纸面上<br><em>真正响起来。</em></h1>
+        <p class="hero-intro">
+          基础乐理不是需要背完的词典，而是一组描述声音关系的工具。
+          从一个音开始，亲手构造音阶、和弦与进行，在听觉中建立理解。
+        </p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#pitch">从音高开始</a>
+          <a class="button button-quiet" href="#review">直接挑战复习</a>
+        </div>
+      </div>
+      <div class="hero-score" aria-label="从单音构成关系，再构成音乐">
+        <div class="score-lines" aria-hidden="true"></div>
+        <div class="hero-note note-one" aria-hidden="true">♪</div>
+        <div class="hero-note note-two" aria-hidden="true">♩</div>
+        <div class="hero-note note-three" aria-hidden="true">♫</div>
+        <p><span>音</span><i></i><span>关系</span><i></i><span>音乐</span></p>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-layout">
+    <aside class="study-sidebar" aria-label="课程目录">
+      <div class="progress-card">
+        <div class="progress-ring" id="progress-ring" style="--progress: 0%"><span id="progress-number">0%</span></div>
+        <div><strong>学习进度</strong><p><span id="completed-count">0</span> / 7 章完成</p></div>
+      </div>
+      <nav class="chapter-nav" aria-label="章节目录">
+        <p class="nav-label">学习路径</p>
+        <a href="#overview"><span>00</span>使用方法</a>
+        <a href="#pitch"><span>01</span>音高与键盘</a>
+        <a href="#notation"><span>02</span>五线谱识音</a>
+        <a href="#rhythm"><span>03</span>节奏与拍号</a>
+        <a href="#interval"><span>04</span>音程</a>
+        <a href="#scale"><span>05</span>音阶与调</a>
+        <a href="#chord"><span>06</span>和弦</a>
+        <a href="#harmony"><span>07</span>和声进行</a>
+        <a href="#review"><span>→</span>综合复习</a>
+      </nav>
+      <button class="reset-button" id="reset-progress" type="button">重置本地进度</button>
+    </aside>
+
+    <main id="main-content" class="article">
+      <section class="chapter chapter-intro" id="overview">
+        <div class="chapter-heading">
+          <p class="chapter-kicker">00 · HOW TO USE</p>
+          <h2>先听，再理解，最后记住</h2>
+        </div>
+        <p class="lead">
+          这份手册按照“声音的基本单位 → 时间组织 → 音高关系 → 和声组织”的顺序展开。
+          每一章都包含一个可以操作的实验。戴上耳机，从点击、比较和判断中学习。
+        </p>
+        <div class="principle-grid">
+          <article><span>01</span><h3>读一个概念</h3><p>只记住最小定义，不急着背完整张表。</p></article>
+          <article><span>02</span><h3>亲手改变它</h3><p>换一个根音、速度或结构，观察规律是否仍然成立。</p></article>
+          <article><span>03</span><h3>闭眼听一次</h3><p>让名称与实际听感建立连接，而不只停留在视觉上。</p></article>
+        </div>
+        <aside class="note-callout"><strong>给术力口学习者：</strong>DAW 的钢琴卷帘看似没有五线谱，但背后仍然是相同的音高、节奏、音阶与和弦逻辑。</aside>
+      </section>
+
+      <section class="chapter" id="pitch" data-chapter="pitch">
+        <div class="chapter-heading heading-with-action">
+          <div><p class="chapter-kicker">01 · PITCH</p><h2>音高与键盘</h2></div>
+          <button class="complete-button" type="button" data-complete="pitch" aria-pressed="false">标记本章完成</button>
+        </div>
+        <p class="lead">西方音乐把一个八度分成十二个半音。键盘上的十二个不同位置不断循环，C 到下一个 C 是一个八度；相邻琴键之间永远相差一个半音。</p>
+        <div class="concept-row">
+          <div class="concept-card"><span class="concept-symbol">C D E F G A B</span><h3>音名</h3><p>七个基本音名循环出现，对应唱名 do、re、mi、fa、sol、la、si。</p></div>
+          <div class="concept-card"><span class="concept-symbol">♯ · ♭</span><h3>变化音</h3><p>升号把音升高半音，降号把音降低半音；C♯ 与 D♭ 在十二平均律中同音异名。</p></div>
+          <div class="concept-card"><span class="concept-symbol">2 : 1</span><h3>八度</h3><p>高八度的频率恰好加倍，因此听起来相似，却位于更高的音区。</p></div>
+        </div>
+        <div class="lab" aria-labelledby="keyboard-title">
+          <div class="lab-header">
+            <div><p class="lab-label">INTERACTIVE · 交互钢琴</p><h3 id="keyboard-title">点击琴键，认识十二个音</h3></div>
+            <div class="segmented" aria-label="键盘标签显示方式">
+              <button type="button" class="is-active" data-label-mode="note">音名</button>
+              <button type="button" data-label-mode="solfege">唱名</button>
+              <button type="button" data-label-mode="none">隐藏</button>
+            </div>
+          </div>
+          <div class="piano-wrap"><div class="piano" id="piano" aria-label="两组八度的交互钢琴"></div></div>
+          <div class="readout" id="piano-readout" aria-live="polite"><span class="readout-note">—</span><span>选择一个琴键，查看音名、唱名与频率</span></div>
+          <p class="keyboard-tip">键盘操作：使用 A W S E D F T G Y H U J K 演奏一个八度。</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="notation" data-chapter="notation">
+        <div class="chapter-heading heading-with-action">
+          <div><p class="chapter-kicker">02 · NOTATION</p><h2>五线谱识音</h2></div>
+          <button class="complete-button" type="button" data-complete="notation" aria-pressed="false">标记本章完成</button>
+        </div>
+        <p class="lead">五线谱用音符在纵向的位置表示音高。音符每跨过一个“线或间”，就沿着字母音名移动一级；谱号决定每个位置的基准音。</p>
+        <div class="two-column-copy">
+          <article><h3>高音谱号</h3><p>常用于人声、右手钢琴和高音乐器。第二线是 G4，因此也叫 G 谱号。</p><p class="memory-line"><b>线：</b>E G B D F　<b>间：</b>F A C E</p></article>
+          <article><h3>低音谱号</h3><p>常用于贝斯、左手钢琴和低音乐器。第四线是 F3，因此也叫 F 谱号。</p><p class="memory-line"><b>线：</b>G B D F A　<b>间：</b>A C E G</p></article>
+        </div>
+        <div class="lab staff-lab" aria-labelledby="staff-title">
+          <div class="lab-header">
+            <div><p class="lab-label">PRACTICE · 识谱练习</p><h3 id="staff-title">这个音符是什么？</h3></div>
+            <label class="field-inline">谱号<select id="clef-select"><option value="treble">高音谱号</option><option value="bass">低音谱号</option></select></label>
+          </div>
+          <div class="staff-stage">
+            <div class="clef-symbol" id="clef-symbol" aria-hidden="true">𝄞</div>
+            <div class="staff" id="staff" aria-label="五线谱题目">
+              <span class="staff-line"></span><span class="staff-line"></span><span class="staff-line"></span><span class="staff-line"></span><span class="staff-line"></span>
+              <span class="staff-note" id="staff-note" aria-hidden="true"></span>
+            </div>
+          </div>
+          <div class="answer-grid" id="staff-answers" aria-label="音名选项"></div>
+          <p class="feedback" id="staff-feedback" aria-live="polite">选择一个答案。</p>
+          <button class="text-button" id="next-staff-note" type="button">换一道题 →</button>
+        </div>
+      </section>
+
+      <section class="chapter" id="rhythm" data-chapter="rhythm">
+        <div class="chapter-heading heading-with-action">
+          <div><p class="chapter-kicker">03 · RHYTHM</p><h2>节奏与拍号</h2></div>
+          <button class="complete-button" type="button" data-complete="rhythm" aria-pressed="false">标记本章完成</button>
+        </div>
+        <p class="lead">音高回答“唱什么音”，节奏回答“何时开始、持续多久”。以四分音符为一拍时，二分音符持续两拍，八分音符只持续半拍。</p>
+        <div class="note-value-grid" id="note-values">
+          <button type="button" data-beats="4"><span>𝅝</span><strong>全音符</strong><small>4 拍</small></button>
+          <button type="button" data-beats="2"><span>𝅗𝅥</span><strong>二分音符</strong><small>2 拍</small></button>
+          <button type="button" data-beats="1"><span>♩</span><strong>四分音符</strong><small>1 拍</small></button>
+          <button type="button" data-beats="0.5"><span>♪</span><strong>八分音符</strong><small>1/2 拍</small></button>
+          <button type="button" data-beats="0.25"><span>𝅘𝅥𝅯</span><strong>十六分音符</strong><small>1/4 拍</small></button>
+        </div>
+        <div class="lab metronome-lab" aria-labelledby="metro-title">
+          <div class="lab-header">
+            <div><p class="lab-label">INTERACTIVE · 节拍器</p><h3 id="metro-title">把拍子变成身体感觉</h3></div>
+            <div class="tempo-display"><b id="tempo-number">90</b><span>BPM</span></div>
+          </div>
+          <div class="metro-controls">
+            <label class="tempo-slider"><span>慢</span><input id="tempo-slider" type="range" min="40" max="200" value="90" aria-label="节拍器速度"><span>快</span></label>
+            <label>拍号<select id="meter-select"><option value="4">4 / 4</option><option value="3">3 / 4</option><option value="2">2 / 4</option><option value="6">6 / 8</option></select></label>
+            <button class="button button-primary compact" id="metronome-toggle" type="button">开始</button>
+          </div>
+          <div class="beat-dots" id="beat-dots" aria-label="拍号的循环位置"></div>
+          <p class="lab-hint">第一拍使用较高的提示音。试着跟随节拍轻敲桌面，并数“1、2、3、4”。</p>
+        </div>
+        <aside class="note-callout"><strong>拍号怎么看？</strong>上面的数字表示每小节有几拍；下面的数字表示以哪种音符为一拍。例如 3/4 表示每小节三拍，以四分音符为一拍。</aside>
+      </section>
+
+      <section class="chapter" id="interval" data-chapter="interval">
+        <div class="chapter-heading heading-with-action">
+          <div><p class="chapter-kicker">04 · INTERVAL</p><h2>音程：两个音之间的距离</h2></div>
+          <button class="complete-button" type="button" data-complete="interval" aria-pressed="false">标记本章完成</button>
+        </div>
+        <p class="lead">音程同时包含“度数”和“性质”。从 C 数到 E 包含 C、D、E 三个音名，所以是三度；它们实际相距四个半音，因此是大三度。</p>
+        <div class="formula-strip" aria-label="常见音程与半音数">
+          <span><b>0</b>纯一度</span><span><b>1</b>小二度</span><span><b>2</b>大二度</span><span><b>3</b>小三度</span>
+          <span><b>4</b>大三度</span><span><b>5</b>纯四度</span><span><b>7</b>纯五度</span><span><b>12</b>纯八度</span>
+        </div>
+        <div class="lab" aria-labelledby="interval-title">
+          <div class="lab-header">
+            <div><p class="lab-label">INTERACTIVE · 音程实验室</p><h3 id="interval-title">选择两个音，听见距离</h3></div>
+            <div class="lab-actions"><button class="icon-button" id="play-interval-melodic" type="button">依次播放</button><button class="icon-button" id="play-interval-harmonic" type="button">同时播放</button></div>
+          </div>
+          <div class="interval-builder">
+            <label>起点<select id="interval-root"></select></label><span class="plus-sign">＋</span>
+            <label>向上移动<select id="interval-distance"></select></label>
+            <div class="result-card" id="interval-result"><span>结果音</span><b>—</b><small>—</small></div>
+          </div>
+          <div class="mini-keyboard" id="interval-keyboard" aria-label="音程在键盘上的位置"></div>
+        </div>
+      </section>
+
+      <section class="chapter" id="scale" data-chapter="scale">
+        <div class="chapter-heading heading-with-action">
+          <div><p class="chapter-kicker">05 · SCALE & KEY</p><h2>音阶与调</h2></div>
+          <button class="complete-button" type="button" data-complete="scale" aria-pressed="false">标记本章完成</button>
+        </div>
+        <p class="lead">音阶是一组按音高排列的音，调则是音乐围绕哪个中心音组织。大调的半音排列固定为“全、全、半、全、全、全、半”，无论从哪个音开始，关系都不变。</p>
+        <div class="pattern-compare">
+          <article><p>MAJOR · 自然大调</p><div class="step-pattern"><span>全</span><span>全</span><span class="half">半</span><span>全</span><span>全</span><span>全</span><span class="half">半</span></div><strong>明亮、稳定、开阔</strong></article>
+          <article><p>MINOR · 自然小调</p><div class="step-pattern"><span>全</span><span class="half">半</span><span>全</span><span>全</span><span class="half">半</span><span>全</span><span>全</span></div><strong>内敛、深沉、叙事性</strong></article>
+        </div>
+        <div class="lab" aria-labelledby="scale-title">
+          <div class="lab-header">
+            <div><p class="lab-label">INTERACTIVE · 音阶生成器</p><h3 id="scale-title">换一个主音，规律仍然成立</h3></div>
+            <button class="icon-button" id="play-scale" type="button">播放音阶 ↑</button>
+          </div>
+          <div class="select-row">
+            <label>主音<select id="scale-root"></select></label>
+            <label>音阶类型<select id="scale-type"><option value="major">自然大调</option><option value="minor">自然小调</option><option value="harmonicMinor">和声小调</option><option value="pentatonic">大调五声音阶</option></select></label>
+          </div>
+          <div class="degree-row" id="scale-notes" aria-live="polite"></div>
+          <div class="mini-keyboard" id="scale-keyboard" aria-label="音阶在键盘上的位置"></div>
+        </div>
+        <details class="reading-note"><summary>为什么要学习五度圈？</summary><p>五度圈把调号、关系大小调与常见转调放在同一张地图上。顺时针每走一步增加一个升号，逆时针每走一步增加一个降号。入门阶段先掌握 C、G、D、F 大调即可。</p></details>
+      </section>
+
+      <section class="chapter" id="chord" data-chapter="chord">
+        <div class="chapter-heading heading-with-action">
+          <div><p class="chapter-kicker">06 · CHORD</p><h2>和弦：把音程垂直叠起来</h2></div>
+          <button class="complete-button" type="button" data-complete="chord" aria-pressed="false">标记本章完成</button>
+        </div>
+        <p class="lead">三和弦由根音、三音和五音构成。大三和弦是“根音 + 大三度 + 小三度”，小三和弦则交换两段三度的位置。改变最下面的音会形成转位，但和弦身份不变。</p>
+        <div class="chord-type-grid">
+          <article><span>4 + 3</span><h3>大三和弦</h3><p>明亮、稳定，例如 C–E–G。</p></article>
+          <article><span>3 + 4</span><h3>小三和弦</h3><p>柔和、暗色，例如 A–C–E。</p></article>
+          <article><span>3 + 3</span><h3>减三和弦</h3><p>紧张、不稳定，例如 B–D–F。</p></article>
+          <article><span>4 + 4</span><h3>增三和弦</h3><p>悬浮、扩张，例如 C–E–G♯。</p></article>
+        </div>
+        <div class="lab" aria-labelledby="chord-title">
+          <div class="lab-header">
+            <div><p class="lab-label">INTERACTIVE · 和弦构造器</p><h3 id="chord-title">从根音出发，搭建一个和弦</h3></div>
+            <div class="lab-actions"><button class="icon-button" id="play-chord" type="button">同时播放</button><button class="icon-button" id="arpeggiate-chord" type="button">琶音播放</button></div>
+          </div>
+          <div class="select-row three-fields">
+            <label>根音<select id="chord-root"></select></label>
+            <label>类型<select id="chord-type"><option value="major">大三和弦</option><option value="minor">小三和弦</option><option value="diminished">减三和弦</option><option value="augmented">增三和弦</option><option value="major7">大七和弦</option><option value="minor7">小七和弦</option><option value="dominant7">属七和弦</option></select></label>
+            <label>低音位置<select id="chord-inversion"><option value="0">原位</option><option value="1">第一转位</option><option value="2">第二转位</option><option value="3">第三转位（七和弦）</option></select></label>
+          </div>
+          <div class="chord-readout" id="chord-readout" aria-live="polite"></div>
+          <div class="mini-keyboard" id="chord-keyboard" aria-label="和弦在键盘上的位置"></div>
+        </div>
+      </section>
+
+      <section class="chapter" id="harmony" data-chapter="harmony">
+        <div class="chapter-heading heading-with-action">
+          <div><p class="chapter-kicker">07 · HARMONY</p><h2>和声进行：让和弦产生方向</h2></div>
+          <button class="complete-button" type="button" data-complete="harmony" aria-pressed="false">标记本章完成</button>
+        </div>
+        <p class="lead">在一个调内，每个音级都可以构成和弦。罗马数字描述和弦在调中的位置，因此同一个进行可以整体移到不同的调，而保留相似的情绪与方向。</p>
+        <div class="function-flow" aria-label="基础和声功能">
+          <article><span>T</span><h3>主功能</h3><p>I、vi</p><small>稳定与归属</small></article><i aria-hidden="true">→</i>
+          <article><span>S</span><h3>下属功能</h3><p>ii、IV</p><small>离开与展开</small></article><i aria-hidden="true">→</i>
+          <article><span>D</span><h3>属功能</h3><p>V、vii°</p><small>紧张与期待</small></article><i aria-hidden="true">→</i>
+          <article><span>T</span><h3>回到主和弦</h3><p>I</p><small>解决与结束</small></article>
+        </div>
+        <div class="lab" aria-labelledby="harmony-title">
+          <div class="lab-header">
+            <div><p class="lab-label">INTERACTIVE · 和声进行播放器</p><h3 id="harmony-title">听见“离开—紧张—回家”</h3></div>
+            <button class="button button-primary compact" id="play-progression" type="button">播放进行</button>
+          </div>
+          <div class="select-row">
+            <label>调性<select id="progression-key"></select></label>
+            <label>常见进行<select id="progression-type"><option value="pop">I–V–vi–IV · 流行进行</option><option value="classic">I–IV–V–I · 基础终止</option><option value="canon">I–V–vi–iii–IV–I–IV–V · 卡农式</option><option value="minorPop">vi–IV–I–V · 小调起始</option><option value="twoFiveOne">ii–V–I · 二五一</option></select></label>
+          </div>
+          <div class="progression-track" id="progression-track" aria-live="polite"></div>
+          <p class="lab-hint">播放时观察每个罗马数字如何对应具体和弦。改变调性后，数字关系保持不变。</p>
+        </div>
+      </section>
+
+      <section class="chapter review-section" id="review">
+        <div class="chapter-heading"><p class="chapter-kicker">REVIEW · MIXED PRACTICE</p><h2>综合复习</h2></div>
+        <p class="lead">题目会从音名、节奏、音程、音阶与和弦中随机抽取。答错并不可怕——即时解析正是把知识连起来的地方。</p>
+        <div class="review-stats" aria-label="本地练习统计">
+          <div><span id="review-total">0</span><small>累计答题</small></div>
+          <div><span id="review-correct">0</span><small>答对题数</small></div>
+          <div><span id="review-accuracy">—</span><small>正确率</small></div>
+          <div><span id="review-streak">0</span><small>当前连对</small></div>
+        </div>
+        <div class="quiz-card">
+          <div class="quiz-meta"><span id="quiz-topic">基础乐理</span><button class="speaker-button" id="quiz-audio" type="button" hidden>试听题目</button></div>
+          <h3 id="quiz-question">准备好了吗？</h3>
+          <p id="quiz-context">点击“开始练习”，生成一道随机题目。</p>
+          <div class="quiz-options" id="quiz-options"></div>
+          <p class="quiz-feedback" id="quiz-feedback" aria-live="polite"></p>
+          <button class="button button-primary" id="next-quiz" type="button">开始练习</button>
+        </div>
+      </section>
+
+      <section class="chapter glossary-section" id="glossary">
+        <div class="chapter-heading"><p class="chapter-kicker">QUICK REFERENCE</p><h2>一分钟速查</h2></div>
+        <div class="glossary-grid">
+          <details><summary>半音与全音</summary><p>相邻琴键相差半音；两个半音组成一个全音。</p></details>
+          <details><summary>大调音阶公式</summary><p>全—全—半—全—全—全—半。</p></details>
+          <details><summary>自然小调公式</summary><p>全—半—全—全—半—全—全。</p></details>
+          <details><summary>大三和弦</summary><p>根音上方叠大三度，再叠小三度；半音结构为 0–4–7。</p></details>
+          <details><summary>小三和弦</summary><p>根音上方叠小三度，再叠大三度；半音结构为 0–3–7。</p></details>
+          <details><summary>属到主</summary><p>V–I 是最强烈的解决之一，属和弦中的导音倾向上行到主音。</p></details>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <p>基础乐理学习手册 · 所有声音均由浏览器实时合成</p>
+    <a href="#main-content">回到顶部 ↑</a>
+  </footer>
+</body>
+</html>

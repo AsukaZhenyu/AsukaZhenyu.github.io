@@ -25,21 +25,27 @@
           });
       });
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: "default", themeVariables: {fontSize: "14px"}, flowchart: {htmlLabels: true, padding: 16}});</script>
 </head>
 <body>
   <header>
     <h1>Zhenyu's Blog</h1>
     <nav>
-      <a href="../../../index.html">CS</a>
-      <a href="../../../about.html">About</a>
-      <a href="../../../musings.html">Musings</a>
-      <a href="../../../math.html">Math</a>
-      <a href="../../../music.html">Music</a>
-      <a href="../../../storytelling.html">Storytelling</a>
-      <a href="../../../PE.html">PE</a>
+      <a href="../../../index.html">About</a>
+      <a href="../../../html_source/CS/index.html">CS</a>
+      <a href="../../../html_source/Musings/index.html">Musings</a>
+      <a href="../../../html_source/Math/index.html">Math</a>
+      <a href="../../../html_source/Music/index.html">Music</a>
+      <a href="../../../html_source/Storytelling/index.html">Storytelling</a>
+      <a href="../../../html_source/PE/index.html">PE</a>
     </nav>
   </header>
 <main class="content">
+<div class="breadcrumb-bar">
+  <div class="breadcrumb-path"><a href="../../../index.html">Home</a> <span class="sep">/</span> <a href="../../../html_source/CS/index.html">CS</a> <span class="sep">/</span> <a href="../../../html_source/CS/HPC-Parallel-Distribute-Computing/index.html">HPC Parallel Distribute Computing</a> <span class="sep">/</span> <span class="current">CUTLASS CuTe DSL</span></div>
+  <a href="../../../html_source/CS/HPC-Parallel-Distribute-Computing/index.html" class="back-btn" title="返回上一级">← 返回上一级</a>
+</div>
 <h1 id="nvidia-cute-dsl">NVIDIA CuTe DSL</h1>
 <p>NVIDIA的<code>CUTLASS</code>是构建在<code>CUDA</code>之上的一个专业库。<code>CUTLASS</code>是一个头文件库，在写<code>CUDA</code>程序的时候通过<code>#include</code>直接使用。<code>CuTe</code>作为<code>CUTLASS</code>的核心组件，从<code>CUTLASS 3.0</code>开始引入，<code>CuTe</code>是一套用C++实现的、用于灵活描述和操作内存中数据布局（Layout）和张量（Tensor）的抽象工具，是CUTLASS实现复杂优化的基石。</p>
 <p>从<code>CUTLASS 4.0</code>开始，官方提供了一个用Python编写高性能Kernel的接口——<a href="https://docs.nvidia.com/cutlass/latest/media/docs/pythonDSL/overview.html">CuTe DSL</a>，性能略逊于<code>CUTLASS C++</code>，但是易用性、开发效率更高，学习曲线更平缓。<code>CuTe DSL</code>仍然是贴近<code>NVIDIA SIMT GPU</code>的底层编程模型，与 <code>CuTe C++</code> 抽象层完全一致——它暴露了布局（Layouts）、张量（Tensors）、硬件原子操作（Hardware Atoms）等核心概念，并赋予开发者对硬件线程与数据层级结构的完全控制权。</p>

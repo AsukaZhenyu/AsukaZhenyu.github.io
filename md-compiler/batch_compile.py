@@ -8,6 +8,7 @@ Usage:
 import re
 import os
 import uuid
+import shutil
 import markdown
 from pathlib import Path
 
@@ -30,6 +31,15 @@ def compile_markdown_body(md_text: str) -> str:
         return placeholder
 
     content = md_text
+
+    # Protect mermaid blocks from codehilite — replace with raw HTML div
+    content = re.sub(
+        r'```mermaid\s*\n(.*?)```',
+        r'<div class="mermaid">\1</div>',
+        content,
+        flags=re.DOTALL
+    )
+
     content = re.sub(r'\\\[(.*?)\\\]', protect_math, content, flags=re.DOTALL)
     content = re.sub(r'\$\$(.*?)\$\$', protect_math, content, flags=re.DOTALL)
     content = re.sub(r'\\\((.*?)\\\)', protect_math, content)
@@ -96,6 +106,25 @@ def parse_title_link(content: str, source_dir: Path) -> dict | None:
     date = link_m.group(1).strip()
     href = link_m.group(2).strip()
 
+    # If link points to .html, treat as pre-built — copy from md_source/ to html_source/
+    if href.endswith('.html'):
+        source_html = (source_dir / href).resolve()
+        try:
+            rel = source_html.relative_to(MD_SOURCE)
+        except ValueError:
+            print(f"  Warning: {source_html} is outside md_source/, skipping")
+            return None
+        target_html = (HTML_SOURCE / rel).resolve()
+        return {
+            'css': css,
+            'en_title': en_title,
+            'zh_title': zh_title,
+            'date': date,
+            'target_md': None,
+            'target_html': target_html,
+            'source_html': source_html,
+        }
+
     target_md = (source_dir / href).resolve()
 
     # Determine output path
@@ -107,16 +136,6 @@ def parse_title_link(content: str, source_dir: Path) -> dict | None:
 
     if str(rel) == 'index.md':
         output_path = ROOT / 'index.html'
-    elif str(rel) == 'musings.md':
-        output_path = ROOT / 'musings.html'
-    elif str(rel) == 'math.md':
-        output_path = ROOT / 'math.html'
-    elif str(rel) == 'music.md':
-        output_path = ROOT / 'music.html'
-    elif str(rel) == 'storytelling.md':
-        output_path = ROOT / 'storytelling.html'
-    elif str(rel) == 'PE.md':
-        output_path = ROOT / 'PE.html'
     else:
         out_rel = rel.parent / (rel.stem + '.html')
         output_path = HTML_SOURCE / out_rel
@@ -147,6 +166,29 @@ def parse_posts_lists(md_text: str, source_dir: Path) -> tuple[str, list[list[di
 
     modified = POSTS_LIST_RE.sub(replace, md_text)
     return modified, all_entries
+
+
+# ---------------------------------------------------------------------------
+# Pre-built .html copier
+# ---------------------------------------------------------------------------
+
+def copy_prebuilt_html(source_html: Path, target_html: Path):
+    """Copy a pre-built .html and its sibling assets (non-.md files) to html_source."""
+    if not source_html.exists():
+        print(f"  Warning: {source_html} not found, skipping copy.")
+        return
+
+    target_html.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source_html, target_html)
+    print(f"  copy: {source_html}  ->  {target_html}")
+
+    # Copy sibling non-.md files
+    for f in source_html.parent.iterdir():
+        if f.is_file() and f.suffix not in ('.md',):
+            dest = target_html.parent / f.name
+            if not dest.exists() or f.stat().st_mtime > dest.stat().st_mtime:
+                shutil.copy2(f, dest)
+                print(f"  copy: {f}  ->  {dest}")
 
 
 # ---------------------------------------------------------------------------
@@ -251,8 +293,112 @@ def depth_prefix(output_path: Path) -> str:
     return rel + '/'
 
 
+def compute_breadcrumb_bar(output_path: Path) -> str:
+    """Generate breadcrumb navigation bar with parent-link button.
+
+    Returns empty string for the homepage (index.html at ROOT).
+    """
+    try:
+        rel = output_path.resolve().relative_to(ROOT)
+    except ValueError:
+        return ''
+
+    parts = list(rel.parts)
+    prefix = depth_prefix(output_path)
+
+    # ── ROOT-level files ──────────────────────────────────────────
+    if len(parts) == 1:
+        if parts[0] == 'index.html':
+            return ''  # homepage – no breadcrumb needed
+
+        current = parts[0]
+        if current.endswith('.html'):
+            current = current[:-5]
+        current = current.replace('-', ' ').replace('_', ' ')
+
+        return (
+            '<div class="breadcrumb-bar">\n'
+            f'  <div class="breadcrumb-path">'
+            f'<a href="{prefix}index.html">Home</a>'
+            f' <span class="sep">/</span> '
+            f'<span class="current">{current}</span></div>\n'
+            f'  <a href="{prefix}index.html" class="back-btn" title="返回首页">'
+            f'← 返回首页</a>\n'
+            '</div>'
+        )
+
+    # ── Files under a subdirectory (html_source/…) ────────────────
+    # Strip the top-level container directory from display (e.g. "html_source")
+    display_parts = parts[1:] if len(parts) > 1 else parts
+
+    breadcrumbs = [('Home', f'{prefix}index.html')]
+
+    if parts[-1] == 'index.html':
+        # index.html represents the directory — directory name IS the current page
+        dir_parts = display_parts[:-1]  # exclude 'index.html' itself
+        for i, part in enumerate(dir_parts[:-1]):
+            dir_path = '/'.join(parts[:i + 2])
+            href = f'{prefix}{dir_path}/index.html'
+            label = part.replace('-', ' ').replace('_', ' ')
+            breadcrumbs.append((label, href))
+        if dir_parts:
+            current = dir_parts[-1].replace('-', ' ').replace('_', ' ')
+            breadcrumbs.append((current, None))
+    else:
+        # Regular file — show directory path + filename
+        for i, part in enumerate(display_parts[:-1]):
+            dir_path = '/'.join(parts[:i + 2])
+            href = f'{prefix}{dir_path}/index.html'
+            label = part.replace('-', ' ').replace('_', ' ')
+            breadcrumbs.append((label, href))
+        current = display_parts[-1]
+        if current.endswith('.html'):
+            current = current[:-5]
+        current = current.replace('-', ' ').replace('_', ' ')
+        breadcrumbs.append((current, None))
+
+    # ── Parent link ───────────────────────────────────────────────
+    # For index.html the logical parent is *its* parent directory
+    if parts[-1] == 'index.html':
+        parent_parts = parts[:-2]
+    else:
+        parent_parts = parts[:-1]
+
+    if not parent_parts:
+        parent_href = ''
+    elif len(parent_parts) == 1:
+        # Parent is the ROOT index
+        parent_href = f'{prefix}index.html'
+    else:
+        parent_href = f'{prefix}{"/".join(parent_parts)}/index.html'
+
+    # ── Render ────────────────────────────────────────────────────
+    crumbs_html = []
+    for label, href in breadcrumbs:
+        if href:
+            crumbs_html.append(f'<a href="{href}">{label}</a>')
+        else:
+            crumbs_html.append(f'<span class="current">{label}</span>')
+
+    sep = ' <span class="sep">/</span> '
+
+    back_html = ''
+    if parent_href:
+        back_html = (
+            f'  <a href="{parent_href}" class="back-btn" title="返回上一级">'
+            f'← 返回上一级</a>\n'
+        )
+
+    return (
+        '<div class="breadcrumb-bar">\n'
+        f'  <div class="breadcrumb-path">{sep.join(crumbs_html)}</div>\n'
+        f'{back_html}'
+        '</div>'
+    )
+
+
 def render_shell(body_html: str, output_path: Path, page_css: str,
-                 toc_html: str = '') -> str:
+                 toc_html: str = '', breadcrumb_html: str = '') -> str:
     prefix = depth_prefix(output_path)
 
     # Resolve CSS path relative to output
@@ -295,6 +441,8 @@ def render_shell(body_html: str, output_path: Path, page_css: str,
         '          });\n'
         '      });\n'
         '  </script>\n'
+        '  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>\n'
+        '  <script>mermaid.initialize({startOnLoad: true, theme: "default", themeVariables: {fontSize: "14px"}, flowchart: {htmlLabels: true, padding: 16}});</script>\n'
     )
 
     # Common header
@@ -302,13 +450,13 @@ def render_shell(body_html: str, output_path: Path, page_css: str,
         '  <header>\n'
         '    <h1>Zhenyu\'s Blog</h1>\n'
         '    <nav>\n'
-        f'      <a href="{prefix}index.html">CS</a>\n'
-        f'      <a href="{prefix}about.html">About</a>\n'
-        f'      <a href="{prefix}musings.html">Musings</a>\n'
-        f'      <a href="{prefix}math.html">Math</a>\n'
-        f'      <a href="{prefix}music.html">Music</a>\n'
-        f'      <a href="{prefix}storytelling.html">Storytelling</a>\n'
-        f'      <a href="{prefix}PE.html">PE</a>\n'
+        f'      <a href="{prefix}index.html">About</a>\n'
+        f'      <a href="{prefix}html_source/CS/index.html">CS</a>\n'
+        f'      <a href="{prefix}html_source/Musings/index.html">Musings</a>\n'
+        f'      <a href="{prefix}html_source/Math/index.html">Math</a>\n'
+        f'      <a href="{prefix}html_source/Music/index.html">Music</a>\n'
+        f'      <a href="{prefix}html_source/Storytelling/index.html">Storytelling</a>\n'
+        f'      <a href="{prefix}html_source/PE/index.html">PE</a>\n'
         '    </nav>\n'
         '  </header>'
     )
@@ -349,6 +497,7 @@ def render_shell(body_html: str, output_path: Path, page_css: str,
             f'{toc_html}\n'
             '  </aside>\n'
             '  <main class="content">\n'
+            f'{breadcrumb_html}\n'
             f'{body_html}\n'
             '  </main>\n'
             '</div>\n'
@@ -364,6 +513,7 @@ def render_shell(body_html: str, output_path: Path, page_css: str,
             + header
             + '\n'
             '<main class="content">\n'
+            f'{breadcrumb_html}\n'
             f'{body_html}\n'
             '</main>\n'
             '</body>\n'
@@ -387,6 +537,9 @@ def compile_one(md_path: Path, html_path: Path, page_css: str) -> list[list[dict
     if has_toc:
         md_text = re.sub(r'\[toc\]\s*', '', md_text, flags=re.IGNORECASE)
 
+    # Ensure blank line before pipe-tables (Python-Markdown requires it)
+    md_text = re.sub(r'([^\n|])\n\|', r'\1\n\n|', md_text)
+
     modified, entries_groups = parse_posts_lists(md_text, md_path.parent)
     body_html = compile_markdown_body(modified)
 
@@ -397,7 +550,8 @@ def compile_one(md_path: Path, html_path: Path, page_css: str) -> list[list[dict
         table = render_posts_table(entries, html_path.parent)
         body_html = body_html.replace(f'<!--POSTS_LIST_{i}-->', table)
 
-    full_html = render_shell(body_html, html_path, page_css, toc_html)
+    breadcrumb_html = compute_breadcrumb_bar(html_path)
+    full_html = render_shell(body_html, html_path, page_css, toc_html, breadcrumb_html)
 
     html_path.parent.mkdir(parents=True, exist_ok=True)
     with open(html_path, 'w', encoding='utf-8') as f:
@@ -410,11 +564,12 @@ def compile_all():
     compiled: set[str] = set()
     queue: list[tuple[Path, Path, str]] = [
         (MD_SOURCE / 'index.md', ROOT / 'index.html', DEFAULT_CSS),
-        (MD_SOURCE / 'musings.md', ROOT / 'musings.html', DEFAULT_CSS),
-        (MD_SOURCE / 'math.md', ROOT / 'math.html', DEFAULT_CSS),
-        (MD_SOURCE / 'music.md', ROOT / 'music.html', DEFAULT_CSS),
-        (MD_SOURCE / 'storytelling.md', ROOT / 'storytelling.html', DEFAULT_CSS),
-        (MD_SOURCE / 'PE.md', ROOT / 'PE.html', DEFAULT_CSS),
+        (MD_SOURCE / 'CS' / 'index.md', HTML_SOURCE / 'CS' / 'index.html', DEFAULT_CSS),
+        (MD_SOURCE / 'Musings' / 'index.md', HTML_SOURCE / 'Musings' / 'index.html', DEFAULT_CSS),
+        (MD_SOURCE / 'Math' / 'index.md', HTML_SOURCE / 'Math' / 'index.html', DEFAULT_CSS),
+        (MD_SOURCE / 'Music' / 'index.md', HTML_SOURCE / 'Music' / 'index.html', DEFAULT_CSS),
+        (MD_SOURCE / 'Storytelling' / 'index.md', HTML_SOURCE / 'Storytelling' / 'index.html', DEFAULT_CSS),
+        (MD_SOURCE / 'PE' / 'index.md', HTML_SOURCE / 'PE' / 'index.html', DEFAULT_CSS),
     ]
 
     while queue:
@@ -432,6 +587,10 @@ def compile_all():
 
         for entries in entries_groups:
             for e in entries:
+                if e['target_md'] is None:
+                    # Pre-built .html — copy from md_source to html_source
+                    copy_prebuilt_html(e['source_html'], e['target_html'])
+                    continue
                 tk = str(e['target_md'])
                 if tk not in compiled:
                     queue.append((e['target_md'], e['target_html'], e['css'] or DEFAULT_CSS))

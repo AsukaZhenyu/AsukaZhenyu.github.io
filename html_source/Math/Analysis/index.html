@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>分析学 - Zhenyu's Blog</title>
+  <link rel="stylesheet" href="../../../css_source/main_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false},
+                  {left: "\\[", right: "\\]", display: true}
+              ],
+              throwOnError: false,
+              strict: false
+          });
+      });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: "default", themeVariables: {fontSize: "14px"}, flowchart: {htmlLabels: true, padding: 16}});</script>
+</head>
+<body>
+  <header>
+    <h1>Zhenyu's Blog</h1>
+    <nav>
+      <a href="../../../index.html">About</a>
+      <a href="../../../html_source/CS/index.html">CS</a>
+      <a href="../../../html_source/Musings/index.html">Musings</a>
+      <a href="../../../html_source/Math/index.html">Math</a>
+      <a href="../../../html_source/Music/index.html">Music</a>
+      <a href="../../../html_source/Storytelling/index.html">Storytelling</a>
+      <a href="../../../html_source/PE/index.html">PE</a>
+    </nav>
+  </header>
+<main class="content">
+<div class="breadcrumb-bar">
+  <div class="breadcrumb-path"><a href="../../../index.html">Home</a> <span class="sep">/</span> <a href="../../../html_source/Math/index.html">Math</a> <span class="sep">/</span> <span class="current">Analysis</span></div>
+  <a href="../../../html_source/Math/index.html" class="back-btn" title="返回上一级">← 返回上一级</a>
+</div>
+<hr>
+<h2>分析学</h2>
+
+<p>实分析、复分析、泛函分析、调和分析、微分方程</p>
+<div class="mermaid">%%{init: {"themeVariables": {"fontSize": "18px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 45}}}%%
+flowchart TB
+    CALC["微积分"] --> MA["数学分析"]
+
+    MA --> RA["实分析"]
+    MA --> CA["复分析"]
+    MA --> ODE["常微分方程"]
+    MA --> VAR["变分法"]
+
+    RA --> MEASURE["测度论"]
+    RA --> FA["泛函分析"]
+    RA --> HA["调和分析"]
+
+    FA --> OP["算子理论"]
+    FA --> PDE["偏微分方程"]
+
+    ODE --> DS["动力系统"]
+
+    CA --> RS["黎曼曲面"]
+    CA -.-> ANT["解析数论"]
+    HA -.-> ANT
+
+    VAR -.-> PDE
+    OP -.-> PDE
+</div>
+</main>
+</body>
+</html>

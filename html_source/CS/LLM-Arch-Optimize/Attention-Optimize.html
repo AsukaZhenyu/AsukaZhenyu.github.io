@@ -25,18 +25,20 @@
           });
       });
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: "default", themeVariables: {fontSize: "14px"}, flowchart: {htmlLabels: true, padding: 16}});</script>
 </head>
 <body class="has-sidebar">
   <header>
     <h1>Zhenyu's Blog</h1>
     <nav>
-      <a href="../../../index.html">CS</a>
-      <a href="../../../about.html">About</a>
-      <a href="../../../musings.html">Musings</a>
-      <a href="../../../math.html">Math</a>
-      <a href="../../../music.html">Music</a>
-      <a href="../../../storytelling.html">Storytelling</a>
-      <a href="../../../PE.html">PE</a>
+      <a href="../../../index.html">About</a>
+      <a href="../../../html_source/CS/index.html">CS</a>
+      <a href="../../../html_source/Musings/index.html">Musings</a>
+      <a href="../../../html_source/Math/index.html">Math</a>
+      <a href="../../../html_source/Music/index.html">Music</a>
+      <a href="../../../html_source/Storytelling/index.html">Storytelling</a>
+      <a href="../../../html_source/PE/index.html">PE</a>
     </nav>
   </header>
 <div class="page-wrapper">
@@ -68,6 +70,10 @@
 </nav>
   </aside>
   <main class="content">
+<div class="breadcrumb-bar">
+  <div class="breadcrumb-path"><a href="../../../index.html">Home</a> <span class="sep">/</span> <a href="../../../html_source/CS/index.html">CS</a> <span class="sep">/</span> <a href="../../../html_source/CS/LLM-Arch-Optimize/index.html">LLM Arch Optimize</a> <span class="sep">/</span> <span class="current">Attention Optimize</span></div>
+  <a href="../../../html_source/CS/LLM-Arch-Optimize/index.html" class="back-btn" title="返回上一级">← 返回上一级</a>
+</div>
 <h1 id="attention">Attention计算</h1>
 <p>本文梳理<strong>LLM推理</strong>情况下Attention的计算。包括理论上的分析、实际部署时的改进方法（FlashAttention、FlashInfer、FlashDecoding++、SWA等）。包括不同的Attention（MHA、GHA、MLA、Lightning Attention），不同的批处理方案等。</p>
 <p>Decode Attention和KV Cache是一对烂兄烂弟，它们以低ARI（计算密度）和高memory bound（需要的存储容量高，或者你有高内存带宽也可以）而闻名，而且经常在一起被讨论、被处理。鉴于LLM训练过程中没有什么KV Cache，只有推理过程的注意力计算有KV Cache，讨论KV Cache实质上就是在讨论Decode Attention，讨论LLM推理，就必然绕不开Decode Attention中的KV Cache。</p>

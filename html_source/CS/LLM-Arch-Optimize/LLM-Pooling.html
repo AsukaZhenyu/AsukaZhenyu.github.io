@@ -25,21 +25,27 @@
           });
       });
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: "default", themeVariables: {fontSize: "14px"}, flowchart: {htmlLabels: true, padding: 16}});</script>
 </head>
 <body>
   <header>
     <h1>Zhenyu's Blog</h1>
     <nav>
-      <a href="../../../index.html">CS</a>
-      <a href="../../../about.html">About</a>
-      <a href="../../../musings.html">Musings</a>
-      <a href="../../../math.html">Math</a>
-      <a href="../../../music.html">Music</a>
-      <a href="../../../storytelling.html">Storytelling</a>
-      <a href="../../../PE.html">PE</a>
+      <a href="../../../index.html">About</a>
+      <a href="../../../html_source/CS/index.html">CS</a>
+      <a href="../../../html_source/Musings/index.html">Musings</a>
+      <a href="../../../html_source/Math/index.html">Math</a>
+      <a href="../../../html_source/Music/index.html">Music</a>
+      <a href="../../../html_source/Storytelling/index.html">Storytelling</a>
+      <a href="../../../html_source/PE/index.html">PE</a>
     </nav>
   </header>
 <main class="content">
+<div class="breadcrumb-bar">
+  <div class="breadcrumb-path"><a href="../../../index.html">Home</a> <span class="sep">/</span> <a href="../../../html_source/CS/index.html">CS</a> <span class="sep">/</span> <a href="../../../html_source/CS/LLM-Arch-Optimize/index.html">LLM Arch Optimize</a> <span class="sep">/</span> <span class="current">LLM Pooling</span></div>
+  <a href="../../../html_source/CS/LLM-Arch-Optimize/index.html" class="back-btn" title="返回上一级">← 返回上一级</a>
+</div>
 <h1 id="llm">LLM池化</h1>
 <p>我本科是学CV的，我知道CNN里的池化是什么意思，就是缩小目标图的意思，在LLM里的Pooling，就是把变长的输入张量变成固定大小的张量。</p>
 <p>对于输入$X = [x_1, x_2, ... , x_t]$，这是此前输入的$t$个tokens，$x_i \in R^d$，$d$为隐藏层维度，输入$X \in R^{t \times d}$，大小随输入长度变化。经过池化后大小变为固定的，例如：$R^{1 \times d}$</p>

@@ -25,18 +25,20 @@
           });
       });
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: "default", themeVariables: {fontSize: "14px"}, flowchart: {htmlLabels: true, padding: 16}});</script>
 </head>
 <body class="has-sidebar">
   <header>
     <h1>Zhenyu's Blog</h1>
     <nav>
-      <a href="../../../index.html">CS</a>
-      <a href="../../../about.html">About</a>
-      <a href="../../../musings.html">Musings</a>
-      <a href="../../../math.html">Math</a>
-      <a href="../../../music.html">Music</a>
-      <a href="../../../storytelling.html">Storytelling</a>
-      <a href="../../../PE.html">PE</a>
+      <a href="../../../index.html">About</a>
+      <a href="../../../html_source/CS/index.html">CS</a>
+      <a href="../../../html_source/Musings/index.html">Musings</a>
+      <a href="../../../html_source/Math/index.html">Math</a>
+      <a href="../../../html_source/Music/index.html">Music</a>
+      <a href="../../../html_source/Storytelling/index.html">Storytelling</a>
+      <a href="../../../html_source/PE/index.html">PE</a>
     </nav>
   </header>
 <div class="page-wrapper">
@@ -57,6 +59,10 @@
 </nav>
   </aside>
   <main class="content">
+<div class="breadcrumb-bar">
+  <div class="breadcrumb-path"><a href="../../../index.html">Home</a> <span class="sep">/</span> <a href="../../../html_source/CS/index.html">CS</a> <span class="sep">/</span> <a href="../../../html_source/CS/Linux/index.html">Linux</a> <span class="sep">/</span> <span class="current">TLCL</span></div>
+  <a href="../../../html_source/CS/Linux/index.html" class="back-btn" title="返回上一级">← 返回上一级</a>
+</div>
 <h1 id="the-linux-command-line">The Linux Command Line</h1>
 <p><br/></p>
 <p>中文版TLCL：https://billie66.github.io/TLCL/</p>
@@ -86,17 +92,58 @@
 <div class="codehilite"><pre><span></span><code>ls<span class="w"> </span>-la<span class="w"> </span>/usr/lib/wsl/lib<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>cuda
 </code></pre></div>
 
-<p>ls命令：<br />
-|选项|长选项|描述|<br />
-|-|-|-|<br />
-|-a|&ndash;all|列出所有文件|<br />
-|-l||以长格式显示|<br />
-|-r|&ndash;reverse|以相反顺序显示|<br />
-|-t||以修改时间显示|<br />
-|-S||按文件大小显示|<br />
-|-d|&ndash;directory|查看指定目录的详细信息|<br />
-|-F|&ndash;classify|在目录后加/|<br />
-|-h|&ndash;human-readable|文件大小的单位不是字节|</p>
+<p>ls命令：</p>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>长选项</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-a</td>
+<td>&ndash;all</td>
+<td>列出所有文件</td>
+</tr>
+<tr>
+<td>-l</td>
+<td></td>
+<td>以长格式显示</td>
+</tr>
+<tr>
+<td>-r</td>
+<td>&ndash;reverse</td>
+<td>以相反顺序显示</td>
+</tr>
+<tr>
+<td>-t</td>
+<td></td>
+<td>以修改时间显示</td>
+</tr>
+<tr>
+<td>-S</td>
+<td></td>
+<td>按文件大小显示</td>
+</tr>
+<tr>
+<td>-d</td>
+<td>&ndash;directory</td>
+<td>查看指定目录的详细信息</td>
+</tr>
+<tr>
+<td>-F</td>
+<td>&ndash;classify</td>
+<td>在目录后加/</td>
+</tr>
+<tr>
+<td>-h</td>
+<td>&ndash;human-readable</td>
+<td>文件大小的单位不是字节</td>
+</tr>
+</tbody>
+</table>
 <p>cp命令：</p>
 <p>mv命令：</p>
 <p>rm命令：</p>

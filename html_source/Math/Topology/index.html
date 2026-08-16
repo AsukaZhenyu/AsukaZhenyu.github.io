@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>几何与拓扑 - Zhenyu's Blog</title>
+  <link rel="stylesheet" href="../../../css_source/main_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false},
+                  {left: "\\[", right: "\\]", display: true}
+              ],
+              throwOnError: false,
+              strict: false
+          });
+      });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: "default", themeVariables: {fontSize: "14px"}, flowchart: {htmlLabels: true, padding: 16}});</script>
+</head>
+<body>
+  <header>
+    <h1>Zhenyu's Blog</h1>
+    <nav>
+      <a href="../../../index.html">About</a>
+      <a href="../../../html_source/CS/index.html">CS</a>
+      <a href="../../../html_source/Musings/index.html">Musings</a>
+      <a href="../../../html_source/Math/index.html">Math</a>
+      <a href="../../../html_source/Music/index.html">Music</a>
+      <a href="../../../html_source/Storytelling/index.html">Storytelling</a>
+      <a href="../../../html_source/PE/index.html">PE</a>
+    </nav>
+  </header>
+<main class="content">
+<div class="breadcrumb-bar">
+  <div class="breadcrumb-path"><a href="../../../index.html">Home</a> <span class="sep">/</span> <a href="../../../html_source/Math/index.html">Math</a> <span class="sep">/</span> <span class="current">Topology</span></div>
+  <a href="../../../html_source/Math/index.html" class="back-btn" title="返回上一级">← 返回上一级</a>
+</div>
+<h2>几何与拓扑</h2>
+
+<p>点集拓扑、代数拓扑、微分拓扑、微分几何、黎曼几何、代数几何</p>
+<div class="mermaid">%%{init: {"themeVariables": {"fontSize": "18px"}, "flowchart": {"nodeSpacing": 35, "rankSpacing": 45}}}%%
+flowchart TB
+    SET["集合论"] --> PT["点集拓扑"]
+
+    PT --> TM["拓扑流形"]
+    PT --> AT["代数拓扑"]
+
+    TM --> DM["微分流形"]
+    DM --> DT["微分拓扑"]
+    DM --> DG["微分几何"]
+
+    DG --> RG["黎曼几何"]
+    DG --> SG["辛几何"]
+    DG --> LG["李群"]
+
+    GROUP["群论"] -.-> AT
+    HOM["同调代数"] -.-> AT
+
+    LA["线性代数"] -.-> DG
+    RA["实分析"] -.-> DG
+
+    CA["复分析"] -.-> CG["复几何"]
+    DM -.-> CG
+    AG["代数几何"] -.-> CG
+</div>
+</main>
+</body>
+</html>

@@ -1,9 +1,11 @@
+<h2>Data Analysis</h2>
+
 本部分关注金融数据，金融数据自动化处理，主要工具是jupyter notebook，语言是python以及相关的库：numpy、pandas，针对金融数据处理分析场景，其中又以处理金融时间序列为核心。
 
 参考内容是pandas开发者写的[用Python进行数据分析](https://github.com/iamseancheney/python_for_data_analysis_2nd_chinese_version/blob/master/README.md)。
 
-<hr> 
-<h2>Data Analysis</h2>
+
+
 
 <posts-list>
 

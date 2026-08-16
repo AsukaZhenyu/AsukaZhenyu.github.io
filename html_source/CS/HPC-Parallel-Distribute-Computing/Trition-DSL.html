@@ -25,21 +25,27 @@
           });
       });
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: "default", themeVariables: {fontSize: "14px"}, flowchart: {htmlLabels: true, padding: 16}});</script>
 </head>
 <body>
   <header>
     <h1>Zhenyu's Blog</h1>
     <nav>
-      <a href="../../../index.html">CS</a>
-      <a href="../../../about.html">About</a>
-      <a href="../../../musings.html">Musings</a>
-      <a href="../../../math.html">Math</a>
-      <a href="../../../music.html">Music</a>
-      <a href="../../../storytelling.html">Storytelling</a>
-      <a href="../../../PE.html">PE</a>
+      <a href="../../../index.html">About</a>
+      <a href="../../../html_source/CS/index.html">CS</a>
+      <a href="../../../html_source/Musings/index.html">Musings</a>
+      <a href="../../../html_source/Math/index.html">Math</a>
+      <a href="../../../html_source/Music/index.html">Music</a>
+      <a href="../../../html_source/Storytelling/index.html">Storytelling</a>
+      <a href="../../../html_source/PE/index.html">PE</a>
     </nav>
   </header>
 <main class="content">
+<div class="breadcrumb-bar">
+  <div class="breadcrumb-path"><a href="../../../index.html">Home</a> <span class="sep">/</span> <a href="../../../html_source/CS/index.html">CS</a> <span class="sep">/</span> <a href="../../../html_source/CS/HPC-Parallel-Distribute-Computing/index.html">HPC Parallel Distribute Computing</a> <span class="sep">/</span> <span class="current">Trition DSL</span></div>
+  <a href="../../../html_source/CS/HPC-Parallel-Distribute-Computing/index.html" class="back-btn" title="返回上一级">← 返回上一级</a>
+</div>
 <h1 id="triton-dsl">Triton DSL语法笔记</h1>
 <p>微架构设计、编译器、操作系统三者是紧密相连的，Triton不仅是DSL，更是重要的编译技术，对于小白直接去写CUDA代码效果还不如Pytorch编译后端生成的代码。但是这里先不涉及编译理论，聚焦于Triton的使用。</p>
 <p>OpenAI的Triton是介于PyTorch和纯手工CUDA之间的、用于优化AI算子的中间层解决方案。Triton作为一种特定领域语言，旨在简化开发，实现易用性和通用性，在让开发者用Python快速编写高性能Kernel。有第三方提供的<a href="https://github.com/gpu-mode/Triton-Puzzles">Triton-Puzzles</a>项目供学习使用。</p>

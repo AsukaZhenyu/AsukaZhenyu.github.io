@@ -1,60 +1,8 @@
 <hr> 
-<h2>Computer Science Posts</h2>
+<h2>About</h2>
 
-<posts-list>
+我对很多东西都感兴趣，得益于互联网和LLM的发展，只要有一台能连上网的电脑，就能自己找到学习资源，有不懂的也可以问LLM，可以反复问愚蠢的问题，并且给足情绪价值。
 
-<title-link> 
-css_source/main_style.css
-Study Notes on Computer Architecture A Quantitative Approach,计算机体系结构量化研究方法学习笔记
-[2026-2-8](./CS/Computer-Architecture/index.md)
-</title-link>
+本博客记录的都是自学的东西，这意味着对于我写的所有东西，我都不是科班出身。曾有人评价高斯的文章，就像富丽堂皇的宫殿，去掉了所有的手脚架，只剩下优雅自洽的部分。本博客则完全相反，全是手脚架，内容包括但不限于：愚蠢的错误、自以为是的推测、左右脑互搏。本质上来说，本博客就是撸管用的纸，自娱自乐完了自己都不想再看一遍。所以一般来说，不应该上传到Github上贻笑大方，但好比一些人就喜欢把vlog上传到一些网站上，本博客就是差不多的性质。
 
-<title-link> 
-css_source/main_style.css
-Data Structures and Algorithms,数据结构与算法
-[2024-5-4](./CS/Data-Structure-and-Algorithm/index.md)
-</title-link>
-
-<title-link> 
-css_source/main_style.css
-DNN Compiler,深度神经网络编译器
-[2026-3-27](./CS/DNN-DSL-Compiler/index.md)
-</title-link>
-
-<title-link> 
-css_source/main_style.css
-Effective C++,高效C++
-[2026-4-10](./CS/Effective-C++/index.md)
-</title-link>
-
-<title-link> 
-css_source/main_style.css
-Parallel & Distributed Computing and High-Performance Computing,并行计算、分布式计算与高性能计算
-[2026-3-27](./CS/HPC-Parallel-Distribute-Computing/index.md)
-</title-link>
-
-<title-link> 
-css_source/main_style.css
-Using the Linux Operating System,使用Liunx操作系统
-[2026-2-4](./CS/Linux/index.md)
-</title-link>
-
-<title-link> 
-css_source/main_style.css
-Notes on Reading the llama.cpp Source Code,llama.cpp源码阅读笔记
-[2026-3-29](./CS/llama.cpp/index.md)
-</title-link>
-
-<title-link> 
-css_source/main_style.css
-LLM Architectures and Optimization Methods,大模型架构与优化方法
-[2026-3-12](./CS/LLM-Arch-Optimize/index.md)
-</title-link>
-
-<title-link> 
-css_source/main_style.css
-NVIDIA Software and Hardware Architecture,英伟达软件与硬件架构
-[2026-2-26](./CS/NVIDIA/index.md)
-</title-link>
-
-</posts-list>
+<p>欢迎交流：liuzhenyu171@gmail.com</p>

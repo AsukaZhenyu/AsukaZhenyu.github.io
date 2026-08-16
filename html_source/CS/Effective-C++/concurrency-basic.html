@@ -25,18 +25,20 @@
           });
       });
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: "default", themeVariables: {fontSize: "14px"}, flowchart: {htmlLabels: true, padding: 16}});</script>
 </head>
 <body class="has-sidebar">
   <header>
     <h1>Zhenyu's Blog</h1>
     <nav>
-      <a href="../../../index.html">CS</a>
-      <a href="../../../about.html">About</a>
-      <a href="../../../musings.html">Musings</a>
-      <a href="../../../math.html">Math</a>
-      <a href="../../../music.html">Music</a>
-      <a href="../../../storytelling.html">Storytelling</a>
-      <a href="../../../PE.html">PE</a>
+      <a href="../../../index.html">About</a>
+      <a href="../../../html_source/CS/index.html">CS</a>
+      <a href="../../../html_source/Musings/index.html">Musings</a>
+      <a href="../../../html_source/Math/index.html">Math</a>
+      <a href="../../../html_source/Music/index.html">Music</a>
+      <a href="../../../html_source/Storytelling/index.html">Storytelling</a>
+      <a href="../../../html_source/PE/index.html">PE</a>
     </nav>
   </header>
 <div class="page-wrapper">
@@ -49,6 +51,10 @@
 </nav>
   </aside>
   <main class="content">
+<div class="breadcrumb-bar">
+  <div class="breadcrumb-path"><a href="../../../index.html">Home</a> <span class="sep">/</span> <a href="../../../html_source/CS/index.html">CS</a> <span class="sep">/</span> <a href="../../../html_source/CS/Effective-C++/index.html">Effective C++</a> <span class="sep">/</span> <span class="current">concurrency basic</span></div>
+  <a href="../../../html_source/CS/Effective-C++/index.html" class="back-btn" title="返回上一级">← 返回上一级</a>
+</div>
 <h1 id="c">C++并发编程基础</h1>
 <p></br></p>
 <p>std::thread 是 C++11 引入的标准线程库（在此之前是依赖原生平台的API，例如POSIX线程pthread、Windows线程），用于创建和管理操作系统级别的并发任务。C++多线程既可以支持并发（单核时间片轮转），也支持多核并行（多核同时运行多个线程）。</p>
