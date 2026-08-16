@@ -1,7 +1,6 @@
-本部分介绍我刷题的数据结构与算法笔记
-
-<hr> 
 <h2>Data Structures and Algorithms</h2>
+
+本部分介绍我刷题的数据结构与算法笔记
 
 <posts-list>
 

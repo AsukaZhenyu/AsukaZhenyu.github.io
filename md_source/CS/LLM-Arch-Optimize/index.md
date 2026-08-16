@@ -1,7 +1,6 @@
-本部分关注现代LLM的算法设计，关注现代LLM系统中算法层面上的设计，以实现更高的计算效率和模型表现效果。
-
-<hr>
 <h2>LLM Architectures and Optimization Methods</h2>
+
+本部分关注现代LLM的算法设计，关注现代LLM系统中算法层面上的设计，以实现更高的计算效率和模型表现效果。
 
 <posts-list>
 

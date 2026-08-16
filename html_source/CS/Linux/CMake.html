@@ -25,18 +25,20 @@
           });
       });
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: "default", themeVariables: {fontSize: "14px"}, flowchart: {htmlLabels: true, padding: 16}});</script>
 </head>
 <body class="has-sidebar">
   <header>
     <h1>Zhenyu's Blog</h1>
     <nav>
-      <a href="../../../index.html">CS</a>
-      <a href="../../../about.html">About</a>
-      <a href="../../../musings.html">Musings</a>
-      <a href="../../../math.html">Math</a>
-      <a href="../../../music.html">Music</a>
-      <a href="../../../storytelling.html">Storytelling</a>
-      <a href="../../../PE.html">PE</a>
+      <a href="../../../index.html">About</a>
+      <a href="../../../html_source/CS/index.html">CS</a>
+      <a href="../../../html_source/Musings/index.html">Musings</a>
+      <a href="../../../html_source/Math/index.html">Math</a>
+      <a href="../../../html_source/Music/index.html">Music</a>
+      <a href="../../../html_source/Storytelling/index.html">Storytelling</a>
+      <a href="../../../html_source/PE/index.html">PE</a>
     </nav>
   </header>
 <div class="page-wrapper">
@@ -69,6 +71,10 @@
 </nav>
   </aside>
   <main class="content">
+<div class="breadcrumb-bar">
+  <div class="breadcrumb-path"><a href="../../../index.html">Home</a> <span class="sep">/</span> <a href="../../../html_source/CS/index.html">CS</a> <span class="sep">/</span> <a href="../../../html_source/CS/Linux/index.html">Linux</a> <span class="sep">/</span> <span class="current">CMake</span></div>
+  <a href="../../../html_source/CS/Linux/index.html" class="back-btn" title="返回上一级">← 返回上一级</a>
+</div>
 <h1 id="ccmake">C++项目构建与CMake简介</h1>
 <h2 id="c">C++编译流程</h2>
 <h3 id="_1">预处理阶段</h3>
@@ -373,12 +379,29 @@ gcc<span class="w"> </span>-shared<span class="w"> </span>-o<span class="w"> </s
 <p>这里可能会有疑惑，<code>.cmake</code>文件写了部分CMake代码可以复用非常好理解，<strong>模块</strong>是什么？模块的本质就是<code>.cmake</code>文件。有些是自己写的，有些是官方写的，可以直接调用。</p>
 <p>例如：<code>include(CheckIncludeFileCXX)</code>CMake会自动将其转换为查找 <code>CheckIncludeFileCXX.cmake</code>文件，并在以下位置搜索：CMake安装目录下的<code>Modules/</code>（存放所有官方模块）、用户通过<code>CMAKE_MODULE_PATH</code>变量添加的自定义路径。这个模块会检查指定的C++头文件是否可以被编译。</p>
 <p>CMake官方给定了许多模块，可以按照上面的方式，直接在CMakeLists里调用，下面给一点例子：</p>
-<p><strong>系统检查类：</strong><br />
-|模块名|主要功能|<br />
-|-|-|<br />
-|CheckIncludeFile|检查C头文件是否存在|<br />
-|CheckSymbolExists|检查C/C++符号（函数、变量、常量）是否存在|<br />
-|CheckCCompilerFlag|检查C编译器是否支持某个编译选项|</p>
+<p><strong>系统检查类：</strong></p>
+<table>
+<thead>
+<tr>
+<th>模块名</th>
+<th>主要功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CheckIncludeFile</td>
+<td>检查C头文件是否存在</td>
+</tr>
+<tr>
+<td>CheckSymbolExists</td>
+<td>检查C/C++符号（函数、变量、常量）是否存在</td>
+</tr>
+<tr>
+<td>CheckCCompilerFlag</td>
+<td>检查C编译器是否支持某个编译选项</td>
+</tr>
+</tbody>
+</table>
 <p><strong>查找包类：</strong><br />
 会在引入第三方库的部分详细讲，这些模块通常不是由<code>include()</code>调用的，而是由<code>find_package()</code>命令调用的。例如，我要引入Boost包，调用<code>find_package(Boost)</code>会查找两种文件之一：FindBoost.cmake（查找模块模式）：通常用于查找未安装到标准位置的包、BoostConfig.cmake 或 boost-config.cmake（配置文件模式）：由包本身安装时提供的配置。</p>
 <table>
@@ -443,26 +466,83 @@ gcc<span class="w"> </span>-shared<span class="w"> </span>-o<span class="w"> </s
 </li>
 </ul>
 <p>CMake 预定义了大量有用的变量，用于获取项目路径、编译器信息、构建配置等。下面举例说明一些：<br />
-<strong>路径相关变量：</strong><br />
-|变量|说明|<br />
-|-|-|<br />
-|CMAKE_CURRENT_SOURCE_DIR|当前正在处理的 CMakeLists.txt 所在的源码目录|<br />
-|CMAKE_CURRENT_BINARY_DIR|当前正在处理的 CMakeLists.txt 对应的构建目录（通常是 build/subdir）|<br />
-|PROJECT_SOURCE_DIR|最近一次调用 project() 命令的源码目录|<br />
-|CMAKE_SOURCE_DIR|顶层源码目录（即最外层 CMakeLists.txt 所在的目录）|<br />
-|CMAKE_BINARY_DIR|顶层构建目录（运行 cmake 命令时所在的目录）|</p>
-<p><strong>编译器相关变量：</strong><br />
-|变量|说明|<br />
-|-|-|<br />
-|CMAKE_C_COMPILER、CMAKE_CXX_COMPILER|C、C++编译器路径|<br />
-|CMAKE_C_STANDARD、CMAKE_CXX_STANDARD|设置C、C++编译标准|<br />
-|CMAKE_CXX_STANDARD_REQUIRED|若为ON，则编译器必须支持指定的标准|</p>
-<p><strong>系统相关变量：</strong><br />
-|变量|说明|<br />
-|-|-|<br />
-|CMAKE_SYSTEM_NAME|目标系统的名称（Linux、Windows）|<br />
-|CMAKE_SYSTEM_PROCESSOR|目标系统的处理器架构（x86_64）|<br />
-|WIN32、APPLE、UNIX|平台相关的布尔变量，常用于条件判断。|</p>
+<strong>路径相关变量：</strong></p>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CMAKE_CURRENT_SOURCE_DIR</td>
+<td>当前正在处理的 CMakeLists.txt 所在的源码目录</td>
+</tr>
+<tr>
+<td>CMAKE_CURRENT_BINARY_DIR</td>
+<td>当前正在处理的 CMakeLists.txt 对应的构建目录（通常是 build/subdir）</td>
+</tr>
+<tr>
+<td>PROJECT_SOURCE_DIR</td>
+<td>最近一次调用 project() 命令的源码目录</td>
+</tr>
+<tr>
+<td>CMAKE_SOURCE_DIR</td>
+<td>顶层源码目录（即最外层 CMakeLists.txt 所在的目录）</td>
+</tr>
+<tr>
+<td>CMAKE_BINARY_DIR</td>
+<td>顶层构建目录（运行 cmake 命令时所在的目录）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>编译器相关变量：</strong></p>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CMAKE_C_COMPILER、CMAKE_CXX_COMPILER</td>
+<td>C、C++编译器路径</td>
+</tr>
+<tr>
+<td>CMAKE_C_STANDARD、CMAKE_CXX_STANDARD</td>
+<td>设置C、C++编译标准</td>
+</tr>
+<tr>
+<td>CMAKE_CXX_STANDARD_REQUIRED</td>
+<td>若为ON，则编译器必须支持指定的标准</td>
+</tr>
+</tbody>
+</table>
+<p><strong>系统相关变量：</strong></p>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CMAKE_SYSTEM_NAME</td>
+<td>目标系统的名称（Linux、Windows）</td>
+</tr>
+<tr>
+<td>CMAKE_SYSTEM_PROCESSOR</td>
+<td>目标系统的处理器架构（x86_64）</td>
+</tr>
+<tr>
+<td>WIN32、APPLE、UNIX</td>
+<td>平台相关的布尔变量，常用于条件判断。</td>
+</tr>
+</tbody>
+</table>
 <h3 id="cmake_3">CMake控制流</h3>
 <ul>
 <li>判断条件：</li>

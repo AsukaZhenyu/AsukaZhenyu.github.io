@@ -25,21 +25,27 @@
           });
       });
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: "default", themeVariables: {fontSize: "14px"}, flowchart: {htmlLabels: true, padding: 16}});</script>
 </head>
 <body>
   <header>
     <h1>Zhenyu's Blog</h1>
     <nav>
-      <a href="../../../index.html">CS</a>
-      <a href="../../../about.html">About</a>
-      <a href="../../../musings.html">Musings</a>
-      <a href="../../../math.html">Math</a>
-      <a href="../../../music.html">Music</a>
-      <a href="../../../storytelling.html">Storytelling</a>
-      <a href="../../../PE.html">PE</a>
+      <a href="../../../index.html">About</a>
+      <a href="../../../html_source/CS/index.html">CS</a>
+      <a href="../../../html_source/Musings/index.html">Musings</a>
+      <a href="../../../html_source/Math/index.html">Math</a>
+      <a href="../../../html_source/Music/index.html">Music</a>
+      <a href="../../../html_source/Storytelling/index.html">Storytelling</a>
+      <a href="../../../html_source/PE/index.html">PE</a>
     </nav>
   </header>
 <main class="content">
+<div class="breadcrumb-bar">
+  <div class="breadcrumb-path"><a href="../../../index.html">Home</a> <span class="sep">/</span> <a href="../../../html_source/CS/index.html">CS</a> <span class="sep">/</span> <a href="../../../html_source/CS/Data-Structure-and-Algorithm/index.html">Data Structure and Algorithm</a> <span class="sep">/</span> <span class="current">monotonic stack</span></div>
+  <a href="../../../html_source/CS/Data-Structure-and-Algorithm/index.html" class="back-btn" title="返回上一级">← 返回上一级</a>
+</div>
 <h1 id="_1">单调栈</h1>
 <p>单调栈不仅能够做到减少遍历次数（及时去掉无用信息），还能得到具有优良性质（单调性）的数组，进行高效的查找（二分）。</p>
 <p>单调栈可以在$O(n)$内算出每个节点左右最近的（大于，大于等于，小于，小于等于）<strong>位置</strong>。</p>

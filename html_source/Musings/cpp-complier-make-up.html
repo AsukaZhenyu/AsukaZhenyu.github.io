@@ -25,18 +25,20 @@
           });
       });
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: "default", themeVariables: {fontSize: "14px"}, flowchart: {htmlLabels: true, padding: 16}});</script>
 </head>
 <body class="has-sidebar">
   <header>
     <h1>Zhenyu's Blog</h1>
     <nav>
-      <a href="../../index.html">CS</a>
-      <a href="../../about.html">About</a>
-      <a href="../../musings.html">Musings</a>
-      <a href="../../math.html">Math</a>
-      <a href="../../music.html">Music</a>
-      <a href="../../storytelling.html">Storytelling</a>
-      <a href="../../PE.html">PE</a>
+      <a href="../../index.html">About</a>
+      <a href="../../html_source/CS/index.html">CS</a>
+      <a href="../../html_source/Musings/index.html">Musings</a>
+      <a href="../../html_source/Math/index.html">Math</a>
+      <a href="../../html_source/Music/index.html">Music</a>
+      <a href="../../html_source/Storytelling/index.html">Storytelling</a>
+      <a href="../../html_source/PE/index.html">PE</a>
     </nav>
   </header>
 <div class="page-wrapper">
@@ -55,6 +57,10 @@
 </nav>
   </aside>
   <main class="content">
+<div class="breadcrumb-bar">
+  <div class="breadcrumb-path"><a href="../../index.html">Home</a> <span class="sep">/</span> <a href="../../html_source/Musings/index.html">Musings</a> <span class="sep">/</span> <span class="current">cpp complier make up</span></div>
+  <a href="../../html_source/Musings/index.html" class="back-btn" title="返回上一级">← 返回上一级</a>
+</div>
 <h1 id="windows">清理Windows上的环境</h1>
 <p>我是电脑小白，上大学前没怎么碰过电脑（并非我父母的错，初二的时候就买了一部性能相当不错的电脑给我玩，机器人老师还语重心长地跟我说要好好学，结果因为自己懒，电脑和算法都没好好学）。大一时配置VS code环境还是恳求舍友帮我弄好的。</p>
 <p>上了几年课，做了几个项目后，也能按照网上的教程装模做样地配配环境、跑跑代码，但是不懂原理，下载各式各样的编译器、软件后，现在要做毕设发现C++编译器总是出问题。所以打算整理一下，给电脑做个大保健，也学学OS的实际经验。</p>

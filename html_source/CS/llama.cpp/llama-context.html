@@ -25,21 +25,27 @@
           });
       });
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: "default", themeVariables: {fontSize: "14px"}, flowchart: {htmlLabels: true, padding: 16}});</script>
 </head>
 <body>
   <header>
     <h1>Zhenyu's Blog</h1>
     <nav>
-      <a href="../../../index.html">CS</a>
-      <a href="../../../about.html">About</a>
-      <a href="../../../musings.html">Musings</a>
-      <a href="../../../math.html">Math</a>
-      <a href="../../../music.html">Music</a>
-      <a href="../../../storytelling.html">Storytelling</a>
-      <a href="../../../PE.html">PE</a>
+      <a href="../../../index.html">About</a>
+      <a href="../../../html_source/CS/index.html">CS</a>
+      <a href="../../../html_source/Musings/index.html">Musings</a>
+      <a href="../../../html_source/Math/index.html">Math</a>
+      <a href="../../../html_source/Music/index.html">Music</a>
+      <a href="../../../html_source/Storytelling/index.html">Storytelling</a>
+      <a href="../../../html_source/PE/index.html">PE</a>
     </nav>
   </header>
 <main class="content">
+<div class="breadcrumb-bar">
+  <div class="breadcrumb-path"><a href="../../../index.html">Home</a> <span class="sep">/</span> <a href="../../../html_source/CS/index.html">CS</a> <span class="sep">/</span> <a href="../../../html_source/CS/llama.cpp/index.html">llama.cpp</a> <span class="sep">/</span> <span class="current">llama context</span></div>
+  <a href="../../../html_source/CS/llama.cpp/index.html" class="back-btn" title="返回上一级">← 返回上一级</a>
+</div>
 <h1 id="llama-context">llama-context代码阅读</h1>
 <p><code>llama-context.h</code>核心只有一个类<code>llama_context</code>，是推理引擎的核心。是 llama.cpp 库中负责组织 LLM 推理计算的核心组件，它作为中央协调器管理整个推理生命周期。其他的文件/部件创建的类放到llama-context里面应用（<code>llama_graph</code>、<code>llama_model</code>、<code>llama_model_loader</code>）</p>
 <h2 id="_1">推理过程概述</h2>

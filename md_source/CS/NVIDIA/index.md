@@ -1,7 +1,6 @@
-本部分是学习NVIDIA GPU架构，CUDA软件，Nsight性能分析工具的笔记。
-
-
 <h2>NVIDIA Software and Hardware Architecture</h2>
+
+本部分是学习NVIDIA GPU架构，CUDA软件，Nsight性能分析工具的笔记。
 
 <posts-list>
 

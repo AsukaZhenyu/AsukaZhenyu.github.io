@@ -1,7 +1,6 @@
-本部分主要记录我学习《计算机体系结构：量化研究方法》的笔记，也会包括一些其他的阅读和实践。
-
-<hr> 
 <h2>Study Notes on Computer Architecture A Quantitative Approach</h2>
+
+本部分主要记录我学习《计算机体系结构：量化研究方法》的笔记，也会包括一些其他的阅读和实践。
 
 <posts-list>
 

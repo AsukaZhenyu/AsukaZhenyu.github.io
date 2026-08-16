@@ -25,18 +25,20 @@
           });
       });
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: "default", themeVariables: {fontSize: "14px"}, flowchart: {htmlLabels: true, padding: 16}});</script>
 </head>
 <body class="has-sidebar">
   <header>
     <h1>Zhenyu's Blog</h1>
     <nav>
-      <a href="../../index.html">CS</a>
-      <a href="../../about.html">About</a>
-      <a href="../../musings.html">Musings</a>
-      <a href="../../math.html">Math</a>
-      <a href="../../music.html">Music</a>
-      <a href="../../storytelling.html">Storytelling</a>
-      <a href="../../PE.html">PE</a>
+      <a href="../../index.html">About</a>
+      <a href="../../html_source/CS/index.html">CS</a>
+      <a href="../../html_source/Musings/index.html">Musings</a>
+      <a href="../../html_source/Math/index.html">Math</a>
+      <a href="../../html_source/Music/index.html">Music</a>
+      <a href="../../html_source/Storytelling/index.html">Storytelling</a>
+      <a href="../../html_source/PE/index.html">PE</a>
     </nav>
   </header>
 <div class="page-wrapper">
@@ -53,6 +55,10 @@
 </nav>
   </aside>
   <main class="content">
+<div class="breadcrumb-bar">
+  <div class="breadcrumb-path"><a href="../../index.html">Home</a> <span class="sep">/</span> <a href="../../html_source/Musings/index.html">Musings</a> <span class="sep">/</span> <span class="current">BUAA CO P4</span></div>
+  <a href="../../html_source/Musings/index.html" class="back-btn" title="返回上一级">← 返回上一级</a>
+</div>
 <h1 id="buaa-co-15p2">BUAA CO 15系P2课上</h1>
 <h2 id="_1">课上实验简单回顾</h2>
 <p>因为我是15系的学生，学的是简单版本的CO，只需要做到单周期CPU，6系的P4其实是我们的P2。我们直接Verilog，不做logisim，P1就是MIPS汇编，P2是单周期CPU，一共只有两次课上实验，我在准备时参考了大量6系学长的博客，但是没看到15系学长留下的信息，这可能是不同院系之间的文化差异吧。</p>
@@ -139,10 +145,25 @@ $$</p>
 <p>2020T2：<a href="https://roife.github.io/posts/buaa-co-lab-p4/">[BUAA-CO-Lab] P4 单周期 CPU - 2 | ROIFE BLOG</a></p>
 <p><code>xor</code>计算指令</p>
 <p>2021T1：<a href="https://flyinglandlord.github.io/2021/11/17/BUAA-CO-2021/P4/P4%E8%AF%BE%E4%B8%8A%E6%B5%8B%E8%AF%95%E6%B8%B8%E8%AE%B0/">P4 课上测试 - 北航计算机组成原理 | Test Blog = FlyingLandlord&rsquo;s Blog</a></p>
-<p><code>rlb rt,rs,imm</code>，指令形式：<br />
-|31:26|25:21|20:16|15:0|<br />
-|-|-|-|-|<br />
-|111111|\$rs地址|\$rt地址|16位立即数imm|</p>
+<p><code>rlb rt,rs,imm</code>，指令形式：</p>
+<table>
+<thead>
+<tr>
+<th>31:26</th>
+<th>25:21</th>
+<th>20:16</th>
+<th>15:0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>111111</td>
+<td>rs地址</td>
+<td>rt地址</td>
+<td>16位立即数imm</td>
+</tr>
+</tbody>
+</table>
 <p>RTL语言描述：<br />
 $$
 \begin{aligned}
@@ -159,10 +180,25 @@ $$</p>
 但是由于没考虑延迟槽所以题目给的RTL和英语文档里的RTL不一样。</p>
 <p>2021秋T2：<a href="https://flyinglandlord.github.io/2021/11/17/BUAA-CO-2021/P4/P4%E8%AF%BE%E4%B8%8A%E6%B5%8B%E8%AF%95%E6%B8%B8%E8%AE%B0/">P4 课上测试 - 北航计算机组成原理 | Test Blog = FlyingLandlord&rsquo;s Blog</a><br />
 <a href="https://blog.csdn.net/cedr1c_wyc/article/details/121391976">【BUAA_CO_LAB】计组p3&amp;p4碎碎念-CSDN博客</a></p>
-<p><code>bnezalc rs,offset</code>，指令形式：<br />
-|31:26|25:21|20:16|15:0|<br />
-|-|-|-|-|<br />
-|000001|rs地址|10011|offset|</p>
+<p><code>bnezalc rs,offset</code>，指令形式：</p>
+<table>
+<thead>
+<tr>
+<th>31:26</th>
+<th>25:21</th>
+<th>20:16</th>
+<th>15:0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>000001</td>
+<td>rs地址</td>
+<td>10011</td>
+<td>offset</td>
+</tr>
+</tbody>
+</table>
 <p>RTL语言描述：<br />
 $$
 \begin{aligned}
@@ -229,10 +265,25 @@ $$
 \end{aligned}
 $$</p>
 <p><strong>2021T3</strong>：<a href="https://flyinglandlord.github.io/2021/11/17/BUAA-CO-2021/P4/P4%E8%AF%BE%E4%B8%8A%E6%B5%8B%E8%AF%95%E6%B8%B8%E8%AE%B0/">P4 课上测试 - 北航计算机组成原理 | Test Blog = FlyingLandlord&rsquo;s Blog</a><br />
-<code>lwrr</code>l型指令，指令描述：<br />
-|31:26|25:21|20:16|15:0|<br />
-|-|-|-|-|<br />
-|110100|base|$rt地址|offset|</p>
+<code>lwrr</code>l型指令，指令描述：</p>
+<table>
+<thead>
+<tr>
+<th>31:26</th>
+<th>25:21</th>
+<th>20:16</th>
+<th>15:0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>110100</td>
+<td>base</td>
+<td>$rt地址</td>
+<td>offset</td>
+</tr>
+</tbody>
+</table>
 <p>指令格式：<br />
 lwrr rt, offset(base)</p>
 <p>RTL语言描述：<br />

@@ -25,21 +25,27 @@
           });
       });
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: "default", themeVariables: {fontSize: "14px"}, flowchart: {htmlLabels: true, padding: 16}});</script>
 </head>
 <body>
   <header>
     <h1>Zhenyu's Blog</h1>
     <nav>
-      <a href="../../../index.html">CS</a>
-      <a href="../../../about.html">About</a>
-      <a href="../../../musings.html">Musings</a>
-      <a href="../../../math.html">Math</a>
-      <a href="../../../music.html">Music</a>
-      <a href="../../../storytelling.html">Storytelling</a>
-      <a href="../../../PE.html">PE</a>
+      <a href="../../../index.html">About</a>
+      <a href="../../../html_source/CS/index.html">CS</a>
+      <a href="../../../html_source/Musings/index.html">Musings</a>
+      <a href="../../../html_source/Math/index.html">Math</a>
+      <a href="../../../html_source/Music/index.html">Music</a>
+      <a href="../../../html_source/Storytelling/index.html">Storytelling</a>
+      <a href="../../../html_source/PE/index.html">PE</a>
     </nav>
   </header>
 <main class="content">
+<div class="breadcrumb-bar">
+  <div class="breadcrumb-path"><a href="../../../index.html">Home</a> <span class="sep">/</span> <a href="../../../html_source/CS/index.html">CS</a> <span class="sep">/</span> <a href="../../../html_source/CS/HPC-Parallel-Distribute-Computing/index.html">HPC Parallel Distribute Computing</a> <span class="sep">/</span> <span class="current">parallel DSL Overview</span></div>
+  <a href="../../../html_source/CS/HPC-Parallel-Distribute-Computing/index.html" class="back-btn" title="返回上一级">← 返回上一级</a>
+</div>
 <h2 id="dsl">并行计算DSL概述</h2>
 <p>DSL（Domain-Specific Language特定领域语言）是一种专为解决特定领域问题而设计的计算机语言，不同于通用编程语言（如Java、Python），其特点是简洁、直观，能高效地表达特定领域的规则和操作。</p>
 <p>多核CPU，并行编程模型：OpenMP、MPI<br />

@@ -3,7 +3,9 @@
     "allow": [
       "Bash(md-compile:*)",
       "Bash(uv run *)",
-      "Bash(python *)"
+      "Bash(python *)",
+      "PowerShell(python md-compiler/batch_compile.py)",
+      "Bash(git mv *)"
     ]
   }
 }
