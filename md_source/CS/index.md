@@ -1,5 +1,21 @@
 <h2>Computer Science Posts</h2>
 
+## 编程语言使用 / 程序设计
+
+数据结构、基础编程语言以及基础程序设计
+
+<posts-list>
+
+<title-link> 
+css_source/main_style.css
+Data Structures and Algorithms,数据结构与算法
+[2024-5-4](./Data-Structure-and-Algorithm/index.md)
+</title-link>
+
+</posts-list>
+
+## 计算机体系结构 / 硬件
+
 <posts-list>
 
 <title-link> 
@@ -10,15 +26,17 @@ Study Notes on Computer Architecture A Quantitative Approach,计算机体系结�
 
 <title-link> 
 css_source/main_style.css
-Data Structures and Algorithms,数据结构与算法
-[2024-5-4](./Data-Structure-and-Algorithm/index.md)
+NVIDIA Software and Hardware Architecture,英伟达软件与硬件架构
+[2026-2-26](./NVIDIA/index.md)
 </title-link>
 
-<title-link> 
-css_source/main_style.css
-DNN Compiler,深度神经网络编译器
-[2026-3-27](./DNN-DSL-Compiler/index.md)
-</title-link>
+</posts-list>
+
+## 计算机系统软件 / 操作系统
+
+如何通过软件合理利用硬件计算资源
+
+<posts-list>
 
 <title-link> 
 css_source/main_style.css
@@ -32,17 +50,39 @@ Parallel & Distributed Computing and High-Performance Computing,并行计算、�
 [2026-3-27](./HPC-Parallel-Distribute-Computing/index.md)
 </title-link>
 
+</posts-list>
+
+## 编译器
+
+<posts-list>
+
+<title-link> 
+css_source/main_style.css
+DNN Compiler,深度神经网络编译器
+[2026-3-27](./DNN-DSL-Compiler/index.md)
+</title-link>
+
+</posts-list>
+
+## 软件开发基础技能
+
+basic Linux、profiling、CI
+
+<posts-list>
+
 <title-link> 
 css_source/main_style.css
 Using the Linux Operating System,使用Liunx操作系统
 [2026-2-4](./Linux/index.md)
 </title-link>
 
-<title-link> 
-css_source/main_style.css
-Notes on Reading the llama.cpp Source Code,llama.cpp源码阅读笔记
-[2026-3-29](./llama.cpp/index.md)
-</title-link>
+</posts-list>
+
+## 大模型理论基础
+
+LLM有哪些组件，现代LLM的构成实践是什么，pretrain、post-training、RL、Agent，语言模型如何变得可用
+
+<posts-list>
 
 <title-link> 
 css_source/main_style.css
@@ -50,10 +90,16 @@ LLM Architectures and Optimization Methods,大模型架构与优化方法
 [2026-3-12](./LLM-Arch-Optimize/index.md)
 </title-link>
 
+</posts-list>
+
+## 大模型系统
+
+<posts-list>
+
 <title-link> 
 css_source/main_style.css
-NVIDIA Software and Hardware Architecture,英伟达软件与硬件架构
-[2026-2-26](./NVIDIA/index.md)
+Notes on Reading the llama.cpp Source Code,llama.cpp源码阅读笔记
+[2026-3-29](./llama.cpp/index.md)
 </title-link>
 
 </posts-list>
