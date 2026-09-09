@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>编译器 - Zhenyu's Blog</title>
+  <link rel="stylesheet" href="../../../css_source/main_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false},
+                  {left: "\\[", right: "\\]", display: true}
+              ],
+              throwOnError: false,
+              strict: false
+          });
+      });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: "default", themeVariables: {fontSize: "14px"}, flowchart: {htmlLabels: true, padding: 16}});</script>
+</head>
+<body>
+  <header>
+    <h1>Zhenyu's Blog</h1>
+    <nav>
+      <a href="../../../index.html">About</a>
+      <a href="../../../html_source/CS/index.html">CS</a>
+      <a href="../../../html_source/Musings/index.html">Musings</a>
+      <a href="../../../html_source/Math/index.html">Math</a>
+      <a href="../../../html_source/Music/index.html">Music</a>
+      <a href="../../../html_source/Storytelling/index.html">Storytelling</a>
+      <a href="../../../html_source/PE/index.html">PE</a>
+    </nav>
+  </header>
+<main class="content">
+<div class="breadcrumb-bar">
+  <div class="breadcrumb-path"><a href="../../../index.html">Home</a> <span class="sep">/</span> <a href="../../../html_source/CS/index.html">CS</a> <span class="sep">/</span> <span class="current">PL Compiler</span></div>
+  <a href="../../../html_source/CS/index.html" class="back-btn" title="返回上一级">← 返回上一级</a>
+</div>
+<h2>编译器</h2>
+
+<p><strong>结构化表示、分析、变换</strong></p>
+<p>编译器 = 词法分析 + 语法分析 + 语义分析 + 编译优化 + 代码生成？</p>
+<p>Compiler是编程语言实现，从应用上来说，摩尔定律结束后，越来越多的新硬件设计出现，需要编译器的支持。除了硬件需求，在软件上的新抽象、新需求也对编译器开发有着要求。</p>
+<p>Compiler不只是编程语言实现，LLM和Compiler都是处理字符串，不同的是LLM处理的是非结构化的字符串，优势是“涌现”了思考与推理能力，劣势是会产生幻觉，不可执行，不客观。我认为Compiler对语言的结构化表示、分析与变换在LLM时代有着关键性作用。</p>
+<p><strong>编译器的类型</strong></p>
+<p>语言类型：静态语言、动态语言<br />
+编译器类型：编译器、解释器<br />
+这两者可以自由组合，静态语言不意味着必然采用编译器</p>
+<p>执行策略：<br />
+1. AOT：Source -&gt; Native Code<br />
+2. Interpreter：Source -&gt; Bytecode -&gt; VM<br />
+3. JIT：Source -&gt; Bytecode / IR -&gt; Native Code</p>
+<p><strong>编译器、解释器背后的性能与灵活性的trade off</strong></p>
+<p>根据编程语言的应用场景可以总结一个规律，那就是功能越固定，越靠近底层的应用场景下，都更倾向于编译器，一次编译后续高效运行；功能变化越大，应用场景越贴近用户，越灵活的时候，都更倾向于使用解释器，对一个小的部分进行修改不需要重新编译整个项目，随时修改随时部署上线，例如Youtube早期后端大量使用python进行开发，随着规模增长他们将性能敏感的模块迁移到了Go和C++。</p>
+<p>这里我们可以看到一个trade off，也就是整体项目的运行效率和项目调整的灵活性之间的一个取舍。在真实项目下不会只采用一个编程语言，在不同场景下采取不同的编程语言即可，对于做硬件的人知道ASIC和FPGA，在高频量化交易场景下通常不会只使用一种处理器，以在交易标准和规则时刻变化的场景下满足高频交易的计算要求。</p>
+<p>目前绝大部分的AI算法开发都是依托python和pytorch框架进行开发，修改模型架构、训练、验证算法假设非常快捷方便，但是目前的CV和NLP都是计算密集型的任务，对于计算效率要求非常高。事实上，由于动态脚本语言传统的解释执行机制效率相对较低，在高性能场景下已经引入了 JIT 编译、字节码复用等优化手段。编译器技术的演进（如 LLVM）使得我们可以用 Python 编写前端，而底层自动编译为极致优化的机器码（如 Numba 或 MLIR），这正在模糊静态与动态语言的界限。</p>
+<ol>
+<li>传统PL编译器：C/C++/Rust/Java</li>
+<li>动态语言 Compiler/Runtime：Python/JS/Java</li>
+<li>DSL Compiler：SQL、shader、Halide 等</li>
+</ol>
+</main>
+</body>
+</html>
