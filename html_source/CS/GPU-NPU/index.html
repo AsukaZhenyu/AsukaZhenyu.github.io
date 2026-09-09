@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GPU、NPU软硬件架构 - Zhenyu's Blog</title>
+  <link rel="stylesheet" href="../../../css_source/main_style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          renderMathInElement(document.body, {
+              delimiters: [
+                  {left: "$$", right: "$$", display: true},
+                  {left: "$", right: "$", display: false},
+                  {left: "\\(", right: "\\)", display: false},
+                  {left: "\\[", right: "\\]", display: true}
+              ],
+              throwOnError: false,
+              strict: false
+          });
+      });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: "default", themeVariables: {fontSize: "14px"}, flowchart: {htmlLabels: true, padding: 16}});</script>
+</head>
+<body>
+  <header>
+    <h1>Zhenyu's Blog</h1>
+    <nav>
+      <a href="../../../index.html">About</a>
+      <a href="../../../html_source/CS/index.html">CS</a>
+      <a href="../../../html_source/Musings/index.html">Musings</a>
+      <a href="../../../html_source/Math/index.html">Math</a>
+      <a href="../../../html_source/Music/index.html">Music</a>
+      <a href="../../../html_source/Storytelling/index.html">Storytelling</a>
+      <a href="../../../html_source/PE/index.html">PE</a>
+    </nav>
+  </header>
+<main class="content">
+<div class="breadcrumb-bar">
+  <div class="breadcrumb-path"><a href="../../../index.html">Home</a> <span class="sep">/</span> <a href="../../../html_source/CS/index.html">CS</a> <span class="sep">/</span> <span class="current">GPU NPU</span></div>
+  <a href="../../../html_source/CS/index.html" class="back-btn" title="返回上一级">← 返回上一级</a>
+</div>
+<h2>GPU、NPU软硬件架构</h2>
+
+<p>以NVIDIA的GPU硬件架构与CUDA编程模型为学习的核心，辅以AMD的GPU硬件架构和ROCm编程模型、HIP编程接口，摩尔线程GPU架构和MUSA编程模型，做为GPU架构迁移能力训练。</p>
+<p>以华为昇腾NPU硬件架构和Ascend C为学习的另一个核心，代表与GPU的Thread编程模型与SIMT调度不同的加速器设计思路，对张量数据显示Tiling和搬运。这两种思想对于现代加速器来说都很重要，NVIDIA GPU的Tensor core，昇腾351x架构的SIMT硬件和Wrap调度器，表明GPU、NPU正在互相吸收对方的思想。</p>
+<ol>
+<li>hardware architecture</li>
+<li>Execution Model and Scheduling</li>
+<li>Memory Hierarchy</li>
+<li>Data Movement and Layout</li>
+<li>同步与内存一致性 Synchronization</li>
+<li>Kernel + Runtime 编程</li>
+<li>Compiler / ISA</li>
+<li>性能模型与软件调度</li>
+<li>Profiling / Debugging</li>
+<li>系统级能力</li>
+<li>Representative Workloads（Reduction、GEMM、Softmax、Attention、MoE）</li>
+</ol>
+  <table class="posts-list">
+
+    <tr>
+      <td>
+        <a href="NVIDIA-GPU-Arch.html" class="title-link">
+          <div class="en-title">NVIDIA GPU Architecture</div>
+          <div class="zh-title">英伟达GPU架构</div>
+        </a>
+      </td>
+      <td class="date">2026-2-26</td>
+    </tr>
+
+    <tr>
+      <td>
+        <a href="Nsight-System.html" class="title-link">
+          <div class="en-title">NSYS Performance Analysis</div>
+          <div class="zh-title">NSYS性能分析</div>
+        </a>
+      </td>
+      <td class="date">2026-4-10</td>
+    </tr>
+
+  </table>
+</main>
+</body>
+</html>
