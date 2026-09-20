@@ -32,13 +32,13 @@ Basic Rust,Rust编程基础
 
 <title-link> 
 css_source/main_style.css
-Study Notes on Computer Architecture A Quantitative Approach,计算机体系结构量化研究方法学习笔记
-[2026-2-8](./Computer-Architecture/index.md)
+Study Notes on CPU Architecture,现代CPU学习笔记
+[2026-2-8](./CPU-Architecture/index.md)
 </title-link>
 
 <title-link> 
 css_source/main_style.css
-GPU and NPU Hardware and Software Architectures,GPU、NPU软硬件架构
+GPU and NPU Hardware Architectures,GPU、NPU硬件架构
 [2026-2-26](./GPU-NPU/index.md)
 </title-link>
 
@@ -46,17 +46,18 @@ GPU and NPU Hardware and Software Architectures,GPU、NPU软硬件架构
 
 **3. Computer Systems**
 
-研究软件如何与真实计算资源发生关系
+研究软件如何与真实计算资源发生关系，复杂计算系统中的软件设计
 
-包括：操作系统、计算机网络、高性能计算、分布式系统
+首先：操作系统、计算机网络、并行计算/高性能计算
 
 <posts-list>
 
 <title-link> 
 css_source/main_style.css
-High-Performance Computing,高性能计算
-[2026-3-27](./HPC/index.md)
+Parallel Computing,并行计算
+[2026-3-27](./Parallel-Computing/index.md)
 </title-link>
+
 
 </posts-list>
 
