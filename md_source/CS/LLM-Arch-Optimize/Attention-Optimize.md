@@ -20,8 +20,11 @@ Decode Attention和KV Cache是一对烂兄烂弟，它们以低ARI（计算密�
 ### 单层、单头注意力计算
 
 **单层单头自注意力计算流程：**
-((把flashattention的图放到这里来))
+
 先说明基本的QKV矩阵的Attention计算
+
+![](https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202609281851617.png)
+
 
 需要说明的是KV矩阵的形状必须相同（必须是同一参考上下文对应的键和值），Q的形状则没有要求（可以和KV矩阵一样，也可以是某个token来做询问）
 
@@ -162,6 +165,8 @@ $$
 
 优化注意力计算的一个方向是稀疏注意力，例如：GQA、MQA
 
+（暂略）
+
 [https://zhuanlan.zhihu.com/p/1891136980370302219](https://zhuanlan.zhihu.com/p/1891136980370302219) 知乎博客介绍各种Attention
 
 [https://zhuanlan.zhihu.com/p/1962162900111172920](https://zhuanlan.zhihu.com/p/1962162900111172920) DSA(DeepSeek Sparse Attention)
@@ -204,16 +209,14 @@ Jacobi 矩阵 $\frac{dA}{dZ}$，其中 $M_{ij} = \frac{dA[i]}{dZ[j]} = A[i] * (\
 
 1. 一个 Query 对应一个 Output，一块 $Q_i$ 对应一块 $O_i$，各块 $Q_i$ 的计算是互不干扰的。
    各行 (row) $O_i$ 也是互不干扰的
-   各行$O_i$ 本质上是根据相关性，对 $V_i$ 的加权和
+   各行$O_i$ 本质上是根据相关度A，对 $V_i$ 的加权和
 2. 对于各块 $O_i$ 的计算，需要对 $N$ 个 $V_i \in R^d$ 计算相关值，softmax 后计算加权和
    FA 将$N$个 $V_i$分组，每个小组大小为 $B_c$，
    每个小组内计算加权和，然后依次合并
    $O \leftarrow$ 小组1、小组2、…小组$T_c$
 
 
-![](https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202510281825614.jpg)
-
-![](https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202510281826197.jpg)
+![](https://cdn.jsdelivr.net/gh/AsukaZhenyu/blog-img-store@main/img/202609281853545.png)
 
 总结：核心思想是分块计算，减少HBM访存次数。
 
@@ -228,6 +231,7 @@ Jacobi 矩阵 $\frac{dA}{dZ}$，其中 $M_{ij} = \frac{dA[i]}{dZ[j]} = A[i] * (\
 
 ### Paged Attention
 
+（暂略）
 
 ### FlashInfer
 
@@ -265,7 +269,9 @@ FlashInfer是MLSys'25的工作，它是一个面向LLM推理的Attention计算�
 
 ### SWA（sliding window attention滑动窗口注意力）
 
+（暂略）
 在llama.cpp里针对部分模型实现了iswa
+Mimo-V2.6似乎用的是SWA和线性注意力的混合注意力架构
 
 ## KV Cache优化
 
