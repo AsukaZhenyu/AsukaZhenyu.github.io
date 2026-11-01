@@ -1,12 +1,5 @@
-<hr> 
-<h2>数论与组合</h2>
-
-数论从最简单的对象**整数**出发，却产生了诸多具有深度的问题，发展了许多新兴理论，高级阶段会与代数、分析和几何交叉，是众多分支的交汇点。但是目前只关注初等数论的学习，做数学基础以及证明能力的训练。
-
-数论参考书目：
-David Burton — Elementary Number Theory
-Victor Shoup — A Computational Introduction to Number Theory and Algebra
-Hardy & Wright — An Introduction to the Theory of Numbers
+<hr>
+<h2>组合数学</h2>
 
 组合研究离散对象的存在性、计数、优化和结构构造，经典组合理论包括四个方向：组合计数、图论、组合优化、组合设计。一些组合计数、组合设计/构造问题可能需要数论基础，组合与数论耦合的问题也相当多。
 组合数学参考：

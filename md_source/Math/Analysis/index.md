@@ -1,7 +1,9 @@
 <hr> 
 <h2>分析学</h2>
 
-首先复习数学分析，然后主要学实分析/测度论、泛函分析、复分析、调和分析、PDE、概率分析，学好分析学对现代控制和量化交易好处大大地有。
+本部分的内容不完全是现代数学里严格的分析学分类下的内容
+
+首先复习数学分析，然后主要学实分析、测度论、泛函分析、复分析、调和分析、PDE、概率分析，学好分析学对现代控制和量化交易好处大大地有。
 
 **数学分析**参考书目（都是适合复习用的，不适合初次学习使用）：
 V. A. Zorich - Mathematical Analysis I & II
@@ -15,6 +17,11 @@ Gerald Folland — Real Analysis
 高等概率论实际上是测度论上的概率论，所以放一起学了，参考书目：
 程士宏 - 测度论与概率论基础
 Bing Yi JING - Advanced Probability Theory
+
+**凸分析**：
+冯德兴 - 凸分析基础（课程参考书目，个人感觉非常一般，有点古老，错误也很多，不说人话）
+Boris & Nguyen - An Easy Path to Convex Analysis and Applications
+R.T Rockafellar - Convex Analysis
 
 **泛函分析**参考书目（只需线性代数和基础微积分，无需实分析和拓扑基础）：
 Erwin Kreyszig — Introductory Functional Analysis with Applications
