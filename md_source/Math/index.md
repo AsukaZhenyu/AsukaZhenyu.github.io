@@ -12,36 +12,17 @@
 
 其中**线性代数**、**概率**与**最优化**对离散、连续两类研究对象都有涉及，对于人工智能研究者来说，这三门也是必学的。
 
+<hr>
 
-单纯的离散、连续二分法很好理解，但可能并不利于数学的学习，我曾经看过北京大学的《离散数学》，感觉就像编者为了方便将许多内容打包放在一起，过于粗的组织分类模式让我自学时感到非常困惑。我想把数学的学习拆分为若干较为基础的“原子部分”，更高级的理论/各类应用则建立在这些基础之上。
+本博客目前按照这三类来组织：
 
-本博客将按照这五类来组织：
+1. 代数：运算和结构
+2. 拓扑：空间、连续性和不变量
+3. 分析：极限、连续、无穷和变化
 
-
-1. 逻辑：研究证明和形式系统
-2. 数论与组合数学：研究整数及离散结构
-3. 代数：研究运算和结构
-4. 几何与拓扑：研究空间、形状和不变量
-5. 分析：研究极限、连续、无穷和变化
-
-
+后续随着实际学习深入，再想一个更好的，思路更清晰的组织方法。
 
 <posts-list>
-
-
-<title-link> 
-css_source/main_style.css
-Mathematical Logic,数理逻辑
-[2025-8-10](./Mathematical-Logic/index.md)
-</title-link>
-
-
-<title-link> 
-css_source/main_style.css
-Number Theory and Combinatorics,数论与组合
-[2025-8-10](./Number-Theory-and-Combinatorics/index.md)
-</title-link>
-
 
 <title-link> 
 css_source/main_style.css
