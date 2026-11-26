@@ -14,36 +14,29 @@
 
 <hr>
 
-本博客目前按照这三类来组织：
 
-1. 代数：运算和结构
-2. 拓扑：空间、连续性和不变量
-3. 分析：极限、连续、无穷和变化
-
-后续随着实际学习深入，再想一个更好的，思路更清晰的组织方法。
 
 <posts-list>
 
 <title-link> 
 css_source/main_style.css
-Algebra,代数
-[2025-8-10](./Algebra/index.md)
+Linear Algebra and Matrix Theory,线性代数与矩阵理论
+[2026-10-10](./Linear-Algebra-and-Matrix-Theory/index.md)
 </title-link>
-
 
 <title-link> 
 css_source/main_style.css
-Topology,几何与拓扑
-[2025-8-10](./Topology/index.md)
+Mathematical Programming,数学规划/数学优化
+[2026-11-27](./Mathematical-Programming/index.md)
 </title-link>
-
-
 
 <title-link> 
 css_source/main_style.css
-Analysis,分析学
-[2025-8-10](./Analysis/index.md)
+Convex Analysis,凸分析
+[2026-11-27](./Convex-Analysis/index.md)
 </title-link>
+
+
 
 </posts-list>
 

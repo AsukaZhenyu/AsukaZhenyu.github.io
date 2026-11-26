@@ -1,0 +1,3 @@
+<h2>NPU软硬件架构</h2>
+
+以华为昇腾NPU硬件架构和Ascend C为学习的另一个核心，代表与GPU的Thread编程模型与SIMT调度不同的加速器设计思路，对张量数据显示Tiling和搬运。这两种思想对于现代加速器来说都很重要，NVIDIA GPU的Tensor core，昇腾351x架构的SIMT硬件和Wrap调度器，表明GPU、NPU正在互相吸收对方的思想。
